@@ -1,0 +1,110 @@
+
+.table-primary {
+  .el-table__header{
+    th{
+      &:nth-child(2){
+        .cell{
+          text-align: right !important;
+        }
+      }
+    }
+  }
+  .el-table{
+    background: #fff;
+    box-shadow: 0 1px 4px 0 rgba(63,84,101,.13);
+    border-radius: 10px;
+  }
+  .el-table th{
+    background: #fff;
+  }
+  .el-table__fixed-header-wrapper thead div, .el-table__header-wrapper thead div{
+    background: #fff;
+  }
+  table{
+    tr{
+      th {
+        padding: 17px 40px 17px 0;
+        font-size: 12px;
+        color: #999;
+        line-height: 18px;
+        white-space: nowrap;
+        text-align: left;
+        &:first-child {
+          padding-left: 40px
+        }
+        &:last-child {
+          .cell{
+            text-align: right;
+          }
+        }
+      }
+      td {
+        padding: 12px 40px 13px 0;
+        font-size: 12px;
+        line-height: 18px;
+        color: #333;
+        border-bottom: 1px solid #dedede;
+        text-align: left;
+        &:first-child {
+          padding-left: 40px;
+        }
+        &:last-child{
+          color: #f15a24;
+        }
+      }
+      &:last-child{
+        td{
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
+
+.table-primary tr td.state {
+  color: #666
+}
+
+.table-primary tr td.state.state-ING {
+  color: #3dcd8a
+}
+
+.table-primary tr td.state.state-already {
+  color: #ffa944
+}
+
+.table-primary tr td.state.state-warning {
+  color: #d34842
+}
+
+.table-primary tr.row-state-closed td {
+  color: rgba(102,102,102,.3)!important
+}
+
+.table-primary.table-primary-small tr th {
+  padding: 10px 16px 10px 0;
+  line-height: 18px
+}
+
+.table-primary.table-primary-small tr th:first-child {
+  padding-left: 16px
+}
+
+.table-primary.table-primary-small tr td {
+  padding: 10px 16px 10px 0;
+  font-size: 12px;
+  line-height: 18px
+}
+
+.table-primary.table-primary-small tr td:first-child {
+  padding-left: 16px
+}
+
+.table-primary.table-noborder tr th {
+  background: 0 0;
+  box-shadow: none
+}
+
+.table-primary.table-noborder tr td {
+  border-bottom: none
+}
