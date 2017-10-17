@@ -438,7 +438,7 @@ html {
 // ===============================================
 .nav {
     position: absolute;
-    z-index: 390;
+    z-index: 380;
     top: 70px;
     left: 0;
     bottom: 0;
@@ -831,6 +831,19 @@ html {
                             &::placeholder,
                             &::-webkit-input-placeholder {
                                 color: rgba(51, 51, 51, .3);
+                            }
+                        }
+
+                        &.is-disabled{
+                            .el-input__inner {
+                                background-color: rgb(238, 246, 246);
+                                border-color: rgb(209, 229, 227);
+                                color: #bbb;
+                                cursor: not-allowed;
+
+                                &:hover{
+                                    
+                                }
                             }
                         }
                     }

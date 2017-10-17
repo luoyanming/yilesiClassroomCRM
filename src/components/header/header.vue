@@ -24,7 +24,6 @@
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-            <el-button type="primary" class="button-cancle" @click.native="hideDialog">取 消</el-button>
             <el-button type="primary" :loading="loading" :disabled="!forgetForm.password || !forgetForm.passwordNew || !forgetForm.passwordNewConfirm" @click.native="submitForm('forgetForm')">确 定</el-button>
             </span>
         </el-dialog>
@@ -34,7 +33,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { logout, modifyPassword } from '../../api/api';
+    import { logout, passwordUpdate } from '../../api/api';
 
     export default {
         data() {
@@ -61,9 +60,6 @@
             };
         },
         methods: {
-            hideDialog: function() {
-                this.dialogShow = false;
-            },
             showDialog: function() {
                 this.dialogShow = true;
             },
@@ -74,10 +70,10 @@
                     type: 'warning'
                 }).then(() => {
                     logout({}).then(res => {
-                        let { msg, code, data } = res;
+                        let { errorInfo, code, data } = res;
 
                         if(code !== 0) {
-                            this.$message({ message: msg, type: 'error'});
+                            this.$message({ message: errorInfo, type: 'error'});
                         } else {
                             this.$message({ message: '退出登录成功', type: 'success'});
                             localStorage.removeItem("account");
@@ -91,20 +87,28 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        if(this.forgetForm.passwordNew != this.forgetForm.passwordNewConfirm) {
+                            this.$message({ message: '两次输入的新密码不一致！', type: 'error'});
+                            return false;
+                        }
+
                         this.loading = true;
 
-                        let modifyPasswordParam = { 'oldPassword': this.forgetForm.password, 'newPassword': this.forgetForm.passwordNew, 'confirmPassword': this.forgetForm.passwordNewConfirm };
+                        let param = {
+                            'oldPassword': this.forgetForm.password,
+                            'newPassword': this.forgetForm.passwordNew
+                        };
 
-                        modifyPassword(modifyPasswordParam).then(res => {
+                        passwordUpdate(param).then(res => {
                             this.loading = false;
 
-                            let { msg, code, data } = res;
+                            let { errorInfo, code, data } = res;
 
                             if(code !== 0) {
-                                this.$message({ message: msg, type: 'error'});
+                                this.$message({ message: errorInfo, type: 'error'});
                             } else {
                                 this.$message({ message: '密码修改成功', type: 'success'});
-                                this.$router.push({ path: '/login' });
+                                this.dialogShow = false;
                             }
                         });
                     } else {

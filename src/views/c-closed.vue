@@ -25,20 +25,20 @@
                         </el-form-item>
                     </el-form>
                 
-                    <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleUpload()">批量导入</el-button>
-                    <el-button type="primary" size="small" class="btn-add button-add" icon="plus" @click.native="handleAdd(1)">添加</el-button>
+                    <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">批量导入</el-button>
+                    <el-button type="primary" size="small" class="btn-add button-add" icon="plus" @click.native="handleAdd(0)">添加</el-button>
                 </section>
 
                 <section class="table">
                     <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
                         <el-table-column label="手机账号">
-                            <template scope="scope"><p>{{ scope.row.objectId }}</p></template>
+                            <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
                         </el-table-column>
                         <el-table-column label="姓名">
-                            <template scope="scope"><p>{{ scope.row.content }}</p></template>
+                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
                         </el-table-column>
                         <el-table-column label="加入内测账户时间">
-                            <template scope="scope"><p>{{ scope.row.authorName }}</p></template>
+                            <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template scope="scope">
@@ -57,17 +57,17 @@
                     </el-pagination>
                 </section>
 
-                <el-dialog title="编辑内测账号" :visible.sync="dialogShow" :modal-append-to-body="false">
+                <el-dialog :title="dialogInfo.type == 0 ? '添加内测账号' : '编辑内测账号'" :visible.sync="dialogShow" :modal-append-to-body="false">
                     <section class="formation">
                        
                         <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="80px" :model="dialogInfo">
-                            <el-form-item label="手机账号" prop="account">
-                                <el-input v-model="dialogInfo.account"></el-input>
+                            <el-form-item label="手机账号" prop="mobile">
+                                <el-input v-model="dialogInfo.mobile" :disabled="dialogInfo.type == 0 ? false : true"></el-input>
                             </el-form-item>
                             <el-form-item label="姓名" prop="name">
                                 <el-input v-model="dialogInfo.name"></el-input>
                             </el-form-item>
-                            <el-form-item label="用户分类">
+                            <el-form-item label="用户分类" prop="classify">
                                 <el-select v-model="dialogInfo.classify" placeholder="请选择">
                                     <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value">
                                     </el-option>
@@ -80,6 +80,38 @@
                         <el-button type="primary" :loading="dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
                     </span>
                 </el-dialog>
+
+                <el-dialog title="导入内测账号" :visible.sync="uploadShow" :modal-append-to-body="false">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="rulesUpload" ref="ruleUploadForm" label-width="180px" :model="uploadInfo">
+                            <el-form-item label="导入" prop="excel">
+                                <el-upload
+                                    class="upload-demo"
+                                    ref="upload"
+                                    :action="uploadUrl"
+                                    :data="{ 'type': uploadInfo.classify }"
+                                    :on-success="uploadSucc"
+                                    :on-error="uploadError"
+                                    :on-remove="handleRemove"
+                                    :file-list="fileList"
+                                    :auto-upload="false">
+                                    <el-button slot="trigger" size="small" type="primary" :disabled="fileList.length == 1">导入excel</el-button>
+                                </el-upload>
+                            </el-form-item>
+                            <el-form-item label="用户分类" prop="classify">
+                                <el-select v-model="uploadInfo.classify" placeholder="请选择">
+                                    <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="uploadLoading" @click.native="submitUpload('ruleUploadForm')">保存</el-button>
+                    </span>
+                </el-dialog>
             </div>
         </div>
     </div>
@@ -87,8 +119,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { dynamicList, dynamicSetTags, dynamicSetThemes, dynamicDelete, dynamicSetHot } from '../api/api';
-    import { COMMON } from '../common/js/common';
+    import { uploadPath, memberList, saveClosed, memberExcel } from '../api/api';
 
     export default {
         data() {
@@ -109,42 +140,62 @@
                 },
                 classifyOptions:[
                     {
-                        value:'0',
-                        label:'内部'
-                    },
-                    {
-                        value:'1',
-                        label:'代理'
+                        value:'',
+                        label:'全部'
                     },
                     {
                         value:'2',
-                        label:'内测'
+                        label:'内部'
                     },
                     {
                         value:'3',
-                        label:'一般'
+                        label:'代理'
                     },
                     {
                         value:'4',
+                        label:'内测'
+                    },
+                    {
+                        value:'1',
+                        label:'一般'
+                    },
+                    {
+                        value:'5',
                         label:'特殊'
                     }
                 ],
-                dialogInfo:{
-                    account: '',
-                    school: '',
+                dialogInfo: {
+                    type: '',
+                    id: '',
+                    index: '',
+                    mobile: '',
                     name: '',
-                    classify: '2'
+                    classify: '4'
                 },
                 dialogShow: false,
                 dialogLoading: false,
-                id: '',
-                index: '',
                 rules: {
                     mobile: [
                         { required: true, message: '*请输入手机账号', trigger: 'blur' }
                     ],
                     name: [
                         { required: true, message: '*请输入姓名', trigger: 'blur' }
+                    ],
+                    classify: [
+                        { required: true, message: '*请选择分类', trigger: 'change' }
+                    ]
+                },
+
+                uploadShow: false,
+                uploadLoading: false,
+                uploadUrl: uploadPath + '/ajax/member/excel/import',
+                uploadInfo: {
+                    classify: '4'
+                },
+                fileList: [],
+                rulesUpload: {
+                    classify: [
+                        { required: true, message: '*请选择分类', trigger: 'change' }
                     ]
                 }
             };
@@ -155,9 +206,6 @@
 
                 this.getClosedList();
             },
-            linkTo: function(url) {
-                this.$router.push({ path: url });
-            },
             handleCurrentChange(val) {
                 this.pagi.currentPage = parseInt(val);
                 this.getClosedList();
@@ -165,54 +213,120 @@
             getClosedList: function() {
                 this.tableloading = true;
 
-                let param = {
+                let memberListParam = {
                     'mobile': this.searchForm.mobile,
                     'name': this.searchForm.name,
+                    'type': 4,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };
 
-                dynamicList(param).then(res => {
+                memberList(memberListParam).then(res => {
                     this.tableloading = false;
 
-                    let { msg, code, data } = res;
+                    let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
-                        this.$message({ message: msg, type: 'error'});
+                        this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        if(data.momentList.length == 0) {
+                        if(data.list.length == 0) {
                             this.noPagi = true;
                             this.tableData = [];
                             return false;
                         }
 
-                        this.tableData = data.momentList;
-                        this.pagi.pageTotal = data.totalNum/this.pagi.pageSize + 1;
-                        this.pagi.total = data.totalNum;
+                        this.tableData = data.list;
+                        if(data.total % this.pagi.pageSize == 0) {
+                            this.pagi.pageTotal = data.total/this.pagi.pageSize;
+                        } else {
+                            this.pagi.pageTotal = parseInt(data.total/this.pagi.pageSize) + 1;
+                        }
+                        this.pagi.total = data.total;
                         this.noPagi = false;
-
-                        this.themeOptions = data.themeList;
                     }
                 });
             },
 
-            // 批量导入
-            handleUpload: function() {
-
-            },
-
-            // 添加内测用户
-            handleAdd: function(type, inde, row) {
+            // 添加、编辑内测用户
+            handleAdd: function(type, index, row) {
                 this.dialogShow = true;
+                this.dialogInfo.type = type;
+                
 
                 if(type == 0) {
-                    // edit
-                } else {
                     // add
+                    this.dialogInfo.id = '';
+                    this.dialogInfo.index = '';
+                    this.dialogInfo.mobile = '';
+                    this.dialogInfo.name = '';
+                } else {
+                    // edit
+                    this.dialogInfo.id = row.id;
+                    this.dialogInfo.index = index;
+                    this.dialogInfo.mobile = row.mobile;
+                    this.dialogInfo.name = row.name;
                 }
             },
 
-            
+            // 提交用户信息
+            submitForm: function(formName) {
+                this.$refs[formName].validate((valid)=>{
+                    if(valid){
+                        this.dialogLoading = true;
+
+                        let params = {
+                            'id': this.dialogInfo.id,
+                            'mobile': this.dialogInfo.mobile,
+                            'name': this.dialogInfo.name,
+                            'type': this.dialogInfo.classify
+                        };
+
+                        saveClosed(params).then(res=>{
+                            this.dialogLoading = false;
+
+                            let { errorInfo, code, data } = res;
+
+                            if(code !== 0){
+                                this.$message({ message: errorInfo, type: 'error' });
+                            }else{
+                                this.$message({ message: '保存用户信息成功！', type: 'success' });
+                                this.dialogShow = false;
+                                this.getClosedList();
+                            }
+                        });
+                    }else{
+                        return false;
+                    }
+                });
+            },
+
+            handleRemove(file, fileList) {
+                
+            },
+            uploadError(response, file, fileList) {
+                this.$message({ message: '导入excel失败！请重试！', type: 'error' });
+                this.uploadLoading = false;
+                this.fileList = [];
+            },
+            uploadSucc(response, file, fileList) {
+                if(response.code != 0) {
+                    this.$message({ message: response.errorInfo, type: 'error' });
+                    this.uploadLoading = false;
+                    this.fileList = [];
+                } else {
+                    this.$message({ message: '导入excel成功！', type: 'success' });
+                    this.uploadLoading = false;
+                    this.uploadShow = false;
+                    this.fileList = [];
+                    this.getClosedList();
+                }
+            },
+
+            // 提交excel
+            submitUpload: function() {
+                this.uploadLoading = true;
+                this.$refs.upload.submit();
+            }
         },
         mounted() {
             this.getClosedList();

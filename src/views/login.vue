@@ -53,15 +53,15 @@
                     if (valid) {
                         this.loading = true;
 
-                        let loginParam = { 'mobile': this.ruleForm.account, 'password': this.ruleForm.password };
+                        let loginParam = { 'userName': this.ruleForm.account, 'password': this.ruleForm.password };
 
                         doLogin(loginParam).then(res => {
                             this.loading = false;
 
-                            let { msg, code, data } = res;
+                            let { errorInfo, code, data } = res;
 
                             if(code !== 0) {
-                                this.$message({ message: msg, type: 'error'});
+                                this.$message({ message: errorInfo, type: 'error'});
                             } else {
                                 this.$message({ message: '登录成功', type: 'success'});
                                 localStorage.setItem('account', this.ruleForm.account);
