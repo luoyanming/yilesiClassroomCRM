@@ -4,7 +4,7 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// let base = 'http://crmdev.ohmycar.com/privateapi';
+// let base = 'http://crmc.yilesi.cn';
 let base = 'http://classroomcrm.yls.com/privateapi';
 export const uploadPath = '/privateapi';
 
@@ -40,6 +40,9 @@ export const memberExcel = params => { return axios.post(`${base}/ajax/member/ex
 // 用户反馈列表
 export const feedbackList = params => { return axios.post(`${base}/ajax/member/feedback/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
 
+// 用户反馈excel导出
+export const feedbackExport = params => { return axios.post(`${base}/ajax/member/feedback/export`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
 
 
 // 教学卡统计
@@ -56,3 +59,14 @@ export const smartCardList = params => { return axios.post(`${base}/ajax/smartCa
 
 // 智慧卡信息保存
 export const smartCardSave = params => { return axios.post(`${base}/ajax/smartCard/save`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 智慧卡excel导出
+export const smartCardExport = params => { return axios.post(`${base}/ajax/smartCard/export`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 智慧卡excel导入
+export const smartCardImport = params => { return axios.post(`${base}/ajax/smartCard/excel/import`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+
+
+// 操作日志
+export const logList = params => { return axios.post(`${base}/ajax/tableLog/list`, qs.stringify(params), { headers: header }).then(res => res.data); };

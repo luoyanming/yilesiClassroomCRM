@@ -14,17 +14,17 @@
 
                 <section class="table" style="margin-top: 20px;">
                     <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="序号">
+                        <el-table-column label="序号" width="65px">
                             <template scope="scope"><p>{{ scope.row.id }}</p></template>
                         </el-table-column>
-                        <el-table-column label="操作时间">
-                            <template scope="scope"><p>{{ scope.row.date }}</p></template>
+                        <el-table-column label="操作时间" width="150px">
+                            <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
                         </el-table-column>
-                        <el-table-column label="操作者">
-                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                        <el-table-column label="操作者" width="100px">
+                            <template scope="scope"><p>{{ scope.row.account }}</p></template>
                         </el-table-column>
                         <el-table-column label="操作内容">
-                            <template scope="scope"><p>{{ scope.row.operation }}</p></template>
+                            <template scope="scope"><p>{{ scope.row.content }}</p></template>
                         </el-table-column>
                     </el-table>
 
@@ -44,7 +44,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { systemLogList } from '../api/api';
+    import { logList } from '../api/api';
 
     export default {
         data() {
@@ -73,7 +73,7 @@
                     'pageSize': this.pagi.pageSize
                 };
 
-                systemLogList(param).then(res => {
+                logList(param).then(res => {
                     this.tableloading = false;
 
                     let { msg, code, data } = res;
@@ -88,8 +88,12 @@
                         }
 
                         this.tableData = data.list;
-                        this.pagi.pageTotal = data.page.pageTotal;
-                        this.pagi.total = data.page.dataTotal;
+                        if(data.total % this.pagi.pageSize == 0) {
+                            this.pagi.pageTotal = data.total/this.pagi.pageSize;
+                        } else {
+                            this.pagi.pageTotal = parseInt(data.total/this.pagi.pageSize) + 1;
+                        }
+                        this.pagi.total = data.total;
                         this.noPagi = false;
                     }
                 });

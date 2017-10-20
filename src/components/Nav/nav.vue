@@ -67,97 +67,6 @@
                         'url': '/log',
                         'leftnav': 'log',
                         'show': true
-                    },
-                    {
-                        'name': '用户管理',
-                        'title': '用户管理',
-                        'url': '/user',
-                        'leftnav': 'user',
-                        'show': true
-                    },
-                    {
-                        'name': '用户管理',
-                        'title': '常用作者',
-                        'url': '/userUsual',
-                        'leftnav': 'userUsual',
-                        'show': true
-                    },
-                    {
-                        'name': '动态管理',
-                        'title': '动态管理',
-                        'url': '/dynamic',
-                        'leftnav': 'dynamic',
-                        'show': true
-                    },
-                    {
-                        'name': '动态管理',
-                        'title': 'banner管理',
-                        'url': '/banner',
-                        'leftnav': 'banner',
-                        'show': true
-                    },
-                    {
-                        'name': '专题管理',
-                        'title': '专题管理',
-                        'url': '/topicManagement',
-                        'leftnav': 'theme',
-                        'show': true
-                    },
-                    {
-                        'name': '车服务',
-                        'title': '车服务',
-                        'url': '/carService',
-                        'leftnav': 'car',
-                        'show': true
-                    },
-                    {
-                        'name': '订单管理',
-                        'title': '订单管理',
-                        'url': '/order',
-                        'leftnav': 'order',
-                        'show': true
-                    },
-                    {
-                        'name': '敏感信息词库',
-                        'title': '敏感信息词库',
-                        'url': '/sensitive',
-                        'leftnav': 'sensitive',
-                        'show': true
-                    },
-                    {
-                        'name': '账号权限',
-                        'title': '账号权限',
-                        'url': '',
-                        'leftnav': '',
-                        'show': true
-                    },
-                    {
-                        'name': '账号权限',
-                        'title': '账号列表',
-                        'url': '/permissionAccount',
-                        'leftnav': 'permissionAccount',
-                        'show': true
-                    },
-                    {
-                        'name': '账号权限',
-                        'title': '角色列表',
-                        'url': '/permissionRole',
-                        'leftnav': 'permissionRole',
-                        'show': true
-                    },
-                    {
-                        'name': '车牌库',
-                        'title': '车牌库',
-                        'url': '/LicensePlate',
-                        'leftnav': 'LicensePlate',
-                        'show': true
-                    },
-                    {
-                        'name': '系统日志',
-                        'title': '系统日志',
-                        'url': '/systemLog',
-                        'leftnav': 'systemLog',
-                        'show': true
                     }
                 ],
                 permission: []
@@ -194,9 +103,3 @@
         }
     }
 </script>
-
-<style lang="scss" scoped>
-    .nav ul li:nth-of-type(6) a{
-        cursor: default;
-    }
-</style>

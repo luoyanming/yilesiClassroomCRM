@@ -60,7 +60,7 @@
                 <el-dialog :title="dialogInfo.type == 0 ? '添加内测账号' : '编辑内测账号'" :visible.sync="dialogShow" :modal-append-to-body="false">
                     <section class="formation">
                        
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="80px" :model="dialogInfo">
+                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
                             <el-form-item label="手机账号" prop="mobile">
                                 <el-input v-model="dialogInfo.mobile" :disabled="dialogInfo.type == 0 ? false : true"></el-input>
                             </el-form-item>
@@ -89,6 +89,7 @@
                                 <el-upload
                                     class="upload-demo"
                                     ref="upload"
+                                    :on-change="uploadChange"
                                     :action="uploadUrl"
                                     :data="{ 'type': uploadInfo.classify }"
                                     :on-success="uploadSucc"
@@ -96,7 +97,7 @@
                                     :on-remove="handleRemove"
                                     :file-list="fileList"
                                     :auto-upload="false">
-                                    <el-button slot="trigger" size="small" type="primary" :disabled="fileList.length == 1">导入excel</el-button>
+                                    <el-button slot="trigger" size="small" type="primary">导入excel</el-button>
                                 </el-upload>
                             </el-form-item>
                             <el-form-item label="用户分类" prop="classify">
@@ -193,6 +194,7 @@
                     classify: '4'
                 },
                 fileList: [],
+                fileChange: new Array(),
                 rulesUpload: {
                     classify: [
                         { required: true, message: '*请选择分类', trigger: 'change' }
@@ -321,9 +323,18 @@
                     this.getClosedList();
                 }
             },
+            uploadChange: function(file, fileList) {
+                console.log(this.fileChange, fileList)
+                this.fileChange = fileList;
+            },
 
             // 提交excel
             submitUpload: function() {
+                if(this.fileChange.length == 0) {
+                    this.$message({ message: '请上传excel文件！', type: 'error' });
+                    return false;
+                }
+
                 this.uploadLoading = true;
                 this.$refs.upload.submit();
             }

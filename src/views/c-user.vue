@@ -82,7 +82,7 @@
                 <el-dialog title="编辑用户" :visible.sync="editDialogShow" :modal-append-to-body="false">
                     <section class="formation">
                        
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="80px" :model="editInfo">
+                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
                             <el-form-item label="手机账号" prop="account">
                                 <el-input v-model="editInfo.account" :disabled="true"></el-input>
                             </el-form-item>
