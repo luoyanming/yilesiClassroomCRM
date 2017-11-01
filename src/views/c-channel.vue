@@ -91,6 +91,8 @@
     import { Message } from 'element-ui';
     import { channelList, channelSave } from '../api/api';
 
+    let that;
+
     export default {
         data() {
             return {
@@ -191,21 +193,24 @@
             handleAdd: function(type, index, row) {
                 this.dialogShow = true;
                 this.dialogInfo.type = type;
-                
 
-                if(type == 0) {
-                    // add
-                    this.dialogInfo.id = '';
-                    this.dialogInfo.index = '';
-                    this.dialogInfo.name = '';
-                    this.dialogInfo.status = '1';
-                } else {
-                    // edit
-                    this.dialogInfo.id = row.id;
-                    this.dialogInfo.index = index;
-                    this.dialogInfo.name = row.name;
-                    this.dialogInfo.status = ''+ row.status +'';
-                }
+                setTimeout(function() {
+                    that.$refs['ruleForm'].resetFields();
+
+                    if(type == 0) {
+                        // add
+                        that.dialogInfo.id = '';
+                        that.dialogInfo.index = '';
+                        that.dialogInfo.name = '';
+                        that.dialogInfo.status = '1';
+                    } else {
+                        // edit
+                        that.dialogInfo.id = row.id;
+                        that.dialogInfo.index = index;
+                        that.dialogInfo.name = row.name;
+                        that.dialogInfo.status = ''+ row.status +'';
+                    }
+                }, 1);
             },
 
             // 提交用户信息
@@ -240,6 +245,7 @@
             }
         },
         mounted() {
+            that = this;
             this.getChannelList();
         }
     }

@@ -114,6 +114,8 @@
     import { Message } from 'element-ui';
     import { memberList, memberEdit } from '../api/api';
 
+    let that;
+
     export default {
         data() {
             return {
@@ -240,12 +242,17 @@
             // 编辑
             handleEdit(index, row) {
                 this.editDialogShow = true;
-                this.editInfo.id = row.id;
-                this.editInfo.index = index;
-                this.editInfo.account = row.mobile;
-                this.editInfo.school = row.schoolNumber;
-                this.editInfo.name = row.name;
-                this.editInfo.classify = ''+ row.type +'';
+
+                setTimeout(function() {
+                    that.$refs['ruleForm'].resetFields();
+
+                    that.editInfo.id = row.id;
+                    that.editInfo.index = index;
+                    that.editInfo.account = row.mobile;
+                    that.editInfo.school = row.schoolNumber;
+                    that.editInfo.name = row.name;
+                    that.editInfo.classify = ''+ row.type +'';
+                }, 1);
             },
             // 保存
             submitForm(formName) {
@@ -280,6 +287,7 @@
            
         },
         mounted() {
+            that = this;
             this.getUserList();
         }
     }

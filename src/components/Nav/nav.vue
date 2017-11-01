@@ -20,8 +20,8 @@
                 status: 'user',
                 menu: [
                     {
-                        'name': '用户',
-                        'title': '用户',
+                        'name': '用户管理',
+                        'title': '用户管理',
                         'url': '/cuser',
                         'leftnav': 'cuser',
                         'show': true

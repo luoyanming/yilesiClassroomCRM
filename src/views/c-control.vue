@@ -53,6 +53,9 @@
                         <el-table-column label="持卡人">
                             <template scope="scope">{{ scope.row.holder }}</template>
                         </el-table-column>
+                        <el-table-column label="持卡人信息">
+                            <template scope="scope">{{ scope.row.holderInfo == '' ? '' : scope.row.holderInfo.substring(0, 4) +'***'+ scope.row.holderInfo.substring(7, 8) }}</template>
+                        </el-table-column>
                         <el-table-column label="卡版本">
                             <template scope="scope">{{ scope.row.version }}</template>
                         </el-table-column>
@@ -142,13 +145,24 @@
                                 <el-input v-model="editDialogInfo.cardNo" :disabled="true"></el-input>
                             </el-form-item>
                             <el-form-item label="NFC号">
-                                <el-input v-model="editDialogInfo.nfcCode" :disabled="true"></el-input>
+                                <el-input v-model="editDialogInfo.nfcCode"></el-input>
                             </el-form-item>
                             <el-form-item label="卡版本" prop="version">
                                 <el-input v-model="editDialogInfo.version"></el-input>
                             </el-form-item>
                             <el-form-item label="持卡人" prop="holder">
                                 <el-input v-model="editDialogInfo.holder"></el-input>
+                            </el-form-item>
+                            <el-form-item label="持卡人信息" prop="holderInfo">
+                                <input type="text" v-model="holderInfoStr" class="dateInput">
+                                <el-date-picker
+                                    v-model="editDialogInfo.holderInfo"
+                                    size="small"
+                                    type="date"
+                                    format="yyyyMMdd"
+                                    @change="dateChange"
+                                    placeholder="请选择">
+                                </el-date-picker>
                             </el-form-item>
                             <el-form-item label="售出渠道" prop="saleChannel">
                                 <el-select v-model="editDialogInfo.saleChannel" placeholder="请选择">
@@ -183,6 +197,9 @@
 <script>
     import { Message } from 'element-ui';
     import { uploadPath, channelList, smartCardList, smartCardSave, smartCardExport, smartCardImport } from '../api/api';
+    import { COMMON } from '../common/js/common';
+
+    let that;
 
     export default {
         data() {
@@ -279,19 +296,18 @@
                     nfcCode: '',
                     version: '',
                     holder: '',
+                    holderInfo: '',
                     price: '',
                     saleChannel: '',
                     saleType: '',
                     cardStatus: ''
                 },
+                holderInfoStr: '',
                 editDialogShow: false,
                 editDialogLoading: false,
                 editRules: {
                     version: [
                         { required: true, message: '*请输入卡版本', trigger: 'blur' }
-                    ],
-                    version: [
-                        { required: true, message: '*请输入持卡人', trigger: 'blur' }
                     ],
                     saleChannel: [
                         { required: true, message: '*请选择售出渠道', trigger: 'change' }
@@ -316,7 +332,7 @@
         methods: {
             getChannelList: function() {
                 let param = {
-                    'status': '1',
+                    'status': '',
                     'pageNo': 1,
                     'pageSize': 10000
                 };
@@ -389,20 +405,34 @@
             // 添加
             handleAdd: function() {
                 this.addDialogShow = true;
+
+                setTimeout(function() {
+                    that.$refs['addRuleForm'].resetFields();
+                }, 1);
             },
             // 编辑
             handleEdit: function(index, row) {
                 this.editDialogShow = true;
-                this.editDialogInfo.id = row.id;
-                this.editDialogInfo.index = index;
-                this.editDialogInfo.cardNo = row.code;
-                this.editDialogInfo.nfcCode = row.nfcCode;
-                this.editDialogInfo.version = row.version;
-                this.editDialogInfo.holder = row.holder;
-                this.editDialogInfo.price = ''+ row.price +'';
-                this.editDialogInfo.saleChannel = ''+ row.channelId +'';
-                this.editDialogInfo.saleType = ''+ row.saleType +'';
-                this.editDialogInfo.cardStatus = ''+ row.status +'';
+
+                setTimeout(function() {
+                    that.$refs['editRuleForm'].resetFields();
+
+                    that.editDialogInfo.id = row.id;
+                    that.editDialogInfo.index = index;
+                    that.editDialogInfo.cardNo = row.code;
+                    that.editDialogInfo.nfcCode = row.nfcCode;
+                    that.editDialogInfo.version = row.version;
+                    that.editDialogInfo.holder = row.holder;
+                    if(row.holderInfo) {
+                        that.editDialogInfo.holderInfo = row.holderInfo.substring(0, 4) + '-' + row.holderInfo.substring(4, 6) + '-' + row.holderInfo.substring(6, 8);
+                    } else {
+                        that.editDialogInfo.holderInfo = row.holderInfo;
+                    }
+                    that.editDialogInfo.price = ''+ row.price +'';
+                    that.editDialogInfo.saleChannel = ''+ row.channelId +'';
+                    that.editDialogInfo.saleType = ''+ row.saleType +'';
+                    that.editDialogInfo.cardStatus = ''+ row.status +'';
+                }, 1);
             },
 
             // 提交编辑内容
@@ -420,6 +450,7 @@
                             'status': this.editDialogInfo.cardStatus,
                             'version': this.editDialogInfo.version,
                             'holder': this.editDialogInfo.holder,
+                            'holderInfo': this.editDialogInfo.holderInfo == '' ? '' : COMMON.formatDate(this.editDialogInfo.holderInfo, ''),
                             'price': this.editDialogInfo.price
                         };
 
@@ -440,6 +471,13 @@
                         return false;
                     }
                 });
+            },
+            dateChange: function(val) {
+                if(val == ''){
+                    this.holderInfoStr = '';
+                } else {
+                    this.holderInfoStr = val.substring(0, 4) +'***'+ val.substring(7, 8);
+                }
             },
 
             handleRemove(file, fileList) {
@@ -496,13 +534,14 @@
                     }
                 }
 
-                location.href = uploadPath + '/ajax/smartCard/export?channelId=' + this.searchForm.saleChannel + '&saleType=' + this.searchForm.saleType + '&status=' + this.searchForm.cardStatus + '&ids=' + idsArr.join(',');
+                location.href = uploadPath + '/ajax/smartCard/export?code='+ this.searchForm.cardNo +'&channelId=' + this.searchForm.saleChannel + '&saleType=' + this.searchForm.saleType + '&status=' + this.searchForm.cardStatus + '&ids=' + idsArr.join(',');
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             }
         },
         mounted() {
+            that = this;
             this.getChannelList();
             this.getCardList();
         }
@@ -515,6 +554,25 @@
     }
     .el-dialog .formation .el-form .el-form-item .el-form-item__content{
         padding-left: 0 !important;
+    }
+
+    .dateInput{
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        width: 180px;
+        height: 40px;
+        font-size: 12px;
+        color: #333;
+        background: #FFFFFF;
+        border: 1px solid #E5E5E5;
+        border-radius: 2px;
+        padding: 3px 10px;
+
+        & + .el-input .el-input__inner{
+            opacity: 0 !important;
+        }
     }
 </style>
 

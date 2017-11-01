@@ -30,7 +30,7 @@ export const COMMON = {
             return true;
         }
     },
-    formatDate: function(time) {
+    formatDate: function(time, concat) {
         let formatdate = new Date(time),
             year = formatdate.getFullYear(),
             month = formatdate.getMonth(),
@@ -45,7 +45,7 @@ export const COMMON = {
             date = '0' + date;
         }
 
-        return year + '-' + month + '-' + date;
+        return year + concat + month + concat + date;
     },
     formatMonth: function(time) {
         let formatdate = new Date(time),

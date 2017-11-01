@@ -27,7 +27,7 @@ let routes = [{
     {
         path: "/cuser",
         component: cuser,
-        name: "用户",
+        name: "用户管理",
         meta: {
             nav: "cuser",
             requiresAuth: true

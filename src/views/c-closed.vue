@@ -122,6 +122,8 @@
     import { Message } from 'element-ui';
     import { uploadPath, memberList, saveClosed, memberExcel } from '../api/api';
 
+    let that;
+    
     export default {
         data() {
             return {
@@ -253,21 +255,24 @@
             handleAdd: function(type, index, row) {
                 this.dialogShow = true;
                 this.dialogInfo.type = type;
-                
 
-                if(type == 0) {
-                    // add
-                    this.dialogInfo.id = '';
-                    this.dialogInfo.index = '';
-                    this.dialogInfo.mobile = '';
-                    this.dialogInfo.name = '';
-                } else {
-                    // edit
-                    this.dialogInfo.id = row.id;
-                    this.dialogInfo.index = index;
-                    this.dialogInfo.mobile = row.mobile;
-                    this.dialogInfo.name = row.name;
-                }
+                setTimeout(function() {
+                    that.$refs['ruleForm'].resetFields();
+
+                    if(type == 0) {
+                        // add
+                        that.dialogInfo.id = '';
+                        that.dialogInfo.index = '';
+                        that.dialogInfo.mobile = '';
+                        that.dialogInfo.name = '';
+                    } else {
+                        // edit
+                        that.dialogInfo.id = row.id;
+                        that.dialogInfo.index = index;
+                        that.dialogInfo.mobile = row.mobile;
+                        that.dialogInfo.name = row.name;
+                    }
+                }, 1);
             },
 
             // 提交用户信息
@@ -340,6 +345,7 @@
             }
         },
         mounted() {
+            that = this;
             this.getClosedList();
         }
     }

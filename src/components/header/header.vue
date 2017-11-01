@@ -35,6 +35,8 @@
     import { Message } from 'element-ui';
     import { logout, passwordUpdate } from '../../api/api';
 
+    let that;
+
     export default {
         data() {
             return {
@@ -61,7 +63,12 @@
         },
         methods: {
             showDialog: function() {
+                that = this;
                 this.dialogShow = true;
+
+                setTimeout(function() {
+                    that.$refs['forgetForm'].resetFields();
+                }, 1);
             },
             doLogout: function() {
                 this.$confirm('确定退出登录？', '提示', {

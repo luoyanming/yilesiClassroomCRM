@@ -52,7 +52,7 @@
                         <el-table-column label="意见时间">
                             <template scope="scope">{{ scope.row.createdDateStr }}</template>
                         </el-table-column>
-                        <el-table-column label="反馈内容" show-overflow-tooltip>
+                        <el-table-column label="反馈内容">
                             <template scope="scope">{{ scope.row.contents }}</template>
                         </el-table-column>
                     </el-table>
@@ -97,8 +97,8 @@
         },
         methods: {
             onSearchSubmit: function() {
-                this.searchForm.startDate = COMMON.formatDate(this.searchForm.startDate);
-                this.searchForm.endDate = COMMON.formatDate(this.searchForm.endDate);
+                this.searchForm.startDate = COMMON.formatDate(this.searchForm.startDate, '-');
+                this.searchForm.endDate = COMMON.formatDate(this.searchForm.endDate, '-');
 
                 if(this.searchForm.startDate == 'NaN-NaN-NaN') {
                     this.searchForm.startDate = '';
