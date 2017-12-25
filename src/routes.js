@@ -10,6 +10,12 @@ import channel from './views/c-channel.vue'
 import control from './views/c-control.vue'
 import log from './views/c-log.vue'
 
+import school from './views/c-school.vue'
+import schoolClass from './views/c-school-class.vue'
+import schoolSystem from './views/c-school-system.vue'
+import schoolTree from './views/c-school-tree.vue'
+
+
 let routes = [{
         path: "/",
         component: index,
@@ -84,6 +90,42 @@ let routes = [{
         name: "系统日志",
         meta: {
             nav: "log",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/school",
+        component: school,
+        name: "学制管理",
+        meta: {
+            nav: "school",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/schoolSystem",
+        component: schoolSystem,
+        name: "学校管理",
+        meta: {
+            nav: "schoolSystem",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/schoolClass",
+        component: schoolClass,
+        name: "班级管理",
+        meta: {
+            nav: "schoolClass",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/schoolTree",
+        component: schoolTree,
+        name: "结构树",
+        meta: {
+            nav: "schoolTree",
             requiresAuth: true
         }
     }

@@ -53,6 +53,9 @@
                         <el-table-column label="持卡人">
                             <template scope="scope">{{ scope.row.holder }}</template>
                         </el-table-column>
+                        <el-table-column label="OU班级编号">
+                            <template scope="scope">{{ scope.row.classCode }}</template>
+                        </el-table-column>
                         <el-table-column label="持卡人信息">
                             <template scope="scope">{{ scope.row.holderInfo == '' ? '' : scope.row.holderInfo.substring(0, 4) +'***'+ scope.row.holderInfo.substring(7, 8) }}</template>
                         </el-table-column>
@@ -152,6 +155,9 @@
                             </el-form-item>
                             <el-form-item label="持卡人" prop="holder">
                                 <el-input v-model="editDialogInfo.holder"></el-input>
+                            </el-form-item>
+                            <el-form-item label="OU班级编号" prop="classCode">
+                                <el-input v-model="editDialogInfo.classCode"></el-input>
                             </el-form-item>
                             <el-form-item label="持卡人信息" prop="holderInfo">
                                 <input type="text" v-model="holderInfoStr" class="dateInput">
@@ -423,6 +429,7 @@
                     that.editDialogInfo.nfcCode = row.nfcCode;
                     that.editDialogInfo.version = row.version;
                     that.editDialogInfo.holder = row.holder;
+                    that.editDialogInfo.classCode = row.classCode;
                     if(row.holderInfo) {
                         that.editDialogInfo.holderInfo = row.holderInfo.substring(0, 4) + '-' + row.holderInfo.substring(4, 6) + '-' + row.holderInfo.substring(6, 8);
                     } else {
@@ -450,6 +457,7 @@
                             'status': this.editDialogInfo.cardStatus,
                             'version': this.editDialogInfo.version,
                             'holder': this.editDialogInfo.holder,
+                            'classCode': this.editDialogInfo.classCode,
                             'holderInfo': this.editDialogInfo.holderInfo == '' ? '' : COMMON.formatDate(this.editDialogInfo.holderInfo, ''),
                             'price': this.editDialogInfo.price
                         };

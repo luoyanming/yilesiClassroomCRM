@@ -4,10 +4,10 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// let base = 'http://classroomcrm.yls.com/privateapi';
-// export const uploadPath = '/privateapi';
-let base = 'http://crmc.yilesi.cn';
-export const uploadPath = '';
+let base = 'http://classroomcrm.yls.com/privateapi';
+export const uploadPath = '/privateapi';
+// let base = 'http://crmc.yilesi.cn';
+// export const uploadPath = '';
 
 let header = { 'content-type': 'application/x-www-form-urlencoded' };
 
@@ -71,3 +71,53 @@ export const smartCardImport = params => { return axios.post(`${base}/ajax/smart
 
 // 操作日志
 export const logList = params => { return axios.post(`${base}/ajax/tableLog/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+
+
+// 学制新增或编辑
+export const schoolSystemSave = params => { return axios.post(`${base}/ajax/schoolSystem/save`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 学制列表
+export const schoolSystemList = params => { return axios.post(`${base}/ajax/schoolSystem/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 上传学校logo
+export const schoolLogoUpload = params => { return axios.post(`${base}/ajax/school/logo/upload`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 学校新增或编辑保存
+export const schoolSave = params => { return axios.post(`${base}/ajax/school/save`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 学校列表
+export const schoolList = params => { return axios.post(`${base}/ajax/school/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 学制年级列表
+export const schoolGradeList = params => { return axios.post(`${base}/ajax/schoolSystem/grade/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 获取班级编号
+export const schoolClassCode = params => { return axios.post(`${base}/ajax/schoolClass/code`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 班级新增或编辑
+export const schoolClassSave = params => { return axios.post(`${base}/ajax/schoolClass/save`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 班级列表
+export const schoolClassList = params => { return axios.post(`${base}/ajax/schoolClass/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 添加学生
+export const schoolStudentAdd = params => { return axios.post(`${base}/ajax/schoolStudent/add`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 转移学生
+export const schoolStudentShift = params => { return axios.post(`${base}/ajax/schoolStudent/shift`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 删除学生
+export const schoolStudentDelete = params => { return axios.post(`${base}/ajax/schoolStudent/delete`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 添加教师
+export const schoolTeacherAdd = params => { return axios.post(`${base}/ajax/schoolTeacher/add`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 删除教师
+export const schoolTeacherDelete = params => { return axios.post(`${base}/ajax/schoolTeacher/delete`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 班级教师列表
+export const schoolClassTeacherList = params => { return axios.post(`${base}/ajax/schoolClass/teacher/list`, qs.stringify(params), { headers: header }).then(res => res.data); };
+
+// 班级学生列表
+export const schoolClassStudentList = params => { return axios.post(`${base}/ajax/schoolClass/student/list`, qs.stringify(params), { headers: header }).then(res => res.data); };

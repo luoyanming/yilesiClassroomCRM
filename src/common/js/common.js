@@ -59,6 +59,22 @@ export const COMMON = {
         }
 
         return year + '-' + month;
+    },
+    formatMonthDay: function(time, concat) {
+        let formatdate = new Date(time),
+            month = formatdate.getMonth(),
+            date = formatdate.getDate();
+
+        if (month + 1 < 10) {
+            month = '0' + (month + 1);
+        } else {
+            month = month + 1;
+        }
+        if (date < 10) {
+            date = '0' + date;
+        }
+
+        return month + concat + date;
     }
 };
 

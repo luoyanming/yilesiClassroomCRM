@@ -5,7 +5,13 @@
                 <a href="javascript:void(0);" class="navitem"
                     v-bind:class="{ 'current': (item.leftnav == status) }" 
                     v-show="item.show"
-                    @click="linkTo(item.url)">{{ item.title }}</a>
+                    @click="linkTo(item.url)"
+                    v-if="item.url">{{ item.title }}</a>
+                <a href="javascript:void(0);" class="navitem"
+                    v-bind:class="{ 'current': (item.leftnav == status) }" 
+                    v-show="item.show"
+                    @click="linkTo(item.url)"
+                    v-if="!item.url">{{ item.title }}</a>
             </li>
         </ul>
     </nav>
@@ -59,6 +65,41 @@
                         'title': '智慧卡管理',
                         'url': '/control',
                         'leftnav': 'control',
+                        'show': true
+                    },
+                    {
+                        'name': 'OU管理',
+                        'title': 'OU管理',
+                        'url': '',
+                        'leftnav': '',
+                        'show': true
+                    },
+                    {
+                        'name': '学制管理',
+                        'title': '学制管理',
+                        'url': '/schoolSystem',
+                        'leftnav': 'schoolSystem',
+                        'show': true
+                    },
+                    {
+                        'name': '学校管理',
+                        'title': '学校管理',
+                        'url': '/school',
+                        'leftnav': 'school',
+                        'show': true
+                    },
+                    {
+                        'name': '班级管理',
+                        'title': '班级管理',
+                        'url': '/schoolClass',
+                        'leftnav': 'schoolClass',
+                        'show': true
+                    },
+                    {
+                        'name': '结构树',
+                        'title': '结构树',
+                        'url': '/schoolTree',
+                        'leftnav': 'schoolTree',
                         'show': true
                     },
                     {
