@@ -24,6 +24,11 @@
                           empty-text="暂无数据"
                           :data="treeOptions"
                           :props="defaultProps"
+                          auto-expand-parent
+                          :default-expanded-keys="currentKeys"
+                          :current-node-key="currentKey"
+                          node-key="key"
+                          ref="tree"
                           accordion
                           highlight-current
                           @node-click="handleNodeClick">
@@ -297,6 +302,8 @@
                     children: 'children',
                     label: 'label'
                 },
+                currentKeys: [],
+                currentKey: '',
 
                 // 班级教师
                 classTeacherSearchForm: {
@@ -380,6 +387,8 @@
                     } else {
                         if(data.list && data.list.length > 0) {
                             this.schoolOptions = data.list;
+
+                            that.schoolId = parseInt(that.$route.query.school);
                         }
                     }
                 });
@@ -416,6 +425,7 @@
                                 'id': classItem.id,
                                 'label': classItem.name,
                                 'periodId': classItem.period,
+                                'key': periodItem.periodValue + '-' + gradeItem.id + '-' + classItem.id,
                                 'gradeId': classItem.schoolSystemGradeId
                             });
                         }
@@ -424,6 +434,7 @@
                             'id': gradeItem.id,
                             'label': gradeItem.name,
                             'periodId': gradeItem.period,
+                            'key': periodItem.periodValue + '-' + gradeItem.id,
                             'children': classArr
                         });
                     }
@@ -431,8 +442,29 @@
                     this.treeOptions.push({
                         'id': periodItem.periodValue,
                         'label': periodItem.periodName,
+                        'key': '' + periodItem.periodValue,
                         'children': gradeArr
                     });
+                }
+
+                this.handleSetChecked();
+            },
+            // 设置选中的节点
+            handleSetChecked: function() {
+                if(this.$route.query.period && this.$route.query.grade && this.$route.query.class) {
+                    let keyStr = this.$route.query.period +'-'+ this.$route.query.grade +'-'+ this.$route.query.class;
+                    this.currentKeys.push(keyStr);
+                    this.currentKey = keyStr;
+
+                    this.schoolPeriodId = this.$route.query.period;
+                    this.schoolGradeId = this.$route.query.grade;
+                    this.schoolClassId = this.$route.query.class;
+
+                    this.showTable = true;
+                    this.classTeacherSearchForm.searchParam = '';
+                    this.classStudentSearchForm.searchParam = '';
+                    this.getClassTeacherList();
+                    this.getClassStudentList();
                 }
             },
             // 选择节点触发的事件
@@ -444,7 +476,8 @@
                     this.schoolClassId = data.id;
 
                     this.showTable = true;
-
+                    this.classTeacherSearchForm.searchParam = '';
+                    this.classStudentSearchForm.searchParam = '';
                     this.getClassTeacherList();
                     this.getClassStudentList();
                 } else if(!data.gradeId && data.periodId) {
