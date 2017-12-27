@@ -388,7 +388,9 @@
                         if(data.list && data.list.length > 0) {
                             this.schoolOptions = data.list;
 
-                            that.schoolId = parseInt(that.$route.query.school);
+                            if(this.$route.query.school) {
+                                that.schoolId = parseInt(this.$route.query.school);
+                            }
                         }
                     }
                 });
