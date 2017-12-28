@@ -287,7 +287,7 @@
                 pickerOptions: {
                     disabledDate(time) {
                         let y = (new Date()).getFullYear();
-                        return time.getTime() < (new Date(y + '-01-01')).getTime() || time.getTime() > (new Date(y + '-12-31')).getTime();
+                        return time.getTime() < (new Date(y + '-01-00')).getTime() || time.getTime() > (new Date(y + '-12-31')).getTime();
                     }
                 },
 

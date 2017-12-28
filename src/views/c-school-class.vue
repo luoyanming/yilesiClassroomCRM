@@ -106,6 +106,8 @@
                                 <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
                                     <el-form-item label="班级编号">
                                         <el-input v-model="dialogInfo.code" disabled></el-input>
+                                        <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
+                                        <button class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</button>
                                     </el-form-item>
                                     <el-form-item label="班级名称">
                                         <el-input v-model="dialogInfo.name"></el-input>
@@ -232,6 +234,20 @@
             };
         },
         methods: {
+            // 获取班级编号事件
+            copyBind: function() {
+                var clipboard = new Clipboard('.cCodeCopyBtn');
+
+                clipboard.on('success', function(e) {
+                    that.$message({ message: '复制班级编号成功！', type: 'success' });
+
+                    e.clearSelection();
+                });
+
+                clipboard.on('error', function(e) {
+                    that.$message({ message: '复制班级编号失败！', type: 'error' });
+                });
+            },
             // 建班年份
             setBuildYear: function() {
                 this.buildYearOptions = [{
@@ -577,6 +593,7 @@
 
             this.setBuildYear();
             this.getSchoolList();
+            this.copyBind();
         }
     }
 </script>
@@ -693,6 +710,36 @@
             .button-separate{
                 margin-right: 10px;
                 color: #999;
+            }
+        }
+
+        .cCodeCopyInput{
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .cCodeCopyBtn{
+            display: inline-block;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #c4c4c4;
+            box-sizing: border-box;
+            min-width: 76px;
+            padding: 0 14px;
+            line-height: 38px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #18c79c;
+            border-color: #18c79c;
+
+            &:hover{
+                background: rgb(70, 210, 176);
+                border-color: rgb(70, 210, 176);
+                color: #fff;
             }
         }
     }
