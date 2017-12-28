@@ -148,6 +148,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取用户反馈列表失败！', type: 'error'});
                 });
             },
             handleFeedbackExport: function() {

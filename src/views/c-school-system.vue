@@ -314,6 +314,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取学制列表失败！', type: 'error'});
                 });
             },
 
@@ -403,6 +406,9 @@
                     }else{
                         return false;
                     }
+                }).catch(error => {
+                    this.dialogLoading = false;
+                    this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
                 });
             }
         },

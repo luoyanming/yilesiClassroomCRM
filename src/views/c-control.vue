@@ -360,6 +360,8 @@
                             });
                         }
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取渠道列表失败！', type: 'error'});
                 });
             },
             onSearchSubmit: function() {
@@ -406,6 +408,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取智慧卡列表失败！', type: 'error'});
                 });
             },
             // 添加
@@ -474,6 +479,9 @@
                                 this.editDialogShow = false;
                                 this.getCardList();
                             }
+                        }).catch(error => {
+                            this.editDialogLoading = false;
+                            this.$message({ message: '网络异常！保存智慧卡信息失败！', type: 'error'});
                         });
                     }else{
                         return false;

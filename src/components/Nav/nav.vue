@@ -135,6 +135,8 @@
                             }
                         }
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取导航列表失败！', type: 'error'});
                 });
             }
         },

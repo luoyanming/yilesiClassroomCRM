@@ -248,6 +248,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取内测用户列表失败！', type: 'error'});
                 });
             },
 
@@ -300,6 +303,9 @@
                                 this.dialogShow = false;
                                 this.getClosedList();
                             }
+                        }).catch(error => {
+                            this.dialogLoading = false;
+                            this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
                         });
                     }else{
                         return false;
@@ -329,7 +335,6 @@
                 }
             },
             uploadChange: function(file, fileList) {
-                console.log(this.fileChange, fileList)
                 this.fileChange = fileList;
             },
 

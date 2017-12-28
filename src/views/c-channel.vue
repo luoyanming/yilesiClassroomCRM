@@ -8,7 +8,7 @@
             <div class="main-wrapper light-overscroll luoym">
                 <section class="crumbs">
                     <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>智慧卡管理</el-breadcrumb-item>
+                        <el-breadcrumb-item>渠道管理</el-breadcrumb-item>
                     </el-breadcrumb>
                 </section>
                 
@@ -186,6 +186,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取渠道列表失败！', type: 'error'});
                 });
             },
 
@@ -237,6 +240,9 @@
                                 this.dialogShow = false;
                                 this.getChannelList();
                             }
+                        }).catch(error => {
+                            this.dialogLoading = false;
+                            this.$message({ message: '网络异常！保存渠道信息失败！', type: 'error'});
                         });
                     }else{
                         return false;

@@ -175,7 +175,17 @@
             let checkTime = (rule, value, callback) => {
                 setTimeout(() => {
                     if(!that.dialogInfo.startYear || !that.dialogInfo.endYear) {
-                        callback(new Error('请选择学年时间'));
+                        callback(new Error('*请选择学年时间'));
+                    } else {
+                        callback();
+                    }
+                }, 0);
+            };
+
+            let checkPic = (rule, value, callback) => {
+                setTimeout(() => {
+                    if(that.dialogInfo.logoUrl.length == 0) {
+                        callback(new Error('*请上传学校LOGO'));
                     } else {
                         callback();
                     }
@@ -258,6 +268,9 @@
                 dialogShow: false,
                 dialogLoading: false,
                 rules: {
+                    logoUrl: [
+                        { required: true, validator: checkPic, trigger: 'change' }
+                    ],
                     fullName: [
                         { required: true, message: '*请输入学校全称', trigger: 'blur' }
                     ],
@@ -305,6 +318,8 @@
                             }
                         }
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取学校学制列表失败！', type: 'error'});
                 });
             },
             // 选择省触发事件
@@ -376,6 +391,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 });
             },
 
@@ -501,6 +519,9 @@
                                 this.dialogShow = false;
                                 this.getList();
                             }
+                        }).catch(error => {
+                            this.dialogLoading = false;
+                            this.$message({ message: '网络异常！保存学校信息失败！', type: 'error'});
                         });
                     }else{
                         return false;

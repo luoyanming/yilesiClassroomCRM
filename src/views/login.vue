@@ -67,6 +67,9 @@
                                 localStorage.setItem('account', this.ruleForm.account);
                                 this.$router.push({ path: '/' });
                             }
+                        }).catch(error => {
+                            this.loading = false;
+                            this.$message({ message: '网络异常！登录失败！', type: 'error'});
                         });
                     } else {
                         return false;

@@ -86,6 +86,8 @@
                             localStorage.removeItem("account");
                             this.$router.push({ path: '/login' });
                         }
+                    }).catch(error => {
+                        this.$message({ message: '网络异常！退出登录失败！', type: 'error'});
                     });
                 }).catch(() => {
                             
@@ -117,6 +119,9 @@
                                 this.$message({ message: '密码修改成功', type: 'success'});
                                 this.dialogShow = false;
                             }
+                        }).catch(error => {
+                            this.loading = false;
+                            this.$message({ message: '网络异常！密码修改失败！', type: 'error'});
                         });
                     } else {
                         return false;

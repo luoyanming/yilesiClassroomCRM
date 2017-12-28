@@ -289,6 +289,9 @@
                             }
                         }
                     }
+                }).catch(error => {
+                    this.schoolSearchLoading = false;
+                    this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 });
             },
             // 选择节点触发的事件
@@ -403,6 +406,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取班级列表失败！', type: 'error'});
                 });
             },
 
@@ -414,6 +420,18 @@
                     that.$refs['ruleForm'].resetFields();
                     if(type == 0) {
                         // add
+                        that.dialogInfo = {
+                            id: '',
+                            index: '',
+                            buildYear: '',
+                            period: '',
+                            code: '',
+                            schoolSystemGradeId: '',
+                            name: '',
+                            classNum: '',
+                            status: '0'
+                        };
+                        
                         that.getCode();
                     } else if(type == 1) {
                         // edit
@@ -447,6 +465,8 @@
                     } else {
                         this.dialogInfo.code = data.code;
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取班级编号失败！', type: 'error'});
                 });
             },
 
@@ -482,6 +502,8 @@
                             }
                         }
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取年级列表失败！', type: 'error'});
                 });
             },
 
@@ -519,6 +541,9 @@
                     }else{
                         return false;
                     }
+                }).catch(error => {
+                    this.dialogLoading = false;
+                    this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
                 });
             },
 

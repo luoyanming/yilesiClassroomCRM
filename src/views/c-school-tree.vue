@@ -393,6 +393,8 @@
                             }
                         }
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 });
             },
             // 选择学校触发的事件
@@ -527,6 +529,9 @@
                             this.classTeacherDialog.notContainIds.push(this.classTeacherTableData[i].memberId);
                         }
                     }
+                }).catch(error => {
+                    this.classTeacherTableloading = false;
+                    this.$message({ message: '网络异常！获取教师列表失败！', type: 'error'});
                 });
             },
             // 班级教师搜索
@@ -548,6 +553,8 @@
                         this.$message({ message: '删除成功', type: 'success'});
                         this.getClassTeacherList();
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！删除班级教师失败！', type: 'error'});
                 });
             },
             // 显示添加班级教师弹窗
@@ -592,6 +599,9 @@
                         this.classTeacherDialog.pagi.total = data.total;
                         this.classTeacherDialog.noPagi = false;
                     }
+                }).catch(error => {
+                    this.classTeacherDialog.tableLoading = false;
+                    this.$message({ message: '网络异常！获取所有教师列表失败！', type: 'error'});
                 });
             },
             // 所有教师列表分页
@@ -643,6 +653,9 @@
                         this.classTeacherDialogShow = false;
                         this.getClassTeacherList();
                     }
+                }).catch(error => {
+                    this.classTeacherDialog.submitLoading = false;
+                    this.$message({ message: '网络异常！保存班级教师失败！', type: 'error'});
                 });
             },
 
@@ -674,6 +687,9 @@
                             this.classStudentDialog.notContainIds.push(this.classStudentTableData[i].studentId);
                         }
                     }
+                }).catch(error => {
+                    this.classStudentTableloading = false;
+                    this.$message({ message: '网络异常！获取班级学生列表失败！', type: 'error'});
                 });
             },
             // 班级学生搜索
@@ -709,6 +725,8 @@
                         this.$message({ message: '删除成功', type: 'success'});
                         this.getClassStudentList();
                     }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！删除班级学生失败！', type: 'error'});
                 });
             },
             // 显示添加班级学生弹窗
@@ -754,6 +772,9 @@
                         this.classStudentDialog.pagi.total = data.total;
                         this.classStudentDialog.noPagi = false;
                     }
+                }).catch(error => {
+                    this.classStudentDialog.tableLoading = false;
+                    this.$message({ message: '网络异常！获取所有学生列表失败！', type: 'error'});
                 });
             },
             // 所有学生列表分页
@@ -805,6 +826,9 @@
                         this.classStudentDialogShow = false;
                         this.getClassStudentList();
                     }
+                }).catch(error => {
+                    this.classStudentDialog.submitLoading = false;
+                    this.$message({ message: '网络异常！保存班级学生失败！', type: 'error'});
                 });
             },
 
@@ -837,6 +861,9 @@
                             that.$refs.multipleTableShift.toggleRowSelection(row, true);
                         }, 1);
                     }
+                }).catch(error => {
+                    this.classStudentShiftDialog.tableLoading = false;
+                    this.$message({ message: '网络异常！获取学生列表失败！', type: 'error'});
                 });
             },
             // 学生转移弹框搜索
@@ -953,6 +980,9 @@
                         this.classStudentShiftDialogShow = false;
                         this.getClassStudentList();
                     }
+                }).catch(error => {
+                    this.classStudentShiftDialog.submitLoading = false;
+                    this.$message({ message: '网络异常！转移学生失败！', type: 'error'});
                 });
             }
         },

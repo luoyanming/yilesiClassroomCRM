@@ -67,6 +67,9 @@
                         this.channelNum = data.channelCount;
                         this.profitNum = data.totalProfit;
                     }
+                }).catch(error => {
+                    this.loading = false;
+                    this.$message({ message: '网络异常！获取综述信息失败！', type: 'error'});
                 });
             }
         },

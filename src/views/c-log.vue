@@ -96,6 +96,9 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
+                }).catch(error => {
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取系统日志列表失败！', type: 'error'});
                 });
             }
         },
