@@ -31,7 +31,7 @@
                             <template scope="scope"><p>{{ scope.row.name }}</p></template>
                         </el-table-column>
                         <el-table-column label="学制详情">
-                            <template scope="scope"><p>幼儿园{{ scope.row.pre }}；小学{{ scope.row.primarys }}；初中{{ scope.row.junior }}；高中{{ scope.row.senior }}；大专院校{{ scope.row.college }}</p></template>
+                            <template scope="scope"><p>学前{{ scope.row.pre }}；小学{{ scope.row.primarys }}；初中{{ scope.row.junior }}；高中{{ scope.row.senior }}；大专院校{{ scope.row.college }}</p></template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template scope="scope">
