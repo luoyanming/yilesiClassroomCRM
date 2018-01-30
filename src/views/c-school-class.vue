@@ -85,7 +85,7 @@
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)" v-if="scope.row.statusStr == '在读'">编辑</el-button>
                                         <span class="button-separate" v-if="scope.row.statusStr == '在读'">|</span>
-                                        <el-button size="small" class="button-link" @click="handleDetail(scope.row)">查看成员</el-button>
+                                        <el-button size="small" class="button-link" @click="handleDetail(scope.row)" v-if="scope.row.statusStr == '在读'">查看成员</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
