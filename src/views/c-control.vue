@@ -39,6 +39,7 @@
                 
                     <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleAdd">导入新卡</el-button>
                     <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleCardlistExport">导出</el-button>
+                    <el-button type="primary" size="small" class="btn-add" icon="edit" @click.native="handleExchange" style="margin-right: 5px;">批量换卡</el-button>
                 </section>
 
                 <section class="table">
@@ -55,7 +56,7 @@
                         </el-table-column>
                         <el-table-column label="OU班级编号">
                             <template scope="scope">{{ scope.row.classCode }}</template>
-                        </el-table-column>
+                        </el-table-column>                       
                         <el-table-column label="持卡人信息">
                             <template scope="scope">{{ scope.row.holderInfo == '' ? '' : scope.row.holderInfo.substring(0, 4) +'***'+ scope.row.holderInfo.substring(7, 8) }}</template>
                         </el-table-column>
@@ -104,7 +105,6 @@
                                     :data="{ 'version': addDialogInfo.version, 'channelId': addDialogInfo.saleChannel, 'saleType': addDialogInfo.saleType, 'price': addDialogInfo.price, 'status': addDialogInfo.cardStatus }"
                                     :on-success="uploadSucc"
                                     :on-error="uploadError"
-                                    :on-remove="handleRemove"
                                     :file-list="fileList"
                                     :auto-upload="false">
                                     <el-button slot="trigger" size="small" type="primary">导入excel</el-button>
@@ -159,6 +159,9 @@
                             <el-form-item label="OU班级编号" prop="classCode">
                                 <el-input v-model="editDialogInfo.classCode"></el-input>
                             </el-form-item>
+                            <el-form-item label="学籍号">
+                                <el-input v-model="editDialogInfo.schoolRollNo"></el-input>
+                            </el-form-item>                            
                             <el-form-item label="持卡人信息" prop="holderInfo">
                                 <input type="text" v-model="holderInfoStr" class="dateInput">
                                 <el-date-picker
@@ -195,6 +198,37 @@
                         <el-button type="primary" :loading="editDialogLoading" @click.native="submitEdit('editRuleForm')">保存</el-button>
                     </span>
                 </el-dialog>
+
+                <el-dialog title="智慧卡批量换卡（信息转移）" :visible.sync="exchangeDialogShow" :modal-append-to-body="false">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="exchangeRules" ref="exchangeRuleForm" label-width="180px" :model="exchangeDialogInfo" style="padding: 40px 0;">
+                            <el-form-item label="导入Excel" prop="excel">
+                                <el-upload
+                                    class="upload-demo"
+                                    ref="uploadExchange"
+                                    :on-change="uploadExchangeChange"
+                                    :action="uploadExchangeUrl"
+                                    :on-success="uploadExchangeSucc"
+                                    :on-error="uploadExchangeError"
+                                    :file-list="exchangeFileList"
+                                    :auto-upload="false"
+                                    style="float: left;">
+                                    <el-button slot="trigger" size="small" type="primary" :disabled="exchangeFileChange.length > 0">导入excel</el-button>
+                                </el-upload>
+
+                                <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadExchange" style="float: right;">下载批量换卡模板</el-button>
+                            </el-form-item>
+                        </el-form>
+
+                        <div class="tips" style="color: #888;">
+                            注意：智慧卡换卡后原卡的所有信息，包括持卡人基本信息（持卡人姓名、生日、所在班级等）、课程记录、答题记录都将转移至新卡上。
+                        </div>
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="exchangeDialogLoading" @click.native="submitExchangeUpload('exchangeRuleForm')">确定</el-button>
+                    </span>
+                </el-dialog>                
             </div>
         </div>
     </div>
@@ -300,6 +334,7 @@
                     index: '',
                     cardNo: '',
                     nfcCode: '',
+                    schoolRollNo: '',
                     version: '',
                     holder: '',
                     holderInfo: '',
@@ -332,7 +367,20 @@
                 uploadLoading: false,
                 uploadUrl: uploadPath + '/ajax/smartCard/excel/import',
                 fileList: [],
-                fileChange: new Array()
+                fileChange: new Array(),
+
+                exchangeDialogShow: false,
+                exchangeDialogLoading: false,
+                exchangeDialogInfo: {
+
+                },
+                exchangeRules: {
+
+                },
+                uploadExchangeLoading: false,
+                uploadExchangeUrl: uploadPath + '/ajax/smartCard/batch/change',
+                exchangeFileList: [],
+                exchangeFileChange: new Array(),                
             };
         },
         methods: {
@@ -413,6 +461,14 @@
                     this.$message({ message: '网络异常！获取智慧卡列表失败！', type: 'error'});
                 });
             },
+            // 换卡
+            handleExchange: function() {
+                this.exchangeDialogShow = true;
+
+                setTimeout(function() {
+                    that.$refs['exchangeRuleForm'].resetFields();
+                }, 1);                
+            },
             // 添加
             handleAdd: function() {
                 this.addDialogShow = true;
@@ -432,6 +488,7 @@
                     that.editDialogInfo.index = index;
                     that.editDialogInfo.cardNo = row.code;
                     that.editDialogInfo.nfcCode = row.nfcCode;
+                    that.editDialogInfo.schoolRollNo = row.schoolRollNo;
                     that.editDialogInfo.version = row.version;
                     that.editDialogInfo.holder = row.holder;
                     that.editDialogInfo.classCode = row.classCode;
@@ -457,6 +514,7 @@
                             'id': this.editDialogInfo.id,
                             'code': this.editDialogInfo.cardNo,
                             'nfcCode': this.editDialogInfo.nfcCode,
+                            'schoolRollNo': this.editDialogInfo.schoolRollNo,
                             'channelId': this.editDialogInfo.saleChannel,
                             'saleType': this.editDialogInfo.saleType,
                             'status': this.editDialogInfo.cardStatus,
@@ -496,9 +554,6 @@
                 }
             },
 
-            handleRemove(file, fileList) {
-                
-            },
             uploadError(response, file, fileList) {
                 this.$message({ message: '导入excel失败！请重试！', type: 'error' });
                 this.uploadLoading = false;
@@ -541,6 +596,55 @@
                     }
                 });
             },
+
+
+            // 批量换卡上传组件
+            uploadExchangeError(response, file, fileList) {
+                this.$message({ message: '导入excel失败！请重试！', type: 'error' });
+                this.uploadExchangeLoading = false;
+                this.exchangeFileList = [];
+            },
+            uploadExchangeSucc(response, file, fileList) {
+                setTimeout(function() {
+
+                    if(response.code != 0) {
+                        that.$message({ message: response.errorInfo, type: 'error' });
+                        that.uploadExchangeLoading = false;
+                        that.exchangeFileList = [];
+                        that.exchangeFileChange = [];
+                    } else {
+                        that.$message({ message: '导入excel成功！', type: 'success' });
+                        that.uploadExchangeLoading = false;
+                        that.exchangeDialogShow = false;
+                        that.exchangeFileList = [];
+                        that.exchangeFileChange = [];
+                        that.getCardList();
+                    }
+
+                }, 1);
+            },
+            uploadExchangeChange: function(file, fileList) {
+                this.exchangeFileChange = fileList;
+            },
+            // 提交excel
+            submitExchangeUpload: function(formName) {
+                if(this.exchangeFileChange.length == 0) {
+                    this.$message({ message: '请上传excel文件！', type: 'error' });
+                    return false;
+                }
+
+                this.$refs[formName].validate((valid)=>{
+                    if(valid){
+                        this.uploadExchangeLoading = true;
+                        this.$refs.uploadExchange.submit();
+                    }else{
+                        return false;
+                    }
+                });
+            },
+            handleDownloadExchange: function() {
+                location.href = uploadPath + '/template/download?fileName=card-update.xlsx';
+            },    
 
             handleCardlistExport: function() {
                 let idsArr = [];
