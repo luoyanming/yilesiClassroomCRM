@@ -2,6 +2,7 @@ import login from './views/login.vue'
 import index from './views/index.vue'
 
 
+import cusermanage from './views/c-user-manage.vue'
 import cuser from './views/c-user.vue'
 import closed from './views/c-closed.vue'
 import feedback from './views/c-feedback.vue'
@@ -10,10 +11,15 @@ import channel from './views/c-channel.vue'
 import control from './views/c-control.vue'
 import log from './views/c-log.vue'
 
+import schoolmanage from './views/c-school-manage.vue'
 import school from './views/c-school.vue'
 import schoolClass from './views/c-school-class.vue'
 import schoolSystem from './views/c-school-system.vue'
 import schoolTree from './views/c-school-tree.vue'
+import schoolStaff from './views/c-school-staff.vue'
+import schoolMachine from './views/c-school-machine.vue'
+import schoolArea from './views/c-school-area.vue'
+
 
 
 let routes = [{
@@ -29,6 +35,15 @@ let routes = [{
         path: "/login",
         component: login,
         name: "登录"
+    },
+    {
+        path: "/cusermanage",
+        component: cusermanage,
+        name: "用户总览",
+        meta: {
+            nav: "cusermanage",
+            requiresAuth: true
+        }
     },
     {
         path: "/cuser",
@@ -94,6 +109,15 @@ let routes = [{
         }
     },
     {
+        path: "/schoolmanage",
+        component: schoolmanage,
+        name: "OU总览",
+        meta: {
+            nav: "schoolmanage",
+            requiresAuth: true
+        }
+    },
+    {
         path: "/school",
         component: school,
         name: "学制管理",
@@ -101,7 +125,7 @@ let routes = [{
             nav: "school",
             requiresAuth: true
         }
-    },
+    },    
     {
         path: "/schoolSystem",
         component: schoolSystem,
@@ -111,6 +135,33 @@ let routes = [{
             requiresAuth: true
         }
     },
+    {
+        path: "/schoolStaff",
+        component: schoolStaff,
+        name: "学校教职工管理",
+        meta: {
+            nav: "schoolStaff",
+            requiresAuth: true
+        }
+    },    
+    {
+        path: "/schoolMachine",
+        component: schoolMachine,
+        name: "学校接收器管理",
+        meta: {
+            nav: "schoolMachine",
+            requiresAuth: true
+        }
+    },    
+    {
+        path: "/schoolArea",
+        component: schoolArea,
+        name: "学校区域管理",
+        meta: {
+            nav: "schoolArea",
+            requiresAuth: true
+        }
+    },    
     {
         path: "/schoolClass",
         component: schoolClass,

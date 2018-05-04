@@ -281,7 +281,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolList, schoolClassTeacherList, schoolClassStudentList, memberList, smartCardList, schoolTeacherAdd, schoolTeacherDelete, schoolStudentAdd, schoolStudentShift, schoolStudentDelete } from '../api/api';
+    import { uploadPath, schoolList, schoolClassTeacherList, schoolClassStudentList, memberList, smartCardList, schoolTeacherAdd, schoolTeacherDelete, schoolStudentAdd, schoolStudentShift, schoolStudentDelete, schoolStaffList } from '../api/api';
 
     let that;
 
@@ -571,12 +571,13 @@
 
                 let param = {
                     'searchParam': this.classTeacherDialog.searchParam,
+                    'schoolId': this.schoolId,
                     'notContainIds': this.classTeacherDialog.notContainIds.join(','),
                     'pageNo': this.classTeacherDialog.pagi.currentPage,
                     'pageSize': this.classTeacherDialog.pagi.pageSize
                 };
 
-                memberList(param).then(res => {
+                schoolStaffList(param).then(res => {
                     this.classTeacherDialog.tableLoading = false;
 
                     let { errorInfo, code, data } = res;

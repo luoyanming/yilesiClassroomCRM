@@ -478,7 +478,7 @@ html {
                     }
                 }
             }
-            &:nth-of-type(4) {
+            &:nth-of-type(5) {
                 .navitem {
                     background-image: url('/static/icon_log.png');
                     background-repeat: no-repeat;
@@ -492,16 +492,15 @@ html {
                     }
                 }
             }
-            &:nth-of-type(7) {
+            &:nth-of-type(8) {
                 .navitem {
-                    cursor: default;
                     background-image: url('/static/icon_special.png');
                     background-repeat: no-repeat;
                     background-position: 18px center;
                     background-size: 32px 32px;
                 }
             }
-            &:nth-of-type(12) {
+            &:nth-of-type(16) {
                 .navitem {
                     background-image: url('/static/icon_word.png');
                     background-repeat: no-repeat;

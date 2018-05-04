@@ -78,6 +78,7 @@
                         <el-table-column label="操作">
                             <template scope="scope">
                                 <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                                <el-button size="small" class="button-link" @click="handleCardChange(scope.$index, scope.row)" v-if="scope.row.status == 0 || scope.row.status == 1">换卡</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -228,7 +229,40 @@
                     <span slot="footer" class="dialog-footer">
                         <el-button type="primary" :loading="exchangeDialogLoading" @click.native="submitExchangeUpload('exchangeRuleForm')">确定</el-button>
                     </span>
-                </el-dialog>                
+                </el-dialog>
+
+                <el-dialog title="智慧卡换卡（信息转移）" :visible.sync="transferDialogShow" :modal-append-to-body="false" class="transfer-dialog">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="transferRules" ref="transferRuleForm" label-width="180px" :model="transferDialogInfo">
+
+                            <div class="flex-h">
+                                <div class="flex-a-i">
+                                    <el-form-item label="原卡号MAC">
+                                        <el-input v-model="transferDialogInfo.cardNo" disabled></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="NFC号">
+                                        <el-input v-model="transferDialogInfo.nfcCode" disabled></el-input>
+                                    </el-form-item>                                    
+                                </div>
+                                <div class="seprate">换成</div>
+                                <div class="flex-a-i">
+                                    <el-form-item label="新卡号MAC">
+                                        <el-input v-model="transferDialogInfo.newCardNo"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="NFC号">
+                                        <el-input v-model="transferDialogInfo.newNfcCode"></el-input>
+                                    </el-form-item>                                    
+                                </div>
+                            </div>
+                            
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="transferDialogLoading" @click.native="submitTransfer('transferRuleForm')">保存</el-button>
+                    </span>
+                </el-dialog>
             </div>
         </div>
     </div>
@@ -236,7 +270,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, channelList, smartCardList, smartCardSave, smartCardExport, smartCardImport } from '../api/api';
+    import { uploadPath, channelList, smartCardList, smartCardSave, transferCard, smartCardExport, smartCardImport } from '../api/api';
     import { COMMON } from '../common/js/common';
 
     let that;
@@ -380,7 +414,20 @@
                 uploadExchangeLoading: false,
                 uploadExchangeUrl: uploadPath + '/ajax/smartCard/batch/change',
                 exchangeFileList: [],
-                exchangeFileChange: new Array(),                
+                exchangeFileChange: new Array(),
+
+
+                transferDialogShow: false,
+                transferDialogLoading: false,
+                transferDialogInfo: {
+                    cardNo: '',
+                    nfcCode: '',
+                    newCardNo: '',
+                    newNfcCode: ''
+                },
+                transferRules: {
+                    
+                }                          
             };
         },
         methods: {
@@ -502,6 +549,58 @@
                     that.editDialogInfo.saleType = ''+ row.saleType +'';
                     that.editDialogInfo.cardStatus = ''+ row.status +'';
                 }, 1);
+            },
+
+            // 单卡转移
+            handleCardChange: function(index, row) {
+                this.transferDialogShow = true;
+
+                setTimeout(function() {
+                    that.$refs['transferRuleForm'].resetFields();
+
+                    that.transferDialogInfo.cardNo = row.code;
+                    that.transferDialogInfo.nfcCode = row.nfcCode;
+                }, 1);             
+            },
+
+            // 单卡转移 提交
+            submitTransfer: function(formName) {
+                this.$refs[formName].validate((valid)=>{
+                    if(valid){
+                        if(!this.transferDialogInfo.newCardNo) {
+                            this.$message({ message: '请输入新卡号MAC', type: 'error'});
+                            return false;
+                        }
+
+                        this.transferDialogLoading = true;
+
+                        let params = {
+                            'code': this.transferDialogInfo.cardNo,
+                            'nfcCode': this.transferDialogInfo.nfcCode,
+                            'nwCode': this.transferDialogInfo.newCardNo,
+                            'nwNfcCode': this.transferDialogInfo.newNfcCode
+                        };
+
+                        transferCard(params).then(res=>{
+                            this.transferDialogLoading = false;
+
+                            let { errorInfo, code, data } = res;
+
+                            if(code !== 0){
+                                this.$message({ message: errorInfo, type: 'error' });
+                            }else{
+                                this.$message({ message: '保存智慧卡信息成功！', type: 'success' });
+                                this.transferDialogShow = false;
+                                this.getCardList();
+                            }
+                        }).catch(error => {
+                            this.transferDialogLoading = false;
+                            this.$message({ message: '网络异常！保存智慧卡信息失败！', type: 'error'});
+                        });
+                    }else{
+                        return false;
+                    }
+                });                
             },
 
             // 提交编辑内容
@@ -692,6 +791,23 @@
 
         & + .el-input .el-input__inner{
             opacity: 0 !important;
+        }
+    }
+
+     .transfer-dialog .el-dialog{
+        width: auto;
+        padding-right: 50px;
+
+        .seprate{
+            position: relative;
+            right: -45px;
+            white-space: nowrap;
+            line-height: 120px;
+        }
+
+        .el-button{
+            position: relative;
+            right: -50px;
         }
     }
 </style>

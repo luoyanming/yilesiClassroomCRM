@@ -54,6 +54,9 @@
                         <el-table-column label="学校性质">
                             <template scope="scope"><p>{{ scope.row.typeStr }}</p></template>
                         </el-table-column>
+                        <el-table-column label="所属渠道">
+                            <template scope="scope"><p>{{ scope.row.channelName }}</p></template>
+                        </el-table-column>
                         <el-table-column label="操作">
                             <template scope="scope">
                                 <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)">编辑</el-button>
@@ -91,6 +94,9 @@
                             </el-form-item>
                             <el-form-item label="学校全称" prop="fullName">
                                 <el-input v-model="dialogInfo.fullName" style="width: 285px !important;"></el-input>
+                                <el-input v-model="dialogInfo.schoolCode" style="width: 90px !important;" disabled></el-input>
+                                <input type="text" v-model="dialogInfo.schoolCode" id="cCode" class="cCodeCopyInput">
+                                <button class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</button>
                             </el-form-item>
                             <el-form-item label="学校简称">
                                 <el-input v-model="dialogInfo.shortName" style="width: 285px !important;"></el-input>
@@ -151,6 +157,24 @@
                                 <br />
                                 <p class="tip">此选项影响每个学校中的班级自动升年级的具体时间</p>
                             </el-form-item>
+                            <el-form-item label="上学时间" prop="classTime">
+                                <el-time-picker
+                                    v-model="dialogInfo.startClassTime"
+                                    format="HH:mm"
+                                    placeholder="请选择">
+                                </el-time-picker>
+                                <p class="tip">到</p>
+                                <el-time-picker
+                                    v-model="dialogInfo.endClassTime"
+                                    format="HH:mm"                                 
+                                    placeholder="请选择">
+                                </el-time-picker>
+                            </el-form-item>
+                            <el-form-item label="所属渠道" prop="channel">
+                                <el-select v-model="dialogInfo.channel" placeholder="请选择">
+                                    <el-option v-for="item in channelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                </el-select>                             
+                            </el-form-item>                         
                         </el-form>
 
                     </section>
@@ -165,7 +189,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolSystemList, schoolList, schoolSave } from '../api/api';
+    import { uploadPath, schoolSystemList, channelList, schoolList, schoolCode, schoolSave } from '../api/api';
     import { COMMON } from '../common/js/common';
 
     let that;
@@ -181,6 +205,33 @@
                     }
                 }, 0);
             };
+
+            let checkClassTime = (rule, value, callback) => {
+                setTimeout(() => {
+                    let sTime = that.dialogInfo.startClassTime,
+                        eTime = that.dialogInfo.endClassTime,
+                        sh, eh, sm, em;
+
+
+                    if(sTime && eTime) {
+                        sTime = COMMON.formatTime(sTime);
+                        eTime = COMMON.formatTime(eTime);
+
+                        sh = parseInt(sTime.substring(0, 2));
+                        eh = parseInt(eTime.substring(0, 2));
+                        sm = parseInt(sTime.substring(3, 5));
+                        em = parseInt(eTime.substring(3, 5));
+                    }
+
+                    if(!sTime || !eTime) {
+                        callback(new Error('*请选择上学时间'));
+                    } else if ((sh > eh) || ((sh == eh) && (sm >= em))) {
+                        callback(new Error('*上学结束时间需大于开始时间'));
+                    } else {
+                        callback();
+                    }
+                }, 0);
+            };            
 
             let checkPic = (rule, value, callback) => {
                 setTimeout(() => {
@@ -249,12 +300,19 @@
                         'name': 'NGO'
                     }
                 ],
+                channelOptions:[
+                    {
+                        value:'',
+                        label:'全部'
+                    }
+                ],                
 
                 dialogInfo: {
                     id: '',
                     index: '',
                     logoUrl: [],
                     fullName: '',
+                    schoolCode: '',
                     shortName: '',
                     regionsProv: '',
                     regionsCity: '',
@@ -263,7 +321,10 @@
                     schoolSystemId: '',
                     type: '',
                     startYear: '',
-                    endYear: ''
+                    endYear: '',
+                    startClassTime: '',
+                    endClassTime: '',
+                    channel: ''
                 },
                 dialogShow: false,
                 dialogLoading: false,
@@ -282,6 +343,12 @@
                     ],
                     time: [
                         { required: true, validator: checkTime, trigger: 'change' }
+                    ],
+                    classTime: [
+                        { required: true, validator: checkClassTime, trigger: 'change' }
+                    ],
+                    channel: [
+                        { required: true, message: '*请选择所属渠道', trigger: 'change' }
                     ]
                 },
                 pickerOptions: {
@@ -295,6 +362,20 @@
             };
         },
         methods: {
+            // 获取学校编号事件
+            copyBind: function() {
+                var clipboard = new Clipboard('.cCodeCopyBtn');
+
+                clipboard.on('success', function(e) {
+                    that.$message({ message: '复制学校编号成功！', type: 'success' });
+
+                    e.clearSelection();
+                });
+
+                clipboard.on('error', function(e) {
+                    that.$message({ message: '复制学校编号失败！', type: 'error' });
+                });
+            },            
             // 获取学校学制列表
             getSchoolSystemList: function() {
                 let param = {
@@ -322,6 +403,35 @@
                     this.$message({ message: '网络异常！获取学校学制列表失败！', type: 'error'});
                 });
             },
+            // 获取渠道列表
+            getChannelList: function() {
+                let param = {
+                    'status': '',
+                    'pageNo': 1,
+                    'pageSize': 10000
+                };
+
+                channelList(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        if(data.list.length == 0) {
+                            return false;
+                        }
+
+                        for(let i = 0; i < data.list.length; i++) {
+                            this.channelOptions.push({
+                                'value': ''+ data.list[i].id +'',
+                                'label': data.list[i].name
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取渠道列表失败！', type: 'error'});
+                });
+            },            
             // 选择省触发事件
             regionsProvChange: function(val) {
                 this.dialogInfo.regionsCity = '';
@@ -424,6 +534,7 @@
                         index: '',
                         logoUrl: [],
                         fullName: '',
+                        schoolCode: '',
                         shortName: '',
                         regionsProv: '',
                         regionsCity: '',
@@ -432,7 +543,10 @@
                         schoolSystemId: '',
                         type: '',
                         startYear: '',
-                        endYear: ''
+                        endYear: '',
+                        startClassTime: '',
+                        endClassTime: '',
+                        channel: ''
                     }
                     that.$refs['ruleForm'].resetFields();
 
@@ -454,11 +568,12 @@
                             }
                         ],
                         that.dialogInfo.fullName = row.fullName;
+                        that.dialogInfo.schoolCode = row.code;
                         that.dialogInfo.shortName = row.shortName;
-                        that.dialogInfo.regionsProv = row.regionsProv;
+                        that.dialogInfo.regionsProv = row.regionsProv || '';
                         
                         setTimeout(function() {
-                            that.dialogInfo.regionsCity = row.regionsCity;
+                            that.dialogInfo.regionsCity = row.regionsCity || '';
                             for(let i = 0; i < that.regionsProvOptions.length; i++) {
                                 if(that.regionsProvOptions[i].v == row.regionsProv) {
                                     that.regionsCityOptions = that.regionsProvOptions[i].s;
@@ -473,7 +588,7 @@
                                         break;
                                     }
                                 }
-                                that.dialogInfo.regionsTown = row.regionsTown;
+                                that.dialogInfo.regionsTown = row.regionsTown || '';
                             },1);
                         },1);
                         
@@ -482,6 +597,23 @@
                         that.dialogInfo.type = '' + row.type;
                         that.dialogInfo.startYear = (new Date()).getFullYear() + '-' + row.startYear;
                         that.dialogInfo.endYear = (new Date()).getFullYear() + '-' + row.endYear;
+                        that.dialogInfo.startClassTime = COMMON.formatTimeUTC(row.startClassTime);
+                        that.dialogInfo.endClassTime = COMMON.formatTimeUTC(row.endClassTime);
+                        that.dialogInfo.channel = '' + row.channelId;
+                    } else {
+                        // add
+                        // 获取学校编号
+                        schoolCode({}).then(res => {
+                            let { errorInfo, code, data } = res;
+
+                            if(code !== 0) {
+                                that.$message({ message: errorInfo, type: 'error'});
+                            } else {
+                                that.dialogInfo.schoolCode = data.code;
+                            }
+                        }).catch(error => {
+                            that.$message({ message: '网络异常！获取学校编号失败！', type: 'error'});
+                        });
                     }
                 }, 1);
             },
@@ -504,7 +636,11 @@
                             'regionsProv': this.dialogInfo.regionsProv,
                             'regionsCity': this.dialogInfo.regionsCity,
                             'regionsTown': this.dialogInfo.regionsTown,
-                            'address': this.dialogInfo.address
+                            'address': this.dialogInfo.address,
+                            'code': this.dialogInfo.schoolCode,
+                            'startClassTime': COMMON.formatTime(this.dialogInfo.startClassTime),
+                            'endClassTime': COMMON.formatTime(this.dialogInfo.endClassTime),
+                            'channelId': this.dialogInfo.channel
                         };
 
                         schoolSave(params).then(res=>{
@@ -532,7 +668,9 @@
         mounted() {
             that = this;
             this.getSchoolSystemList();
+            this.getChannelList();
             this.getList();
+            this.copyBind();
         }
     }
 </script>
@@ -557,7 +695,10 @@
             }
         }
     }
-    
+    .el-time-panel__content::after,
+    .el-time-panel__content::before{
+        margin-top: -11px;
+    }
 </style>
 
 <style lang="scss" scoped>
@@ -574,6 +715,36 @@
         .formation .el-form .el-form-item .el-form-item__content .el-input {
             width: 130px !important;
         }
+
+        .cCodeCopyInput{
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .cCodeCopyBtn{
+            display: inline-block;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #c4c4c4;
+            box-sizing: border-box;
+            min-width: 76px;
+            padding: 0 14px;
+            line-height: 38px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #18c79c;
+            border-color: #18c79c;
+
+            &:hover{
+                background: rgb(70, 210, 176);
+                border-color: rgb(70, 210, 176);
+                color: #fff;
+            }
+        }        
 
     }
 </style>

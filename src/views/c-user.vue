@@ -19,14 +19,17 @@
                         </el-form-item>
                         <el-form-item label="用户分类">
                             <el-select v-model="searchForm.classify" placeholder="请选择">
-                                <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value">
-                                </el-option>
+                                <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="用户状态">
                             <el-select v-model="searchForm.status" placeholder="请选择">
-                                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
-                                </el-option>
+                                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="用户角色">
+                            <el-select v-model="searchForm.character" placeholder="请选择">
+                                <el-option v-for="item in characterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
 
@@ -35,6 +38,8 @@
                         </el-form-item>
                     </el-form>
 
+
+                    <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">导入用户</el-button>
                 </section>
 
                 <section class="table">
@@ -97,6 +102,19 @@
                                     <el-option v-for="item in classifyOptions" :label="item.label" :value="item.value"></el-option>
                                 </el-select>
                             </el-form-item>
+
+                            <el-form-item label="用户角色" prop="character">
+                                <div class="character-item clearfix" v-for="(roleItem, index) in editInfo.memberRoleList" >
+                                    <el-input v-model="roleItem.schoolCode"></el-input>
+                                    <el-select placeholder="请选择" v-model="roleItem.type">
+                                        <el-option v-for="item in eidtCharacterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select>
+                                    <el-button type="primary" size="small" class="button-remove" icon="minus" @click="handleRemoveOption(index)"></el-button>
+                                </div>
+                                <div class="character-item clearfix">
+                                    <el-button type="primary" size="small" class="button-add" icon="plus" @click="handleAddOption">增加角色</el-button>
+                                </div>
+                            </el-form-item>
                         </el-form>
 
                     </section>
@@ -105,6 +123,32 @@
                     </span>
                 </el-dialog>
 
+                <el-dialog title="导入用户" :visible.sync="uploadShow" :modal-append-to-body="false">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="rulesUpload" ref="ruleUploadForm" label-width="180px" :model="uploadInfo">
+                            <el-form-item label="导入" prop="excel">
+                                <el-upload
+                                    class="upload-demo"
+                                    ref="upload"
+                                    :on-change="uploadChange"
+                                    :action="uploadUrl"
+                                    :on-success="uploadSucc"
+                                    :on-error="uploadError"
+                                    :on-remove="handleRemove"
+                                    :file-list="fileList"
+                                    :auto-upload="false">
+                                    <el-button slot="trigger" size="small" type="primary">导入excel</el-button>
+                                </el-upload>
+                            </el-form-item>
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="uploadLoading" @click.native="submitUpload('ruleUploadForm')">保存</el-button>
+                    </span>
+                </el-dialog>                
+
             </div>
         </div>
     </div>
@@ -112,7 +156,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { memberList, memberEdit } from '../api/api';
+    import { uploadPath, memberList, memberEdit } from '../api/api';
 
     let that;
 
@@ -122,7 +166,8 @@
                 searchForm: {
                     account: '',
                     classify: '',
-                    status: ''
+                    status: '',
+                    character: ''
                 },
                 tableData: [],
                 tableloading: true,
@@ -173,13 +218,38 @@
                         label:'不活跃'
                     }
                 ],
+                characterOptions: [
+                    {
+                        value:'',
+                        label:'全部'
+                    },
+                    {
+                        value:'0',
+                        label:'教师'
+                    },
+                    {
+                        value:'1',
+                        label:'校领导'
+                    }
+                ],
+                eidtCharacterOptions: [
+                    {
+                        value:'0',
+                        label:'教师'
+                    },
+                    {
+                        value:'1',
+                        label:'校领导'
+                    }
+                ],
                 editInfo:{
                     id: '',
                     index: '',
                     account: '',
                     school: '',
                     name: '',
-                    classify: ''
+                    classify: '',
+                    memberRoleList: []
                 },
                 editDialogShow: false,
                 dialogLoading: false,
@@ -190,19 +260,34 @@
                     classify: [
                         { required: true, message: '*请选择分类', trigger: 'change' }
                     ]
-                }
+                },
+
+                uploadShow: false,
+                uploadLoading: false,
+                uploadUrl: uploadPath + '/ajax/member/excel/importUsers',
+                uploadInfo: {
+                    
+                },
+                fileList: [],
+                fileChange: new Array(),
+                rulesUpload: {
+                    
+                }                
             };
         },
         methods: {
+            // 列表搜索
             onSearchSubmit() {
                 this.pagi.currentPage = 1;
 
                 this.getUserList();
             },
+            // 列表分页
             handleCurrentChange(val) {
                 this.pagi.currentPage = parseInt(val);
                 this.getUserList();
             },
+            // 获取用户列表
             getUserList() {
                 this.tableloading = true;
 
@@ -242,7 +327,7 @@
                     this.$message({ message: '网络异常！获取用户列表失败！', type: 'error'});
                 });
             },
-            // 编辑
+            // 编辑按钮
             handleEdit(index, row) {
                 this.editDialogShow = true;
 
@@ -254,52 +339,159 @@
                     that.editInfo.account = row.mobile;
                     that.editInfo.school = row.schoolNumber;
                     that.editInfo.name = row.name;
-                    that.editInfo.classify = ''+ row.type +'';
+                    that.editInfo.classify = ''+ row.type;
+                    that.editInfo.memberRoleList = [];
+
+                    if(row.memberRoleList.length > 0) {
+                        for(let i = 0; i < row.memberRoleList.length; i++) {
+                            that.editInfo.memberRoleList.push({
+                                schoolCode: row.memberRoleList[i].schoolCode,
+                                type: '' + row.memberRoleList[i].type
+                            })
+                        }
+                    }
+                    
                 }, 1);
             },
-            // 保存
+            // 移除角色选项
+            handleRemoveOption: function(index) {
+                this.editInfo.memberRoleList.splice(index, 1);
+            },
+            // 新增角色选项
+            handleAddOption: function() {
+                this.editInfo.memberRoleList.push({
+                    schoolCode: '',
+                    type: '0'
+                })
+            },
+            // 保存编辑
             submitForm(formName) {
-                 this.$refs[formName].validate((valid)=>{
+                this.$refs[formName].validate((valid)=>{
                      if(valid){
                         this.dialogLoading = true;
+
+                        let roleJson = [];
+                        if(this.editInfo.memberRoleList.length > 0) {
+                            for(let i = 0; i < this.editInfo.memberRoleList.length; i++) {
+                                if(this.editInfo.memberRoleList[i].schoolCode) {
+                                    roleJson.push({
+                                        shoolCode: this.editInfo.memberRoleList[i].schoolCode,
+                                        roleType: this.editInfo.memberRoleList[i].type,
+                                        memberId: this.editInfo.id
+                                    })
+                                }
+                            }
+                        }
 
                         let params = {
                              'id': this.editInfo.id,
                              'name': this.editInfo.name,
-                             'type': this.editInfo.classify
+                             'type': this.editInfo.classify,
+                             'roleJsonStr': JSON.stringify(roleJson)
                         };
 
                         memberEdit(params).then(res=>{
                             this.dialogLoading = false;
+
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存用户信息成功！', type: 'success' });
-                                this.tableData[this.editInfo.index].name = this.editInfo.name;
-                                this.tableData[this.editInfo.index].type = this.editInfo.classify;
                                 this.editDialogShow = false;
+                                this.getUserList();
                             }
+                        }).catch(error => {
+                            this.dialogLoading = false;
+                            this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
                         });
                      }else{
                          return false;
                      }
-                 }).catch(error => {
-                    this.dialogLoading = false;
-                    this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
                 });
-            }
-           
+            },
+
+            uploadError(response, file, fileList) {
+                this.$message({ message: '导入excel失败！请重试！', type: 'error' });
+                this.uploadLoading = false;
+                this.fileList = [];
+            },
+            uploadSucc(response, file, fileList) {
+                if(response.code != 0) {
+                    this.$message({ message: response.errorInfo, type: 'error' });
+                    this.uploadLoading = false;
+                    this.fileList = [];
+                } else {
+                    this.$message({ message: '导入excel成功！', type: 'success' });
+                    this.uploadLoading = false;
+                    this.uploadShow = false;
+                    this.fileList = [];
+                    this.getUserList();
+                }
+            },
+            uploadChange: function(file, fileList) {
+                this.fileChange = fileList;
+            },
+
+            handleRemove(file, fileList) {
+                
+            },
+
+            // 提交excel
+            submitUpload: function() {
+                if(this.fileChange.length == 0) {
+                    this.$message({ message: '请上传excel文件！', type: 'error' });
+                    return false;
+                }
+
+                this.uploadLoading = true;
+                this.$refs.upload.submit();
+            }            
         },
         mounted() {
             that = this;
+
             this.getUserList();
         }
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+    .character-item{
+        .el-select{
+            .el-input{
+                width: 100px !important;
+            }
+        }
 
+        .button-add{
+            line-height: 30px !important;
+        }
+    }
+</style>
+
+<style lang="scss" scoped>
+    .character-item{
+        margin-bottom: 10px;
+
+        .el-input,
+        .el-select{
+            float: left;
+            margin-right: 10px;
+        }
+
+        .button-remove{
+            float: left;
+            width: 26px;
+            height: 26px;
+            margin-top: 7px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            min-width: auto;
+            line-height: 26px !important;
+        }
+    }
 </style>
 

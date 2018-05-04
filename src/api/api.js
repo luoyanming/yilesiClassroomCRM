@@ -4,12 +4,12 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// let base = 'http://classroomcrm.yls.com/privateapi';
-// export const uploadPath = '/privateapi';
+let base = 'http://classroomcrm.yls.com/privateapi';
+export const uploadPath = '/privateapi';
 // let base = 'http://crmctest.yilesi.cn';
 // export const uploadPath = '';
-let base = 'http://crmc.yilesi.cn';
-export const uploadPath = '';
+// let base = 'http://crmc.yilesi.cn';
+// export const uploadPath = '';
 
 let header = {
     'content-type': 'application/x-www-form-urlencoded'
@@ -139,6 +139,13 @@ export const smartCardImport = params => {
     }).then(res => res.data);
 };
 
+// 单卡转移
+export const transferCard = params => {
+    return axios.post(`${base}/ajax/smartCard/change`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
 
 
 // 操作日志
@@ -188,6 +195,13 @@ export const schoolList = params => {
 // 学制年级列表
 export const schoolGradeList = params => {
     return axios.post(`${base}/ajax/schoolSystem/grade/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 获取学校编号
+export const schoolCode = params => {
+    return axios.post(`${base}/ajax/generate/schoolCode`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
@@ -261,3 +275,81 @@ export const schoolClassStudentList = params => {
         headers: header
     }).then(res => res.data);
 };
+
+// 添加教职工
+export const schoolStaffAdd = params => {
+    return axios.post(`${base}/ajax/school/teachStaff/add`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 删除教职工
+export const schoolStaffDelete = params => {
+    return axios.post(`${base}/ajax/school/teachStaff/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 学校教职工列表
+export const schoolStaffList = params => {
+    return axios.post(`${base}/ajax/school/teachStaffList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 未添加的学校教职工列表
+export const notContainsSchoolStaffList = params => {
+    return axios.post(`${base}/ajax/notContains/teachStaff/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 用户管理总览
+export const userAllData = params => {
+    return axios.post(`${base}/ajax/member/getUserManageData`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// OU总览
+export const ouAllData = params => {
+    return axios.post(`${base}/ajax/school/getOUdata`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

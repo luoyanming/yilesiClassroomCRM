@@ -75,6 +75,23 @@ export const COMMON = {
         }
 
         return month + concat + date;
+    },
+    formatTime: function(time) {
+        let formatdate = new Date(time),
+            h = formatdate.getHours(),
+            m = formatdate.getMinutes();
+
+        if(h < 10) {
+            h = '0' + h;
+        }
+        if(m < 10) {
+            m = '0' + m;
+        }        
+
+        return h + ':' + m;
+    },
+    formatTimeUTC: function(time) {
+        return new Date(new Date((new Date().setHours(time.substring(0, 2)))).setMinutes(time.substring(3, 5)));
     }
 };
 

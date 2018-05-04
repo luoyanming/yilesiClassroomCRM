@@ -26,12 +26,19 @@
                 status: 'user',
                 menu: [
                     {
+                        'name': '用户总览',
+                        'title': '用户总览',
+                        'url': '/cusermanage',
+                        'leftnav': 'cusermanage',
+                        'show': true
+                    },
+                    {
                         'name': '用户管理',
                         'title': '用户管理',
                         'url': '/cuser',
                         'leftnav': 'cuser',
                         'show': true
-                    },
+                    },                    
                     {
                         'name': '内测用户',
                         'title': '内测用户',
@@ -68,10 +75,10 @@
                         'show': true
                     },
                     {
-                        'name': 'OU管理',
-                        'title': 'OU管理',
-                        'url': '',
-                        'leftnav': '',
+                        'name': 'OU总览',
+                        'title': 'OU总览',
+                        'url': '/schoolManage',
+                        'leftnav': 'schoolManage',
                         'show': true
                     },
                     {
@@ -88,6 +95,27 @@
                         'leftnav': 'school',
                         'show': true
                     },
+                    {
+                        'name': '学校教职工管理',
+                        'title': '学校教职工管理',
+                        'url': '/schoolStaff',
+                        'leftnav': 'schoolStaff',
+                        'show': true
+                    },                    
+                    {
+                        'name': '学校接收器管理',
+                        'title': '学校接收器管理',
+                        'url': '/schoolMachine',
+                        'leftnav': 'schoolMachine',
+                        'show': true
+                    },                    
+                    {
+                        'name': '学校区域管理',
+                        'title': '学校区域管理',
+                        'url': '/schoolArea',
+                        'leftnav': 'schoolArea',
+                        'show': true
+                    },                    
                     {
                         'name': '班级管理',
                         'title': '班级管理',
