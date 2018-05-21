@@ -634,7 +634,7 @@
 
                 let ids = [];
                 for(let i = 0; i < this.classTeacherDialog.selectedData.length; i++) {
-                    ids.push(this.classTeacherDialog.selectedData[i].id);
+                    ids.push(this.classTeacherDialog.selectedData[i].memberId);
                 }
 
                 let param = {

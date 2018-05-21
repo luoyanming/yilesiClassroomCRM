@@ -452,6 +452,9 @@ html {
         left: 0;
         bottom: 0;
         width: 180px;
+        overflow-x: hidden;
+        overflow-y: auto;
+
         li {
             .navitem {
                 display: block;

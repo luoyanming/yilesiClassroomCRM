@@ -54,9 +54,15 @@
                         <el-table-column label="持卡人">
                             <template scope="scope">{{ scope.row.holder }}</template>
                         </el-table-column>
+                        <el-table-column label="学校编号">
+                            <template scope="scope">{{ scope.row.schoolCode }}</template>
+                        </el-table-column>                       
                         <el-table-column label="OU班级编号">
                             <template scope="scope">{{ scope.row.classCode }}</template>
-                        </el-table-column>                       
+                        </el-table-column>    
+                        <el-table-column label="学籍号">
+                            <template scope="scope">{{ scope.row.schoolRollNo }}</template>
+                        </el-table-column>    
                         <el-table-column label="持卡人信息">
                             <template scope="scope">{{ scope.row.holderInfo == '' ? '' : scope.row.holderInfo.substring(0, 4) +'***'+ scope.row.holderInfo.substring(7, 8) }}</template>
                         </el-table-column>
@@ -157,12 +163,15 @@
                             <el-form-item label="持卡人" prop="holder">
                                 <el-input v-model="editDialogInfo.holder"></el-input>
                             </el-form-item>
+                            <el-form-item label="学校编号">
+                                <el-input v-model="editDialogInfo.schoolCode"></el-input>
+                            </el-form-item>                            
                             <el-form-item label="OU班级编号" prop="classCode">
                                 <el-input v-model="editDialogInfo.classCode"></el-input>
                             </el-form-item>
                             <el-form-item label="学籍号">
                                 <el-input v-model="editDialogInfo.schoolRollNo"></el-input>
-                            </el-form-item>                            
+                            </el-form-item>     
                             <el-form-item label="持卡人信息" prop="holderInfo">
                                 <input type="text" v-model="holderInfoStr" class="dateInput">
                                 <el-date-picker
@@ -369,6 +378,7 @@
                     cardNo: '',
                     nfcCode: '',
                     schoolRollNo: '',
+                    schoolCode: '',
                     version: '',
                     holder: '',
                     holderInfo: '',
@@ -450,7 +460,7 @@
 
                         for(let i = 0; i < data.list.length; i++) {
                             this.saleChannelOptions.push({
-                                'value': ''+ data.list[i].id +'',
+                                'value': ''+ data.list[i].id,
                                 'label': data.list[i].name
                             });
                         }
@@ -536,6 +546,7 @@
                     that.editDialogInfo.cardNo = row.code;
                     that.editDialogInfo.nfcCode = row.nfcCode;
                     that.editDialogInfo.schoolRollNo = row.schoolRollNo;
+                    that.editDialogInfo.schoolCode = row.schoolCode;
                     that.editDialogInfo.version = row.version;
                     that.editDialogInfo.holder = row.holder;
                     that.editDialogInfo.classCode = row.classCode;
@@ -544,10 +555,10 @@
                     } else {
                         that.editDialogInfo.holderInfo = row.holderInfo;
                     }
-                    that.editDialogInfo.price = ''+ row.price +'';
-                    that.editDialogInfo.saleChannel = ''+ row.channelId +'';
-                    that.editDialogInfo.saleType = ''+ row.saleType +'';
-                    that.editDialogInfo.cardStatus = ''+ row.status +'';
+                    that.editDialogInfo.price = ''+ row.price;
+                    that.editDialogInfo.saleChannel = ''+ (row.channelId == 0 ? '' : row.channelId);
+                    that.editDialogInfo.saleType = ''+ row.saleType;
+                    that.editDialogInfo.cardStatus = ''+ row.status;
                 }, 1);
             },
 
@@ -560,6 +571,8 @@
 
                     that.transferDialogInfo.cardNo = row.code;
                     that.transferDialogInfo.nfcCode = row.nfcCode;
+                    that.transferDialogInfo.newCardNo = '';
+                    that.transferDialogInfo.newNfcCode = '';                 
                 }, 1);             
             },
 
@@ -614,6 +627,7 @@
                             'code': this.editDialogInfo.cardNo,
                             'nfcCode': this.editDialogInfo.nfcCode,
                             'schoolRollNo': this.editDialogInfo.schoolRollNo,
+                            'schoolCode': this.editDialogInfo.schoolCode,
                             'channelId': this.editDialogInfo.saleChannel,
                             'saleType': this.editDialogInfo.saleType,
                             'status': this.editDialogInfo.cardStatus,

@@ -418,7 +418,7 @@
                     let item = this.staffDialog.selectedData[i];
 
                     ids.push({
-                        "memberId": item.id,
+                        "memberId": item.memberId,
                         "schoolCode": this.searchForm.schoolCode,
                         "type": item.type
                     });
@@ -770,7 +770,7 @@
 
         .el-dialog__wrapper,
         .el-table__body-wrapper{
-            height: 100%;
+            height: calc(100% - 40px);
             overflow-x: hidden;
             overflow-y: auto;
 

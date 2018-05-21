@@ -4,10 +4,10 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-let base = 'http://classroomcrm.yls.com/privateapi';
-export const uploadPath = '/privateapi';
-// let base = 'http://crmctest.yilesi.cn';
-// export const uploadPath = '';
+// let base = 'http://classroomcrm.yls.com/privateapi';
+// export const uploadPath = '/privateapi';
+let base = 'http://crmctest.yilesi.cn';
+export const uploadPath = '';
 // let base = 'http://crmc.yilesi.cn';
 // export const uploadPath = '';
 
@@ -314,6 +314,62 @@ export const userAllData = params => {
 // OU总览
 export const ouAllData = params => {
     return axios.post(`${base}/ajax/school/getOUdata`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// mac接收器列表查询
+export const macList = params => {
+    return axios.post(`${base}/ajax/school/getSchoolAcceptors`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 增加和更新接收器
+export const macOperate = params => {
+    return axios.post(`${base}/ajax/school/saveSchoolAcceptor`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 删除接收器
+export const macDelete = params => {
+    return axios.post(`${base}/ajax/school/deleteSchoolAcceptor`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 学校区域列表
+export const areaList = params => {
+    return axios.post(`${base}/ajax/school/region/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 生成学校区域编号
+export const areaCode = params => {
+    return axios.post(`${base}/ajax/generate/regionCode`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 新增或编辑学校区域
+export const areaSave = params => {
+    return axios.post(`${base}/ajax/school/region/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 删除学校区域
+export const areaDelete = params => {
+    return axios.post(`${base}/ajax/school/region/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 未添加的接收器列表
+export const areaMachineList = params => {
+    return axios.post(`${base}/ajax/school/notContains/acceptorList`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };

@@ -295,6 +295,7 @@
                     'mobile': this.searchForm.account,
                     'type': this.searchForm.classify,
                     'activeStatus': this.searchForm.status,
+                    'roleType': this.searchForm.character,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };

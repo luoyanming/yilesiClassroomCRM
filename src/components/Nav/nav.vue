@@ -77,8 +77,8 @@
                     {
                         'name': 'OU总览',
                         'title': 'OU总览',
-                        'url': '/schoolManage',
-                        'leftnav': 'schoolManage',
+                        'url': '/schoolmanage',
+                        'leftnav': 'schoolmanage',
                         'show': true
                     },
                     {
