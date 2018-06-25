@@ -54,7 +54,10 @@
                         <section class="table" style="height: auto">
                             <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
                                 <el-table-column label="区域编号">
-                                    <template scope="scope"><p>{{ scope.row.code }}</p></template>
+                                    <template scope="scope">
+                                        <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
+                                        <p v-else>{{ scope.row.code }}</p>
+                                    </template>
                                 </el-table-column>
                                 <el-table-column label="区域名称">
                                     <template scope="scope"><p>{{ scope.row.name }}</p></template>
@@ -102,7 +105,7 @@
                                 <el-input v-model="dialogInfo.name"></el-input>
                                 <el-input v-model="dialogInfo.code" style="width: 100px !important;" disabled></el-input>
                                 <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
-                                <button class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</button>
+                                <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
                             </el-form-item>
                             <el-form-item label="区域类型">
                                 <el-select v-model="dialogInfo.type" placeholder="请选择">
@@ -127,6 +130,12 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
+                            <el-form-item label="是否推送通知" v-if="dialogInfo.checkDoorType == 1">
+                                <el-select v-model="dialogInfo.pushStatus" placeholder="请选择">
+                                    <el-option v-for="item in pushStatusOptions" :key="item.value" :label="item.label" :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>                            
 
                             <el-form-item label="添加接收器" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
                                 <el-transfer
@@ -254,6 +263,16 @@
                         'label': '是'
                     }                    
                 ],
+                pushStatusOptions: [
+                    {
+                        'value': '0',
+                        'label': '否'
+                    },                
+                    {
+                        'value': '1',
+                        'label': '是'
+                    }                    
+                ],                
                 acceptorOptions: [
                     {
                         key: 0,
@@ -274,6 +293,7 @@
                     parentRegionCode: '',
                     action: 0,
                     checkDoorType: '0',
+                    pushStatus: '1',
                     acceptorIds: [],
                     mapUrl: '',
                     dialogLoading: false
@@ -444,6 +464,7 @@
                         parentRegionCode: '',
                         action: 0,
                         checkDoorType: '0',
+                        pushStatus: '1',
                         acceptorIds: [],
                         mapUrl: '',
                         dialogLoading: false
@@ -486,6 +507,7 @@
                         parentRegionCode: row.code,
                         action: 0,
                         checkDoorType: '0',
+                        pushStatus: '1',
                         dialogLoading: false,
                         mapUrl: '',
                         acceptorIds: []
@@ -528,6 +550,7 @@
                         type: '' + row.type,
                         action: row.action,
                         checkDoorType: '' + row.checkDoorType,
+                        pushStatus: '' + row.pushStatus,
                         acceptorIds: that.transArray(row.acceptorIds),
                         mapUrl: row.mapUrl,
                         dialogLoading: false
@@ -555,7 +578,7 @@
             submitForm: function(formName) {
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
-                        this.dialogLoading = true;
+                        this.dialogInfo.dialogLoading = true;
 
                         let params = {
                             id: this.dialogInfo.id,
@@ -566,12 +589,13 @@
                             parentRegionCode: this.dialogInfo.parentRegionCode,
                             action: this.dialogInfo.action,
                             checkDoorType: this.dialogInfo.checkDoorType,
+                            pushStatus: this.dialogInfo.pushStatus,
                             acceptorIds: this.dialogInfo.acceptorIds.join(','),
                             mapUrl: this.dialogInfo.mapUrl
                         };
 
                         areaSave(params).then(res=>{
-                            this.dialogLoading = false;
+                            this.dialogInfo.dialogLoading = false;
 
                             let { errorInfo, code, data } = res;
 
@@ -583,7 +607,7 @@
                                 this.getList();
                             }
                         }).catch(error => {
-                            this.dialogLoading = false;
+                            this.dialogInfo.dialogLoading = false;
                             this.$message({ message: '网络异常！保存失败！', type: 'error'});
                         });
                     }else{
@@ -849,6 +873,7 @@
             color: #fff;
             background-color: #18c79c;
             border-color: #18c79c;
+            text-align: center;
 
             &:hover{
                 background: rgb(70, 210, 176);

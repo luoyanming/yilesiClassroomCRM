@@ -96,7 +96,7 @@
                                 <el-input v-model="dialogInfo.fullName" style="width: 285px !important;"></el-input>
                                 <el-input v-model="dialogInfo.schoolCode" style="width: 90px !important;" disabled></el-input>
                                 <input type="text" v-model="dialogInfo.schoolCode" id="cCode" class="cCodeCopyInput">
-                                <button class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</button>
+                                <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
                             </el-form-item>
                             <el-form-item label="学校简称">
                                 <el-input v-model="dialogInfo.shortName" style="width: 285px !important;"></el-input>
@@ -738,6 +738,7 @@
             color: #fff;
             background-color: #18c79c;
             border-color: #18c79c;
+            text-align: center;
 
             &:hover{
                 background: rgb(70, 210, 176);

@@ -51,7 +51,7 @@
                             <template scope="scope"><p>{{ scope.row.schoolNumber }}</p></template>
                         </el-table-column>
                         <el-table-column label="姓名">
-                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                            <template scope="scope"><p>{{ scope.row.memberName }}</p></template>
                         </el-table-column>
                         <el-table-column label="用户分类">
                             <template scope="scope">

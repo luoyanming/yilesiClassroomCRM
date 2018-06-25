@@ -107,7 +107,7 @@
                                     <el-form-item label="班级编号">
                                         <el-input v-model="dialogInfo.code" disabled></el-input>
                                         <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
-                                        <button class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</button>
+                                        <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
                                     </el-form-item>
                                     <el-form-item label="班级名称">
                                         <el-input v-model="dialogInfo.name"></el-input>
@@ -735,6 +735,7 @@
             color: #fff;
             background-color: #18c79c;
             border-color: #18c79c;
+            text-align: center;
 
             &:hover{
                 background: rgb(70, 210, 176);
