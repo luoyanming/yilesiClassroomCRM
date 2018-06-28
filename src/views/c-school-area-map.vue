@@ -12,7 +12,7 @@
                     </el-breadcrumb>
                 </section>                
 
-                <section class="map-wrapper">
+                <section class="map-wrapper" v-show="mapurl">
                     <div class="map-info flex-h">
                         <div class="info-item flex-a-i">
                             <div class="title el-icon-picture">原图（分辨率：1000 * 600）</div>
@@ -45,6 +45,10 @@
                             <div class="btn-add el-icon-plus" @click="handleAddDecorateArea">添加装饰区域</div>
                         </div>
                     </div>
+                </section>
+
+                <section class="upload-wrap" v-show="!mapurl">
+                    上传按钮
                 </section>
             </div>
 
@@ -98,6 +102,8 @@
     export default {
         data() {
             return {
+                pageLoading: true,
+
                 schoolId: this.$route.query.id,
 
                 mapurl: '../../static/mapDemo.png',
@@ -128,6 +134,10 @@
                 // 根据 schoolId 获取 区域列表
                 // do ajax request here ....
                 // set example data like this
+                // 
+                this.pageLoading = false;
+                // this.mapurl = data.url;
+
                 this.areaList = [
                     {
                         id: 1,
@@ -577,15 +587,21 @@
 
                 that.dialog.loading = true;
 
+                let mapAllData = that.areaList;
+                mapAllData[that.dialog.index].center = that.dialog.center;
+                mapAllData[that.dialog.index].point = that.dialog.point;
+                mapAllData[that.dialog.index].color = that.dialog.color;                
+
+
                 // do ajax request, submit data to server
                 // ...
-                // if success, update areaList               
+                // if success, update areaList     
                 that.$message({ message: '保存成功', type: 'success', duration: '2000' });
 
-                that.areaList[that.dialog.index].center = that.dialog.center;
-                that.areaList[that.dialog.index].point = that.dialog.point;
-                that.areaList[that.dialog.index].color = that.dialog.color;
+                
                 that.dialog.show = false;
+                that.dialog.loading = false;
+                that.areaList = mapAllData;
 
                 setTimeout(function() {
                     that.drawArea(that.dialog.index, that.areaList[that.dialog.index]);
