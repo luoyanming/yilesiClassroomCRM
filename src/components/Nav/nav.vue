@@ -115,7 +115,7 @@
                         'url': '/schoolArea',
                         'leftnav': 'schoolArea',
                         'show': true
-                    },                    
+                    },
                     {
                         'name': '班级管理',
                         'title': '班级管理',

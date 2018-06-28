@@ -30,28 +30,28 @@ const router = new VueRouter({
     routes
 })
 
-import { isLogin } from './api/api'
-router.beforeEach((to, from, next) => {
-   if (to.matched.some(record => record.meta.requiresAuth)) {
-       NProgress.start();
+// import { isLogin } from './api/api'
+// router.beforeEach((to, from, next) => {
+//    if (to.matched.some(record => record.meta.requiresAuth)) {
+//        NProgress.start();
 
-       isLogin({}).then(res =>{
-           NProgress.done();
+//        isLogin({}).then(res =>{
+//            NProgress.done();
 
-           let { code, msg, data } = res;
+//            let { code, msg, data } = res;
 
-           if(code !== 0) {
-               next({
-                   path: '/login'
-               })
-           } else {
-               next()
-           }
-       });
-   } else {
-       next()
-   }
-});
+//            if(code !== 0) {
+//                next({
+//                    path: '/login'
+//                })
+//            } else {
+//                next()
+//            }
+//        });
+//    } else {
+//        next()
+//    }
+// });
 
 
 new Vue({

@@ -19,6 +19,7 @@ import schoolTree from './views/c-school-tree.vue'
 import schoolStaff from './views/c-school-staff.vue'
 import schoolMachine from './views/c-school-machine.vue'
 import schoolArea from './views/c-school-area.vue'
+import schoolAreaMap from './views/c-school-area-map.vue'
 
 
 
@@ -143,7 +144,7 @@ let routes = [{
             nav: "schoolStaff",
             requiresAuth: true
         }
-    },    
+    },
     {
         path: "/schoolMachine",
         component: schoolMachine,
@@ -161,7 +162,16 @@ let routes = [{
             nav: "schoolArea",
             requiresAuth: true
         }
-    },    
+    },
+    {
+        path: "/schoolAreaMap",
+        component: schoolAreaMap,
+        name: "学校区域地图",
+        meta: {
+            nav: "schoolArea",
+            requiresAuth: true
+        }
+    },        
     {
         path: "/schoolClass",
         component: schoolClass,
