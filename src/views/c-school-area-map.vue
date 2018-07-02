@@ -5,7 +5,7 @@
 
             <Nav></Nav>
 
-            <div class="main-wrapper light-overscroll luoym">
+            <div class="main-wrapper light-overscroll luoym" v-loading="pageLoading">
                 <section class="crumbs">
                     <el-breadcrumb separator="/">
                         <el-breadcrumb-item>绘制区域地图</el-breadcrumb-item>
@@ -13,7 +13,7 @@
                 </section>                
 
                 <section class="map-wrapper" v-show="mapurl">
-                    <div class="map-info flex-h">
+                    <div class="map-info flex-h" style="position:relative;">
                         <div class="info-item flex-a-i">
                             <div class="title el-icon-picture">原图（分辨率：1000 * 600）</div>
                             <div class="thumb-box">
@@ -26,6 +26,22 @@
                                 <canvas id="canvas-map"></canvas>
                             </div>
                         </div>
+                        <section class="formation" v-show="mapurl">
+                            <div class="upload-wrap absolute-upload-wrap">
+                                <el-upload
+                                    class="upload-demo list-pic-box"
+                                    :data="schoolParam"
+                                    :action="uploadUrl"
+                                    :file-list="dialog.thumbList"
+                                    list-type="picture"
+                                    :before-upload="uploadBeforeList"
+                                    :on-success="uploadSuccList"
+                                    :on-error="uploadErrorList"
+                                    :on-remove="uploadRemoveList">
+                                    <el-button type="primary" class="el-icon-upload reloadUpload" element-loading-text="正在上传"> 重新上传图片</el-button>
+                                </el-upload>
+                            </div>
+                        </section>
                     </div>
                     
                     <div class="area-list clearfix">
@@ -47,8 +63,27 @@
                     </div>
                 </section>
 
-                <section class="upload-wrap" v-show="!mapurl">
-                    上传按钮
+                <section class="upload-wrapper formation" v-show="!mapurl">
+                    <div class="map-info flex-h">
+                        <div class="info-item flex-a-i">
+                            <div class="title el-icon-picture">上传图片（分辨率：1000 * 600）</div>
+                        </div>
+                    </div>
+                    <div class="list-item add-more upload-wrap">
+                        <el-upload
+                            class="upload-demo list-pic-box"
+                            :data="schoolParam"
+                            :action="uploadUrl"
+                            :file-list="dialog.thumbList"
+                            list-type="picture"
+                            :before-upload="uploadBeforeList"
+                            :on-success="uploadSuccList"
+                            :on-error="uploadErrorList"
+                            :on-remove="uploadRemoveList">
+                            <el-button type="primary" class="btn-add el-icon-upload" element-loading-text="正在上传">上传图片</el-button>
+                            <div slot="tip" class="el-upload__tip" style="text-align: center;position: absolute;width: 100%;bottom: 30%;">只能上传jpg/png文件</div>
+                        </el-upload>
+                    </div>
                 </section>
             </div>
 
@@ -91,7 +126,7 @@
 
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="dialog.show = false"> 取消 </el-button>
-                    <el-button type="primary" :loading="dialog.loading" @click="dialogSubmit"> 保存 </el-button>
+                    <el-button type="primary" :loading="dialog.loading" @click="dialogSubmit" element-loading-text="正在保存"> 保存 </el-button>
                 </div>
             </el-dialog>
         </div>
@@ -99,14 +134,18 @@
 </template>
 
 <script>
+    import { uploadPath, uploadSchoolArea, saveSchoolAreaPoints, getSchoolAreaDetail } from '../api/api.js'
+
     export default {
         data() {
             return {
-                pageLoading: true,
+                pageLoading: false,
 
-                schoolId: this.$route.query.id,
+                schoolId: this.$route.query.schoolId,
 
-                mapurl: '../../static/mapDemo.png',
+                // mapurl: '../../static/mapDemo.png',
+                mapurl: '',
+                uploadUrl: uploadPath + '/ajax/school/regionMap/upload',
 
                 areaList: [],
 
@@ -119,7 +158,12 @@
                     color: '',
                     point: [],
                     center: {},
-                    loading: false
+                    loading: false,
+                    thumbList: []
+                },
+
+                schoolParam: {
+                    schoolId: this.$route.query.schoolId
                 }
             };
         },
@@ -129,54 +173,34 @@
              * @return {[type]} [description]
              */
             getAreaList: function() {
-                console.log('schoolId: ', this.schoolId)
+                this.pageLoading = true;
 
-                // 根据 schoolId 获取 区域列表
-                // do ajax request here ....
-                // set example data like this
-                // 
-                this.pageLoading = false;
-                // this.mapurl = data.url;
+                getSchoolAreaDetail(this.schoolParam).then(res => {
+                    let { errorInfo, code, data } = res;
+                    console.log(data)
 
-                this.areaList = [
-                    {
-                        id: 1,
-                        name: '操场',
-                        center: {},
-                        point: [],
-                        color: ''        
-                    },{
-                        id: 2,
-                        name: '宿舍楼',
-                        center: {},
-                        point: [],
-                        color: ''
-                    },{
-                        id: 3,
-                        name: '综合教学楼',
-                        center: {},
-                        point: [],
-                        color: ''
-                    },{
-                        id: 4,
-                        name: '礼堂',
-                        center: {},
-                        point: [],
-                        color: ''
-                    },{
-                        id: 5,
-                        name: '校门',
-                        center: {},
-                        point: [],
-                        color: ''
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        this.pageLoading = false;
+                        this.mapurl = data.mapUrl;
+                        let regionMapPoint = data.regionMapVoList;
+                        for(let i = 0; i < regionMapPoint.length; i++) {
+                            regionMapPoint[i].center = JSON.parse(regionMapPoint[i].center);
+                            regionMapPoint[i].point = JSON.parse(regionMapPoint[i].point);
+                        }
+                        this.areaList = regionMapPoint;
+                    
+                        
+                        setTimeout(() => {
+                            for(let i = 0; i < this.areaList.length; i++) {
+                                this.drawArea(i, this.areaList[i]);
+                            }
+
+                            this.drawMap();
+                        }, 300)
                     }
-                ]
-
-                for(let i = 0; i < this.areaList.length; i++) {
-                    this.drawArea(i, this.areaList[i]);
-                }
-
-                this.drawMap();
+                })             
             },
             /**
              * [drawMap 绘制学校地图]
@@ -203,44 +227,47 @@
                         ctx.beginPath();
                         ctx.fillStyle = points.color;
                         let point = points.point;
-                        ctx.moveTo(point[0].x * scale, point[0].y * scale);
-                        for(let j = 0; j < point.length; j++) {
-                            ctx.lineTo(point[j].x * scale, point[j].y * scale);
-                        }
-                        ctx.lineTo(point[0].x * scale, point[0].y * scale);       
-                        ctx.closePath();  
-                        ctx.fill();                          
-                        
-                        if(points.id) {
-                            // 区域名字
-                            ctx.font = 8 * scale + 'px Helvetica';
-                            ctx.fillStyle = '#000000';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'bottom';
-                            ctx.fillText(points.name, points.center.x * scale, points.center.y * scale);
 
-                            // 区域数量色块
-                            var cx = points.center.x,
-                                cy = points.center.y,
-                                delta = 5;
-                            ctx.beginPath();
-                            ctx.fillStyle = '#38A0FF';
-                            ctx.moveTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
-                            ctx.lineTo((cx + 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
-                            ctx.arc((cx + 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, -0.5 * Math.PI, 1 * Math.PI);
-                            ctx.lineTo((cx + 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
-                            ctx.lineTo((cx - 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
-                            ctx.arc((cx - 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, 0.5 * Math.PI, 1.5 * Math.PI);
-                            ctx.lineTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
-                            ctx.closePath();
-                            ctx.fill();
+                        if(point.length > 0) {
+                            ctx.moveTo(point[0].x * scale, point[0].y * scale);
+                            for(let j = 0; j < point.length; j++) {
+                                ctx.lineTo(point[j].x * scale, point[j].y * scale);
+                            }
+                            ctx.lineTo(point[0].x * scale, point[0].y * scale);       
+                            ctx.closePath();  
+                            ctx.fill();                          
+                            
+                            if(points.id) {
+                                // 区域名字
+                                ctx.font = 8 * scale + 'px Helvetica';
+                                ctx.fillStyle = '#000000';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(points.name, points.center.x * scale, points.center.y * scale);
 
-                            // 区域数量文字
-                            ctx.font = 8 * scale + 'px Helvetica';
-                            ctx.fillStyle = '#FFFFFF';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(points.num || 0, cx * scale, (cy + 1.5 * delta) * scale);
+                                // 区域数量色块
+                                var cx = points.center.x,
+                                    cy = points.center.y,
+                                    delta = 5;
+                                ctx.beginPath();
+                                ctx.fillStyle = '#38A0FF';
+                                ctx.moveTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                                ctx.lineTo((cx + 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                                ctx.arc((cx + 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, -0.5 * Math.PI, 1 * Math.PI);
+                                ctx.lineTo((cx + 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
+                                ctx.lineTo((cx - 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
+                                ctx.arc((cx - 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, 0.5 * Math.PI, 1.5 * Math.PI);
+                                ctx.lineTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                                ctx.closePath();
+                                ctx.fill();
+
+                                // 区域数量文字
+                                ctx.font = 8 * scale + 'px Helvetica';
+                                ctx.fillStyle = '#FFFFFF';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(points.num || 0, cx * scale, (cy + 1.5 * delta) * scale);
+                            }
                         }
                     }
                 }
@@ -590,23 +617,32 @@
                 let mapAllData = that.areaList;
                 mapAllData[that.dialog.index].center = that.dialog.center;
                 mapAllData[that.dialog.index].point = that.dialog.point;
-                mapAllData[that.dialog.index].color = that.dialog.color;                
-
-
-                // do ajax request, submit data to server
-                // ...
-                // if success, update areaList     
-                that.$message({ message: '保存成功', type: 'success', duration: '2000' });
-
+                mapAllData[that.dialog.index].color = that.dialog.color;        
                 
-                that.dialog.show = false;
-                that.dialog.loading = false;
-                that.areaList = mapAllData;
+                let saveParam = {
+                    'schoolId': this.schoolId,
+                    'regionMapPoint': JSON.stringify(mapAllData)
+                }
 
-                setTimeout(function() {
-                    that.drawArea(that.dialog.index, that.areaList[that.dialog.index]);
-                    that.drawMap();
-                }, 300);
+                saveSchoolAreaPoints(saveParam).then(res => {
+
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        that.$message({ message: '保存成功', type: 'success', duration: '2000' });
+                        
+                        that.dialog.show = false;
+                        that.dialog.loading = false;
+                        that.areaList = mapAllData;
+
+                        setTimeout(function() {
+                            that.drawArea(that.dialog.index, that.areaList[that.dialog.index]);
+                            that.drawMap();
+                        }, 300);
+                    }
+                })
             },
             /**
              * [handleAddDecorateArea 添加装饰区域]
@@ -635,7 +671,29 @@
                 }
 
                 this.drawMap();
-            }
+            },
+            // 上传图片 
+            uploadBeforeList(file) {
+                if(!/image\/\w+/.test(file.type)) {
+                    this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
+                    return false;
+                }
+            },
+            uploadErrorList(response, file, fileList) {
+                this.dialog.thumbList = [];
+                this.$message({ message: '图片上传失败，请重试！', type: 'error'});
+            },
+            uploadSuccList(response, file, fileList) {
+                if(fileList.length > 1) {
+                    fileList.shift();
+                }
+                this.dialog.thumbList = fileList;
+                this.$message({ message: '上传成功', type: 'success'});
+                this.mapurl = response.data.mapUrl;
+            },
+            uploadRemoveList(file, fileList) {
+                this.dialog.thumbList = fileList;
+            },
         },
         mounted() {
             this.getAreaList();
@@ -918,6 +976,65 @@
                 width: 1000px;
                 height: 600px;                
             }
+        }
+    }
+
+    .upload-wrapper {
+        margin-top: 30px;
+
+        .list-item{
+            width: 40%;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            -webkit-box-sizing: border-box;
+                    box-sizing: border-box;
+            
+            &.add-more{
+                position: relative;
+                height: 250px;
+                border: 1px dashed #999;
+
+                .btn-add{
+                    position: absolute;
+                    z-index: 1;
+                    top: 50%;
+                    left: 50%;
+                    height: 30px;
+                    padding: 0 15px;
+                    line-height: 30px;
+                    text-align: center;
+                    background: #3FCB9A;
+                    color: #FFF;
+                    border-radius: 2px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    overflow: hidden;
+                    -webkit-transform: translate3d(-50%, -50%, 0);
+                            transform: translate3d(-50%, -50%, 0);
+
+                    &::before{
+                        font-size: 12px;
+                        margin-right: 5px;
+                    }
+
+                    &:hover{
+                        opacity: .8;
+                    }  
+                }
+            }
+        }
+    }
+    
+    .absolute-upload-wrap {
+        position: absolute;
+        left: 200px;
+        top: -6px;
+        z-index: 1;
+
+        .reloadUpload {
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
         }
     }
 </style>

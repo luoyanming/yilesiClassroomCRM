@@ -4,10 +4,10 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-let base = 'http://classroomcrm.yls.com/privateapi';
-export const uploadPath = '/privateapi';
-// let base = 'http://crmctest.yilesi.cn';
-// export const uploadPath = '';
+// let base = 'http://classroomcrm.yls.com/privateapi';
+// export const uploadPath = '/privateapi';
+let base = 'http://crmctest.yilesi.cn';
+export const uploadPath = '';
 // let base = 'http://crmc.yilesi.cn';
 // export const uploadPath = '';
 
@@ -374,7 +374,26 @@ export const areaMachineList = params => {
     }).then(res => res.data);
 };
 
+// 上传学校区域地图
+export const uploadSchoolArea = params => {
+    return axios.post(`${base}/ajax/school/regionMap/upload`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
 
+// 保存学校区域坐标
+export const saveSchoolAreaPoints = params => {
+    return axios.post(`${base}/ajax/school/regionMapPoint/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 获取学校详情
+export const getSchoolAreaDetail = params => {
+    return axios.post(`${base}/ajax/school/regionMap`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
 
 
 

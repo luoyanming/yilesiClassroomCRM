@@ -1039,10 +1039,27 @@ html {
                 }
             }
         }
+        .upload-wrap {
+            
+
+            .list-pic-box {
+                
+                .el-upload-list {
+                    display: none !important;
+                }
+            }
+        }
     }
     // ================================
     // dialog
     // ================================
+    .areaDialog-wrapper {
+
+        .el-dialog {
+            width: 800px;
+        }
+    }
+    
     .el-dialog {
         .el-dialog__header {
             .el-dialog__title {

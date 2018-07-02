@@ -71,11 +71,11 @@
                                 <el-table-column label="所属大区域编号">
                                     <template scope="scope"><p>{{ scope.row.parentRegionCode }}</p></template>
                                 </el-table-column>
-                                <el-table-column label="区域视图">
+                                <!-- <el-table-column label="区域视图">
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleDetail(scope.$index, scope.row)" v-if="scope.row.type == 1">查看</el-button>
                                     </template>
-                                </el-table-column>
+                                </el-table-column> -->
                                 <el-table-column label="操作">
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -96,8 +96,8 @@
                         </section>    
                     </div>
                 </div>
-
-                <el-dialog :title="dialogInfo.type == 0 ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false">
+                
+                <el-dialog :title="dialogInfo.type == 0 ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false" class="areaDialog-wrapper">
                     <section class="formation">
                
                         <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
@@ -148,7 +148,7 @@
                                 </el-transfer>
                             </el-form-item>                                                                                                    
 
-                            <el-form-item label="区域地图" v-if="dialogInfo.type == 1">
+                            <!-- <el-form-item label="区域地图" v-if="dialogInfo.type == 1">
                                 <el-upload
                                     class="upload-demo"
                                     :action="uploadUrl"
@@ -161,7 +161,7 @@
                                     <el-button type="primary" :disabled="!!dialogInfo.mapUrl">点击上传</el-button>
                                     <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
                                 </el-upload>
-                            </el-form-item>                                               
+                            </el-form-item>                                                -->
                         </el-form>
 
                     </section>
@@ -169,6 +169,7 @@
                         <el-button type="primary" :loading="dialogInfo.dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
                     </span>
                 </el-dialog>
+                
 
                 <el-dialog :title="areaDetail.name" :visible.sync="areaDetail.dialogShow" :modal-append-to-body="false">
                     <div class="area-map">
@@ -357,7 +358,6 @@
             handleNodeClick(data) {
                 this.searchForm.schoolId = data.id;
                 this.searchForm.schoolCode = data.code;
-
                 this.showTable = true;
 
                 this.getList();
@@ -389,6 +389,7 @@
                     this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
+                    console.log(data)
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
@@ -637,7 +638,7 @@
 
             // 学校总览
             handleShowSchoolArea: function() {
-
+                this.$router.push({ path: '/schoolAreaMap', query: { schoolId: this.searchForm.schoolId } });
             },
 
             // 删除区域
@@ -693,21 +694,21 @@
                 return newIds;
             },
 
-            uploadBefore(file) {
-                if(!/image\/\w+/.test(file.type)) {
-                    this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
-                    return false;
-                }
-            },
-            uploadError(response, file, fileList) {
-                this.$message({ message: '图片上传失败，请重试！', type: 'error'});
-            },
-            uploadSucc(response, file, fileList) {
-                this.dialogInfo.mapUrl = response.data.mapUrl;
-            },
-            uploadRemove(file, fileList) {
-                this.dialogInfo.mapUrl = '';
-            }           
+            // uploadBefore(file) {
+            //     if(!/image\/\w+/.test(file.type)) {
+            //         this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
+            //         return false;
+            //     }
+            // },
+            // uploadError(response, file, fileList) {
+            //     this.$message({ message: '图片上传失败，请重试！', type: 'error'});
+            // },
+            // uploadSucc(response, file, fileList) {
+            //     this.dialogInfo.mapUrl = response.data.mapUrl;
+            // },
+            // uploadRemove(file, fileList) {
+            //     this.dialogInfo.mapUrl = '';
+            // }           
         },
         mounted() {
             that = this;
