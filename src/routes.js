@@ -21,6 +21,15 @@ import schoolMachine from './views/c-school-machine.vue'
 import schoolArea from './views/c-school-area.vue'
 import schoolAreaMap from './views/c-school-area-map.vue'
 
+import tagsClassify from './views/c-tags-classify.vue'
+import tagsManage from './views/c-tags-manage.vue'
+
+import video from './views/c-video.vue'
+import videoCourse from './views/c-video-course.vue'
+import videoWxlist from './views/c-video-wxlist.vue'
+import videoWxlistRank from './views/c-video-wxlist-rank.vue'
+
+
 
 
 let routes = [{
@@ -187,6 +196,60 @@ let routes = [{
         name: "结构树",
         meta: {
             nav: "schoolTree",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/tagsClassify",
+        component: tagsClassify,
+        name: "标签分类",
+        meta: {
+            nav: "tagsClassify",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/tagsManage",
+        component: tagsManage,
+        name: "标签管理",
+        meta: {
+            nav: "tagsManage",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/video",
+        component: video,
+        name: "视频总览",
+        meta: {
+            nav: "video",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/videoCourse",
+        component: videoCourse,
+        name: "课程记录",
+        meta: {
+            nav: "videoCourse",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/videoWxlist",
+        component: videoWxlist,
+        name: "微课",
+        meta: {
+            nav: "videoWxlist",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/videoWxlistRank",
+        component: videoWxlistRank,
+        name: "微课排行榜",
+        meta: {
+            nav: "videoWxlistRank",
             requiresAuth: true
         }
     }

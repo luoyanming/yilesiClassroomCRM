@@ -502,8 +502,42 @@ html {
                     background-position: 18px center;
                     background-size: 32px 32px;
                 }
+                &.current {
+                    background-image: url('/static/icon_special_white.png');
+                    background-repeat: no-repeat;
+                    background-position: 18px center;
+                    background-size: 32px 32px;
+                }
             }
             &:nth-of-type(16) {
+                .navitem {
+                    background-image: url('/static/icon_tag.png');
+                    background-repeat: no-repeat;
+                    background-position: 18px center;
+                    background-size: 32px 32px;
+                    &.current {
+                        background-image: url('/static/icon_tag_white.png');
+                        background-repeat: no-repeat;
+                        background-position: 18px center;
+                        background-size: 32px 32px;
+                    }
+                }
+            }            
+            &:nth-of-type(19) {
+                .navitem {
+                    background-image: url('/static/icon_word.png');
+                    background-repeat: no-repeat;
+                    background-position: 18px center;
+                    background-size: 32px 32px;
+                    &.current {
+                        background-image: url('/static/icon_word_white.png');
+                        background-repeat: no-repeat;
+                        background-position: 18px center;
+                        background-size: 32px 32px;
+                    }
+                }
+            }            
+            &:nth-of-type(23) {
                 .navitem {
                     background-image: url('/static/icon_word.png');
                     background-repeat: no-repeat;
@@ -631,7 +665,7 @@ html {
                         width: auto;
                         font-size: 12px;
                         .el-input__inner {
-                            width: 110px;
+                            width: 120px;
                             height: 32px;
                             background: #FFFFFF;
                             border: 1px solid #E5E5E5;

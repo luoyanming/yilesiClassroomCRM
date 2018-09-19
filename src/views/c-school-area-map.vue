@@ -44,7 +44,7 @@
                         </section>
                     </div>
                     
-                    <div class="area-list clearfix">
+                    <!-- <div class="area-list clearfix">
                         <div class="list-item" v-for="(item, index) in areaList">
                             <div class="item-header flex-h">
                                 <div v-bind:class="[ item.point.length > 0 ? 'name el-icon-star-on flex-a-i' : 'name el-icon-star-off flex-a-i' ]">{{ item.name }}</div>
@@ -60,7 +60,38 @@
                         <div class="list-item add-more">
                             <div class="btn-add el-icon-plus" @click="handleAddDecorateArea">添加装饰区域</div>
                         </div>
-                    </div>
+                    </div> -->
+
+                    <section class="table" style="height: auto; margin-top: 30px;">
+                        <el-table :data="schoolRegionList" stripe style="width: 100%">
+                            <el-table-column label="区域编号">
+                                <template scope="scope">
+                                    <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
+                                    <p v-else>{{ scope.row.code }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="区域名称">
+                                <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                            </el-table-column>
+                            <el-table-column label="区域类型">
+                                <template scope="scope">
+                                    <p v-if="scope.row.type == 0">子区域</p>
+                                    <p v-if="scope.row.type == 1">大区域</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="作用">
+                                <template scope="scope">
+                                    <p v-if="scope.row.action == 0">起定位作用</p>
+                                    <p v-if="scope.row.action == 1">起装饰作用</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template scope="scope">
+                                    <el-button size="small" class="button-link" @click="handleAddPoint(scope.$index, scope.row)">编辑</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </section>                      
                 </section>
 
                 <section class="upload-wrapper formation" v-show="!mapurl">
@@ -134,7 +165,7 @@
 </template>
 
 <script>
-    import { uploadPath, uploadSchoolArea, saveSchoolAreaPoints, getSchoolAreaDetail } from '../api/api.js'
+    import { uploadPath, uploadSchoolArea, saveSchoolAreaPoints, saveSchoolRegionMapPoint, getSchoolAreaDetail } from '../api/api.js'
 
     export default {
         data() {
@@ -147,6 +178,7 @@
                 mapurl: '',
                 uploadUrl: uploadPath + '/ajax/school/regionMap/upload',
 
+                schoolRegionList: [],
                 areaList: [],
 
                 colorLength: 7,
@@ -190,12 +222,13 @@
                             regionMapPoint[i].point = JSON.parse(regionMapPoint[i].point);
                         }
                         this.areaList = regionMapPoint;
+                        this.schoolRegionList = data.schoolRegionList;
                     
                         
                         setTimeout(() => {
-                            for(let i = 0; i < this.areaList.length; i++) {
-                                this.drawArea(i, this.areaList[i]);
-                            }
+                            // for(let i = 0; i < this.areaList.length; i++) {
+                            //     this.drawArea(i, this.areaList[i]);
+                            // }
 
                             this.drawMap();
                         }, 300)
@@ -408,7 +441,7 @@
                 this.dialog = {
                     show: true,
                     index: index,
-                    id: item.id,
+                    id: item.action == 0 ? item.id : 0,
                     name: item.name,
                     color: '',
                     point: [],
@@ -420,7 +453,7 @@
                 setTimeout(function() {
                     that.dialogCanvasPointInit();
 
-                    if(item.id) {
+                    if(item.action == 0) {
                         that.dialogCanvasCenterInit();
                     }
                 }, 2)
@@ -614,18 +647,31 @@
 
                 that.dialog.loading = true;
 
+
                 let mapAllData = that.areaList;
                 mapAllData[that.dialog.index].center = that.dialog.center;
                 mapAllData[that.dialog.index].point = that.dialog.point;
-                mapAllData[that.dialog.index].color = that.dialog.color;        
+                mapAllData[that.dialog.index].color = that.dialog.color;
+
+                let mapPoint = {},
+                    regionId = '';
+                mapPoint.center = that.dialog.center;
+                mapPoint.point = that.dialog.point;
+                mapPoint.color = that.dialog.color; 
+
+                for(let i = 0; i < that.schoolRegionList.length; i++) {
+                    if(that.dialog.name == that.schoolRegionList[i].name) {
+                        regionId = that.schoolRegionList[i].id;
+                        break;
+                    }
+                }                     
                 
                 let saveParam = {
-                    'schoolId': this.schoolId,
-                    'regionMapPoint': JSON.stringify(mapAllData)
+                    'regionId': regionId,
+                    'mapPoint': JSON.stringify(mapPoint)
                 }
 
-                saveSchoolAreaPoints(saveParam).then(res => {
-
+                saveSchoolRegionMapPoint(saveParam).then(res => {
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
@@ -638,7 +684,7 @@
                         that.areaList = mapAllData;
 
                         setTimeout(function() {
-                            that.drawArea(that.dialog.index, that.areaList[that.dialog.index]);
+                            // that.drawArea(that.dialog.index, that.areaList[that.dialog.index]);
                             that.drawMap();
                         }, 300);
                     }
@@ -648,30 +694,30 @@
              * [handleAddDecorateArea 添加装饰区域]
              * @return {[type]} [description]
              */
-            handleAddDecorateArea: function() {
-                this.areaList.push({
-                    id: '',
-                    name: '装饰性区域',
-                    center: {},
-                    point: [],
-                    color: ''        
-                })
-            },
+            // handleAddDecorateArea: function() {
+            //     this.areaList.push({
+            //         id: '',
+            //         name: '装饰性区域',
+            //         center: {},
+            //         point: [],
+            //         color: ''        
+            //     })
+            // },
             /**
              * [handleDeleteDecorateArea 删除装饰区域]
              * @param  {[type]} index [description]
              * @param  {[type]} item  [description]
              * @return {[type]}       [description]
              */
-            handleDeleteDecorateArea: function(index, item) {
-                this.areaList.splice(index, 1);
+            // handleDeleteDecorateArea: function(index, item) {
+            //     this.areaList.splice(index, 1);
                 
-                for(let i = 0; i < this.areaList.length; i++) {
-                    this.drawArea(i, this.areaList[i]);
-                }
+            //     for(let i = 0; i < this.areaList.length; i++) {
+            //         this.drawArea(i, this.areaList[i]);
+            //     }
 
-                this.drawMap();
-            },
+            //     this.drawMap();
+            // },
             // 上传图片 
             uploadBeforeList(file) {
                 if(!/image\/\w+/.test(file.type)) {

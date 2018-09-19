@@ -171,6 +171,19 @@ export const schoolSystemList = params => {
     }).then(res => res.data);
 };
 
+// 年级编号列表
+export const schoolSystemGradeNumList = params => {
+    return axios.post(`${base}/ajax/gradeNum/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 年级编号列表
+export const schoolSystemGradeNumVoList = params => {
+    return axios.post(`${base}/ajax/gradeNumVo/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
 // 上传学校logo
 export const schoolLogoUpload = params => {
     return axios.post(`${base}/ajax/school/logo/upload`, qs.stringify(params), {
@@ -387,10 +400,118 @@ export const saveSchoolAreaPoints = params => {
         headers: header
     }).then(res => res.data);
 };
+// 保存单个区域地图坐标
+export const saveSchoolRegionMapPoint = params => {
+    return axios.post(`${base}/ajax/schoolRegion/mapPoint/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
 
 // 获取学校详情
 export const getSchoolAreaDetail = params => {
     return axios.post(`${base}/ajax/school/regionMap`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+// 标签分类列表
+export const tagsClassifyList = params => {
+    return axios.post(`${base}/ajax/tagType/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 标签分类新增或编辑
+export const tagsClassifySave = params => {
+    return axios.post(`${base}/ajax/tagType/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 删除标签分类
+export const tagsClassifyDelete = params => {
+    return axios.post(`${base}/ajax/tagType/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 标签列表
+export const tagsList = params => {
+    return axios.post(`${base}/ajax/tag/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 标签新增或编辑
+export const tagsSave = params => {
+    return axios.post(`${base}/ajax/tag/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 删除标签
+export const tagsDelete = params => {
+    return axios.post(`${base}/ajax/tag/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+
+// 视频总览
+export const courseRecordStatistics = params => {
+    return axios.post(`${base}/ajax/courseRecord/statistics`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 视频记录列表 /微课视频列表
+export const courseRecordList = params => {
+    return axios.post(`${base}/ajax/courseRecord/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 更新课程视频标签
+export const courseRecordTagUpdate = params => {
+    return axios.post(`${base}/ajax/courseRecord/tag/update`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 增加播放次数
+export const courseRecordPlayNumAdd = params => {
+    return axios.post(`${base}/ajax/courseRecord/playNum/add`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 刷赞
+export const courseRecordLikeNumAdd = params => {
+    return axios.post(`${base}/ajax/courseRecord/likeNum/add`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 微课信息更新
+export const courseRecordMicroUpdate = params => {
+    return axios.post(`${base}/ajax/courseRecord/micro/update`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 屏蔽视频
+export const courseRecordStop = params => {
+    return axios.post(`${base}/ajax/courseRecord/stop`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 微课排行榜
+export const courseRecordRankingList = params => {
+    return axios.post(`${base}/ajax/courseRecordRanking/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 微课排行榜信息更新
+export const courseRecordRankingUpdate = params => {
+    return axios.post(`${base}/ajax/courseRecordRanking/update`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 发布微课排行榜
+export const courseRecordRankingPublish = params => {
+    return axios.post(`${base}/ajax/courseRecordRanking/publish`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };

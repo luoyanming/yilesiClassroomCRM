@@ -71,11 +71,11 @@
                                 <el-table-column label="所属大区域编号">
                                     <template scope="scope"><p>{{ scope.row.parentRegionCode }}</p></template>
                                 </el-table-column>
-                                <!-- <el-table-column label="区域视图">
+                                <el-table-column label="区域视图">
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleDetail(scope.$index, scope.row)" v-if="scope.row.type == 1">查看</el-button>
                                     </template>
-                                </el-table-column> -->
+                                </el-table-column>
                                 <el-table-column label="操作">
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -97,7 +97,7 @@
                     </div>
                 </div>
                 
-                <el-dialog :title="dialogInfo.type == 0 ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false" class="areaDialog-wrapper">
+                <el-dialog :title="!dialogInfo.id ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false" class="areaDialog-wrapper">
                     <section class="formation">
                
                         <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
@@ -118,12 +118,17 @@
                             </el-form-item>
                             <el-form-item label="区域作用" v-if="dialogInfo.type == 1">
                                 <el-radio-group v-model="dialogInfo.action">
-                                    <el-radio :label="0">起定位作用</el-radio>
-                                    <el-radio :label="1">起装饰作用，用来完成地图拼接</el-radio>
+                                    <el-radio :label="0" :disabled="!!dialogInfo.id">起定位作用</el-radio>
+                                    <el-radio :label="1" :disabled="!!dialogInfo.id">起装饰作用，用来完成地图拼接</el-radio>
                                 </el-radio-group>
                             </el-form-item>
 
-
+                            <el-form-item label="标签">
+                                <div class="tag-list">
+                                    <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in dialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
+                                    <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
+                                </div>
+                            </el-form-item>                            
                             <el-form-item label="是否检测进出门" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
                                 <el-select v-model="dialogInfo.checkDoorType" placeholder="请选择">
                                     <el-option v-for="item in checkDoorTypeOptions" :key="item.value" :label="item.label" :value="item.value">
@@ -146,22 +151,7 @@
                                     :button-texts="['删除', '添加']"
                                     :data="acceptorOptions">
                                 </el-transfer>
-                            </el-form-item>                                                                                                    
-
-                            <!-- <el-form-item label="区域地图" v-if="dialogInfo.type == 1">
-                                <el-upload
-                                    class="upload-demo"
-                                    :action="uploadUrl"
-                                    :file-list="fileArr"
-                                    list-type="picture"
-                                    :before-upload="uploadBefore"
-                                    :on-success="uploadSucc"
-                                    :on-error="uploadError"
-                                    :on-remove="uploadRemove">
-                                    <el-button type="primary" :disabled="!!dialogInfo.mapUrl">点击上传</el-button>
-                                    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
-                                </el-upload>
-                            </el-form-item>                                                -->
+                            </el-form-item>
                         </el-form>
 
                     </section>
@@ -173,13 +163,36 @@
 
                 <el-dialog :title="areaDetail.name" :visible.sync="areaDetail.dialogShow" :modal-append-to-body="false">
                     <div class="area-map">
-                        <img :src="areaDetail.mapUrl">
+                        <canvas id="canvas-area" width="500" height="300" v-if="areaDetail.regionMapVo"></canvas>
+                        <div class="text" v-else>暂无预览图</div>
                     </div>
-                    <div class="area-title">下属子区域</div>
+                    <!-- <div class="area-title">下属子区域</div>
                     <div class="area-subRegion">
                         <p class="subRegion-item" v-for="item in areaDetail.subRegionNameList" key="item">{{ item }}</p>
-                    </div>
+                    </div> -->
                 </el-dialog>
+
+                <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
+                            <el-form-item label="标签分类" prop="typeId">
+                                <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
+                                    <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="标签" prop="id">
+                                <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
+                                    <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
+                    </span>
+                </el-dialog>                  
             </div>
         </div>
     </div>
@@ -187,7 +200,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolList, areaList, areaCode, areaSave, areaDelete, areaMachineList } from '../api/api';
+    import { uploadPath, schoolList, areaList, areaCode, areaSave, areaDelete, areaMachineList, tagsClassifyList, tagsList } from '../api/api';
 
     let that;
 
@@ -293,10 +306,10 @@
                     type: '0',
                     parentRegionCode: '',
                     action: 0,
+                    tagList: [],
                     checkDoorType: '0',
                     pushStatus: '1',
                     acceptorIds: [],
-                    mapUrl: '',
                     dialogLoading: false
                 },
                 rules: {
@@ -311,10 +324,35 @@
 
                 areaDetail: {
                     name: '',
-                    mapUrl: '',
-                    subRegionNameList: [],
+                    regionMapVo: '',
                     dialogShow: false
-                }
+                },
+
+                tagsClassifyOptions:[
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ],
+                tagsOptions: [
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ],
+                tagsDialogInfo: {
+                    typeId: '',
+                    id: '',
+                    show: false
+                },
+                tagsRules: {
+                    typeId: [
+                        { required: true, message: '*请选择标签分类', trigger: 'change' }
+                    ],
+                    id: [
+                        { required: true, message: '*请选择标签', trigger: 'change' }
+                    ]
+                }                         
             };
         },
         methods: {
@@ -389,7 +427,6 @@
                     this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
-                    console.log(data)
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
@@ -464,10 +501,10 @@
                         type: '1',
                         parentRegionCode: '',
                         action: 0,
+                        tagList: [],
                         checkDoorType: '0',
                         pushStatus: '1',
                         acceptorIds: [],
-                        mapUrl: '',
                         dialogLoading: false
                     }
 
@@ -507,10 +544,10 @@
                         type: '0',
                         parentRegionCode: row.code,
                         action: 0,
+                        tagList: [],
                         checkDoorType: '0',
                         pushStatus: '1',
                         dialogLoading: false,
-                        mapUrl: '',
                         acceptorIds: []
                     }
 
@@ -542,6 +579,16 @@
 
                 that.dialogShow = true;
 
+                let tagListArr = [];
+                if(row.tagVoList.length > 0) {
+                    for(let i = 0; i < row.tagVoList.length; i++) {
+                        tagListArr.push({
+                            id: row.tagVoList[i].id,
+                            name: row.tagVoList[i].name
+                        })
+                    }
+                }
+
                 setTimeout(function() {
                     that.dialogInfo = {
                         id: row.id,
@@ -550,27 +597,11 @@
                         parentRegionCode: row.parentRegionCode,
                         type: '' + row.type,
                         action: row.action,
+                        tagList: tagListArr,
                         checkDoorType: '' + row.checkDoorType,
                         pushStatus: '' + row.pushStatus,
                         acceptorIds: that.transArray(row.acceptorIds),
-                        mapUrl: row.mapUrl,
                         dialogLoading: false
-                    }
-
-
-                    that.fileArr = [];
-
-                    let fileObj = {
-                        name: row.mapUrl,
-                        url: row.mapUrl,
-                        response: {
-                            data: {
-                                mapUrl: row.mapUrl
-                            }
-                        }
-                    }
-                    if(row.mapUrl) {
-                        that.fileArr.push(fileObj)
                     }
                 }, 1);                
             },
@@ -581,6 +612,13 @@
                     if(valid){
                         this.dialogInfo.dialogLoading = true;
 
+                        let tagIds = [];
+                        if(this.dialogInfo.tagList.length > 0) {
+                            for(let i = 0; i < this.dialogInfo.tagList.length; i++) {
+                                tagIds.push(this.dialogInfo.tagList[i].id);
+                            }
+                        }
+
                         let params = {
                             id: this.dialogInfo.id,
                             schoolId: this.searchForm.schoolId,
@@ -589,10 +627,10 @@
                             type: this.dialogInfo.type,
                             parentRegionCode: this.dialogInfo.parentRegionCode,
                             action: this.dialogInfo.action,
+                            tagIds: tagIds.join(','),
                             checkDoorType: this.dialogInfo.checkDoorType,
                             pushStatus: this.dialogInfo.pushStatus,
-                            acceptorIds: this.dialogInfo.acceptorIds.join(','),
-                            mapUrl: this.dialogInfo.mapUrl
+                            acceptorIds: this.dialogInfo.acceptorIds.join(',')
                         };
 
                         areaSave(params).then(res=>{
@@ -623,17 +661,131 @@
 
                 that.areaDetail = {
                     name: '',
-                    mapUrl: '',
-                    subRegionNameList: [],
+                    regionMapVo: [],
                     dialogShow: true
                 }                
 
                 setTimeout(function() {
                     that.areaDetail.name = row.name;
-                    that.areaDetail.mapUrl = row.mapUrl;
-                    that.areaDetail.subRegionNameList = row.subRegionNameList;
+                    that.areaDetail.regionMapVo = row.regionMapVo;
+
+                    if(row.regionMapVo) {
+                        that.canvasAreaInit();
+                    }
                 }, 1)
             },
+
+            //canvasAreaInit
+            canvasAreaInit: function() {
+                let pointXArr = [],
+                    pointYArr = [],
+                    mapPoint = that.areaDetail.regionMapVo;
+
+                for(var i = 0; i < mapPoint.point.length; i++) {
+                    pointXArr.push(mapPoint.point[i].x);
+                    pointYArr.push(mapPoint.point[i].y);
+                }
+                if(mapPoint.center.x) {
+                    pointXArr.push(mapPoint.center.x + 40);
+                    pointYArr.push(mapPoint.center.y + 20);
+                }
+
+                var xMax = Math.max.apply(null, pointXArr),
+                    xMin = Math.min.apply(null, pointXArr),
+                    yMax = Math.max.apply(null, pointYArr),
+                    yMin = Math.min.apply(null, pointYArr);
+
+                var dx = xMax - xMin,
+                    dy = yMax - yMin,
+                    wrapW = $('#canvas-area').parent().width(),
+                    wrapH = 200;
+
+                var pointsItem = {};
+                pointsItem.center = {
+                    x: mapPoint.center.x ? mapPoint.center.x - xMin : '',
+                    y: mapPoint.center.y ? mapPoint.center.y - yMin : ''
+                };
+
+                var pointsItemPointArr = [];
+                for(var y = 0; y < mapPoint.point.length; y++) {
+                    pointsItemPointArr.push({
+                        x: mapPoint.point[y].x - xMin,
+                        y: mapPoint.point[y].y - yMin
+                    })
+                }
+                pointsItem.point = pointsItemPointArr;
+                pointsItem.color = mapPoint.color;
+                pointsItem.name = mapPoint.name;
+                pointsItem.num = mapPoint.num || 0;
+                
+
+
+                var cvs = document.getElementById('canvas-area'),
+                    scale = wrapH/dy * 5 * 0.8;
+
+                if(wrapH/dy > wrapW/dx) {
+                    scale = wrapW/dx * 5 * 0.8;
+                }
+
+                cvs.width = dx * scale;
+                cvs.height = dy * scale;
+                $('#canvas-area').css({ 'margin-left': -dx * scale/2, 'margin-top': -dy * scale/2 });
+                var ctx = cvs.getContext('2d'); 
+
+                ctx.clearRect(0, 0, dx, dy);
+
+                ctx.beginPath();
+                ctx.fillStyle = pointsItem.color;
+                var point = pointsItem.point;
+                ctx.moveTo(point[0].x * scale, point[0].y * scale);
+                for(var k = 0; k < point.length; k++) {
+                    ctx.lineTo(point[k].x * scale, point[k].y * scale);
+                }
+                ctx.lineTo(point[0].x * scale, point[0].y * scale);       
+                ctx.closePath();  
+                ctx.fill();
+
+                if(mapPoint.id) {
+                    // 区域名字
+                    ctx.font = 8 * scale + 'px Helvetica';
+                    ctx.fillStyle = '#000000';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(pointsItem.name, pointsItem.center.x * scale, pointsItem.center.y * scale);
+
+                    // 区域数量色块
+                    var cx = pointsItem.center.x,
+                        cy = pointsItem.center.y,
+                        delta = 5;
+                    ctx.beginPath();
+                    ctx.fillStyle = '#38A0FF';
+                    ctx.moveTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                    ctx.lineTo((cx + 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                    ctx.arc((cx + 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, -0.5 * Math.PI, 1 * Math.PI);
+                    ctx.lineTo((cx + 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
+                    ctx.lineTo((cx - 2 * delta)  * scale, (cy + 2.5 * delta)  * scale);
+                    ctx.arc((cx - 2 * delta)  * scale, (cy + 1.5 * delta)  * scale, delta * scale, 0.5 * Math.PI, 1.5 * Math.PI);
+                    ctx.lineTo((cx - 2 * delta)  * scale, (cy + 0.5 * delta)  * scale);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 区域数量文字
+                    ctx.font = 8 * scale + 'px Helvetica';
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(pointsItem.num || 0, cx * scale, (cy + 1.5 * delta) * scale);
+                }
+
+                that.canvasTransform(1/5, dx, dy)                
+            },
+
+            canvasTransform: function(scale, dx, dy) {
+                $('#canvas-area').css({
+                    '-webkit-transform': 'scale('+ scale +')',
+                    'transform': 'scale('+ scale +')'
+                })
+            },              
 
 
             // 学校总览
@@ -643,24 +795,31 @@
 
             // 删除区域
             handleDeleteArea: function(index, row) {
-                // 获取区域编号
-                let param = {
-                    id: row.id
-                }
-
-                areaDelete(param).then(res => {
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        that.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        that.$message({ message: '删除成功', type: 'success'});
-
-                        that.getList();
+                this.$confirm('此操作将永久删除该区域, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let param = {
+                        id: row.id
                     }
-                }).catch(error => {
-                    that.$message({ message: '网络异常！删除失败！', type: 'error'});
-                });                
+
+                    areaDelete(param).then(res => {
+                        let { errorInfo, code, data } = res;
+
+                        if(code !== 0) {
+                            that.$message({ message: errorInfo, type: 'error'});
+                        } else {
+                            that.$message({ message: '删除成功', type: 'success'});
+
+                            that.getList();
+                        }
+                    }).catch(error => {
+                        that.$message({ message: '网络异常！删除失败！', type: 'error'});
+                    });
+                }).catch(() => {
+                            
+                });
             },
 
             // 获取学校编号事件
@@ -694,27 +853,130 @@
                 return newIds;
             },
 
-            // uploadBefore(file) {
-            //     if(!/image\/\w+/.test(file.type)) {
-            //         this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
-            //         return false;
-            //     }
-            // },
-            // uploadError(response, file, fileList) {
-            //     this.$message({ message: '图片上传失败，请重试！', type: 'error'});
-            // },
-            // uploadSucc(response, file, fileList) {
-            //     this.dialogInfo.mapUrl = response.data.mapUrl;
-            // },
-            // uploadRemove(file, fileList) {
-            //     this.dialogInfo.mapUrl = '';
-            // }           
+            // 获取标签分类列表
+            getClassifyList: function() {
+                let param = {
+                    'name': '',
+                    'pageNo': 1,
+                    'pageSize': 1000
+                };
+
+                tagsClassifyList(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        for(let i = 0; i < data.list.length; i++ ) {
+                            this.tagsClassifyOptions.push({
+                                value: '' + data.list[i].id,
+                                label: data.list[i].name
+                            })
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取标签分类列表失败！', type: 'error'});
+                });                
+            },
+
+            // 添加标签弹窗
+            handleTagsDialogShow: function() {
+                that.tagsDialogInfo.show = true;
+
+                setTimeout(() => {
+                    that.tagsDialogInfo.typeId = '';
+                    that.tagsDialogInfo.id = '';
+                    that.tagsOptions = [
+                        {
+                            value:'',
+                            label:'请选择'
+                        }
+                    ]                     
+                }, 1);
+            },
+
+            // 标签分类变化
+            handleTagsClassifyChange: function(typeId) {
+                that.tagsDialogInfo.id = '';
+                this.tagsOptions = [
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ]
+
+                let tagIds = [];
+                if(that.dialogInfo.tagList.length > 0) {
+                    for(let i = 0; i < that.dialogInfo.tagList.length; i++) {
+                        tagIds.push(that.dialogInfo.tagList[i].id);
+                    }
+                }
+
+                let param = {
+                    'name': '',
+                    'typeId': typeId,
+                    'notContainIds': tagIds.join(','),
+                    'pageNo': 1,
+                    'pageSize': 1000
+                };
+
+                tagsList(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        if(data.list.length) {
+                            for(let i = 0; i < data.list.length; i++ ) {
+                                this.tagsOptions.push({
+                                    value: '' + data.list[i].id,
+                                    label: data.list[i].name
+                                })
+                            }
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取标签列表失败！', type: 'error'});
+                });                
+            },
+
+            // 保存编辑
+            handleSaveTags(formName) {
+                this.$refs[formName].validate((valid)=>{
+                     if(valid){
+                        let id = that.tagsDialogInfo.id,
+                            name = '';
+
+                        for(let i = 0; i < that.tagsOptions.length; i++) {
+                            if(id == that.tagsOptions[i].value) {
+                                name = that.tagsOptions[i].label;
+                                break;
+                            }
+                        }
+
+                        that.dialogInfo.tagList.push({
+                            id: id,
+                            name: name
+                        })
+
+                        that.tagsDialogInfo.show = false;
+                     }else{
+                         return false;
+                     }
+                });
+            },
+
+            // 移除标签
+            handleTagDetele: function(index, item) {
+                that.dialogInfo.tagList.splice(index, 1);
+            }                  
         },
         mounted() {
             that = this;
 
             this.getSchoolList();
             this.copyBind();
+            this.getClassifyList();
         }
     }
 </script>
@@ -884,7 +1146,23 @@
         }
 
         .area-map{
-            padding: 30px 0;
+            position: relative;
+            min-width: 500px;
+            min-height: 300px;
+            overflow: hidden;
+
+            canvas{
+                position: absolute;
+                z-index: 3;
+                top: 50%;
+                left: 50%;
+            }
+            .text{
+                font-size: 12px;
+                color: #999;
+                text-align: center;
+                line-height: 300px;
+            }
         }
         .area-title{
             font-size: 16px;
@@ -914,6 +1192,24 @@
             &:nth-of-type(2n + 1){
                 margin-right: 5.8%;
             }                     
+        }
+
+        .tag-list{
+            .tag-item{
+                background: #fff;
+                color: #18c79c;
+                line-height: 30px !important;
+                border-radius: 15px;
+
+                &:hover,
+                &:active{
+                    opacity: .8;
+                }
+            }
+
+            .tag-add{
+                line-height: 30px !important;
+            }
         }
     }
 </style>

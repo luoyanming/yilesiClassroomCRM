@@ -45,6 +45,9 @@
                         <el-table-column label="学校简称">
                             <template scope="scope"><p>{{ scope.row.shortName }}</p></template>
                         </el-table-column>
+                        <el-table-column label="学校编号">
+                            <template scope="scope"><p>{{ scope.row.code }}</p></template>
+                        </el-table-column>
                         <el-table-column label="校所在地区">
                             <template scope="scope"><p>{{ scope.row.regionsCityName }}-{{ scope.row.regionsTownName }}</p></template>
                         </el-table-column>

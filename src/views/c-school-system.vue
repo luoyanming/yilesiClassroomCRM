@@ -52,11 +52,53 @@
 
                 <el-dialog :title="dialogInfo.type == 0 ? '新增学制' : '编辑学制'" :visible.sync="dialogShow" :modal-append-to-body="false" custom-class="w70">
                     <section class="formation">
+                        <div class="tooltip-wrap">
+                            <el-tooltip placement="top" effect="light">
+                                <div slot="content">
+                                    <div class="number-wrap">
+                                        <div class="title">年级编号对应表</div>
+                                        <div class="list">
+                                            <div class="list-item">
+                                                <div class="item-line">小班 05</div>
+                                                <div class="item-line">中班 06</div>
+                                                <div class="item-line">大班 07</div>
+                                            </div>
+                                            <div class="list-item">
+                                                <div class="item-line">一年级 11</div>
+                                                <div class="item-line">二年级 12</div>
+                                                <div class="item-line">三年级 13</div>
+                                                <div class="item-line">四年级 14</div>
+                                                <div class="item-line">五年级 15</div>
+                                                <div class="item-line">六年级 16</div>
+                                            </div>
+                                            <div class="list-item">
+                                                <div class="item-line">七年级 17</div>
+                                                <div class="item-line">八年级 18</div>
+                                                <div class="item-line">九年级 19</div>
+                                            </div>
+                                            <div class="list-item">
+                                                <div class="item-line">高一 31</div>
+                                                <div class="item-line">高二 32</div>
+                                                <div class="item-line">高三 33</div>
+                                            </div>
+                                            <div class="list-item">
+                                                <div class="item-line">本一 41</div>
+                                                <div class="item-line">本二 42</div>
+                                                <div class="item-line">本三 43</div>
+                                                <div class="item-line">本四 44</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <el-button class="button-link el-icon-information"></el-button>
+                            </el-tooltip>
+                        </div>                      
                        
                         <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
                             <el-form-item label="学制名称" prop="name">
                                 <el-input v-model="dialogInfo.name"></el-input>
                             </el-form-item>
+                            <!-- 学前 -->
                             <el-form-item label="学前" prop="pre">
                                 <el-input v-model.number="dialogInfo.pre" :disabled="dialogInfo.preDisabled"></el-input>
                                 <span class="tip">&nbsp;&nbsp;年</span>
@@ -64,8 +106,12 @@
                             <div class="inline-box">
                                 <el-form-item v-for="(preItem, index) in dialogInfo.preGrade">
                                     <el-input v-model="preItem.name" :placeholder="'年级名' + (index + 1)"></el-input>
+                                    <el-select v-model="preItem.gradeNum" placeholder="编号">
+                                        <el-option v-for="item in gradeNumListOptions" :key="item" :label="item" :value="item"></el-option>
+                                    </el-select>                                    
                                 </el-form-item>
                             </div>
+                            <!-- 小学 -->
                             <el-form-item label="小学" prop="primarys">
                                 <el-input v-model.number="dialogInfo.primarys" :disabled="dialogInfo.primarysDisabled"></el-input>
                                 <span class="tip">&nbsp;&nbsp;年</span>
@@ -73,8 +119,12 @@
                             <div class="inline-box">
                                 <el-form-item v-for="(primarysItem, index) in dialogInfo.primarysGrade">
                                     <el-input v-model="primarysItem.name" :placeholder="'年级名' + (index + 1)"></el-input>
+                                    <el-select v-model="primarysItem.gradeNum" placeholder="编号">
+                                        <el-option v-for="item in gradeNumListOptions" :key="item" :label="item" :value="item"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
+                            <!-- 初中 -->
                             <el-form-item label="初中" prop="junior">
                                 <el-input v-model.number="dialogInfo.junior" :disabled="dialogInfo.juniorDisabled"></el-input>
                                 <span class="tip">&nbsp;&nbsp;年</span>
@@ -82,8 +132,12 @@
                             <div class="inline-box">
                                 <el-form-item v-for="(juniorItem, index) in dialogInfo.juniorGrade">
                                     <el-input v-model="juniorItem.name" :placeholder="'年级名' + (index + 1)"></el-input>
+                                    <el-select v-model="juniorItem.gradeNum" placeholder="编号">
+                                        <el-option v-for="item in gradeNumListOptions" :key="item" :label="item" :value="item"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
+                            <!-- 高中 -->
                             <el-form-item label="高中" prop="senior">
                                 <el-input v-model.number="dialogInfo.senior" :disabled="dialogInfo.seniorDisabled"></el-input>
                                 <span class="tip">&nbsp;&nbsp;年</span>
@@ -91,8 +145,12 @@
                             <div class="inline-box">
                                 <el-form-item v-for="(seniorItem, index) in dialogInfo.seniorGrade">
                                     <el-input v-model="seniorItem.name" :placeholder="'年级名' + (index + 1)"></el-input>
+                                    <el-select v-model="seniorItem.gradeNum" placeholder="编号">
+                                        <el-option v-for="item in gradeNumListOptions" :key="item" :label="item" :value="item"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
+                            <!-- 大专院校 -->
                             <el-form-item label="大专院校" prop="college">
                                 <el-input v-model.number="dialogInfo.college" :disabled="dialogInfo.collegeDisabled"></el-input>
                                 <span class="tip">&nbsp;&nbsp;年</span>
@@ -100,6 +158,9 @@
                             <div class="inline-box">
                                 <el-form-item v-for="(collegeItem, index) in dialogInfo.collegeGrade">
                                     <el-input v-model="collegeItem.name" :placeholder="'年级名' + (index + 1)"></el-input>
+                                    <el-select v-model="collegeItem.gradeNum" placeholder="编号">
+                                        <el-option v-for="item in gradeNumListOptions" :key="item" :label="item" :value="item"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
                         </el-form>
@@ -116,7 +177,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { schoolSystemList, schoolSystemSave } from '../api/api';
+    import { schoolSystemGradeNumList, schoolSystemGradeNumVoList, schoolSystemList, schoolSystemSave } from '../api/api';
 
     let that;
 
@@ -192,7 +253,12 @@
                     college: [
                         { validator: checkSystem, trigger: 'blur' }
                     ]
-                }
+                },
+
+                // gradeNumListOptions: ["05", "06", "07", "11", "12", "13", "14", "15", "16", "17", "18", "19", "31", "32", "33", "41", "42"]
+                gradeNumListOptions: [],
+                gradeNumVoList: []
+
             };
         },
         watch: {
@@ -205,7 +271,8 @@
                     for(let i = 0; i < val; i++) {
                         that.dialogInfo.preGrade.push({
                             'id': '',
-                            'name': ''
+                            'name': '',
+                            'gradeNum': ''
                         });
                     }
                 },
@@ -220,7 +287,8 @@
                     for(let i = 0; i < val; i++) {
                         that.dialogInfo.primarysGrade.push({
                             'id': '',
-                            'name': ''
+                            'name': '',
+                            'gradeNum': ''
                         });
                     }
                 },
@@ -235,7 +303,8 @@
                     for(let i = 0; i < val; i++) {
                         that.dialogInfo.juniorGrade.push({
                             'id': '',
-                            'name': ''
+                            'name': '',
+                            'gradeNum': ''
                         });
                     }
                 },
@@ -250,7 +319,8 @@
                     for(let i = 0; i < val; i++) {
                         that.dialogInfo.seniorGrade.push({
                             'id': '',
-                            'name': ''
+                            'name': '',
+                            'gradeNum': ''
                         });
                     }
                 },
@@ -265,7 +335,8 @@
                     for(let i = 0; i < val; i++) {
                         that.dialogInfo.collegeGrade.push({
                             'id': '',
-                            'name': ''
+                            'name': '',
+                            'gradeNum': ''
                         });
                     }
                 },
@@ -273,6 +344,28 @@
             }
         },
         methods: {
+            getGradeNumList: function() {
+                schoolSystemGradeNumList({}).then(res=>{
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.gradeNumListOptions = data.list;
+                    }
+                });                
+            },
+            getGradeNumVoList: function() {
+                schoolSystemGradeNumVoList({}).then(res=>{
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.gradeNumVoList = data.list;
+                    }
+                });                
+            },
             onSearchSubmit: function() {
                 this.pagi.currentPage = 1;
 
@@ -314,7 +407,7 @@
                         this.pagi.total = data.total;
                         this.noPagi = false;
                     }
-                }).catch(error => {
+                }).catch((error) => {
                     this.tableloading = false;
                     this.$message({ message: '网络异常！获取学制列表失败！', type: 'error'});
                 });
@@ -328,7 +421,29 @@
                 setTimeout(function() {
                     // 重置表单
                     that.$refs['ruleForm'].resetFields();
-                    
+
+                    that.dialogInfo = {
+                        type: '',
+                        id: '',
+                        index: '',
+                        name: '',
+                        pre: 0,
+                        preGrade: [],
+                        preDisabled: false,
+                        primarys: 0,
+                        primarysGrade: [],
+                        primarysDisabled: false,
+                        junior: 0,
+                        juniorGrade: [],
+                        juniorDisabled: false,
+                        senior: 0,
+                        seniorGrade: [],
+                        seniorDisabled: false,
+                        college: 0,
+                        collegeGrade: [],
+                        collegeDisabled: false
+                    }                    
+
                     // 编辑赋值
                     if(type == 1) {
                         that.dialogInfo.type = type;
@@ -373,6 +488,53 @@
                            return false; 
                         }
 
+                        let preFlag = false,
+                            primaryFlag = false,
+                            juniorFlag = false,
+                            seniorFlag = false,
+                            collegeFlag = false;
+                        if(this.dialogInfo.pre > 0) {
+                            for(let i = 0; i < this.dialogInfo.preGrade.length; i++) {
+                                if(!this.dialogInfo.preGrade[i].name) {
+                                    preFlag = true;
+                                }
+                            }
+                        }
+                        if(this.dialogInfo.primarys > 0) {
+                            for(let i = 0; i < this.dialogInfo.primarysGrade.length; i++) {
+                                if(!this.dialogInfo.primarysGrade[i].name) {
+                                    primaryFlag = true;
+                                }
+                            }
+                        }
+                        if(this.dialogInfo.junior > 0) {
+                            for(let i = 0; i < this.dialogInfo.juniorGrade.length; i++) {
+                                if(!this.dialogInfo.juniorGrade[i].name) {
+                                    juniorFlag = true;
+                                }
+                            }
+                        }
+                        if(this.dialogInfo.senior > 0) {
+                            for(let i = 0; i < this.dialogInfo.seniorGrade.length; i++) {
+                                if(!this.dialogInfo.seniorGrade[i].name) {
+                                    seniorFlag = true;
+                                }
+                            }
+                        }
+                        if(this.dialogInfo.college > 0) {
+                            for(let i = 0; i < this.dialogInfo.collegeGrade.length; i++) {
+                                if(!this.dialogInfo.collegeGrade[i].name) {
+                                    collegeFlag = true;
+                                }
+                            }
+                        }
+
+                        if(preFlag || primaryFlag || juniorFlag || seniorFlag || collegeFlag) {
+                            this.$message({ message: '学段的年级名不能为空', type: 'error' });
+                            return false;
+                        }
+
+
                         this.dialogLoading = true;
 
                         let params = {
@@ -406,14 +568,16 @@
                     }else{
                         return false;
                     }
-                }).catch(error => {
+                }).catch((error) => {
                     this.dialogLoading = false;
-                    this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
+                    this.$message({ message: '网络异常！保存学制信息失败！', type: 'error'});
                 });
             }
         },
         mounted() {
             that = this;
+            this.getGradeNumList();
+            // this.getGradeNumVoList();
             this.getList();
         }
     }
@@ -429,6 +593,45 @@
     .w70{
         width: 60%;
     }
+
+    .el-tooltip__popper{
+        border-color: #3FCB9A !important;
+
+        /*.popper__arrow::after{
+            border-color: #3FCB9A !important;
+        }*/
+
+        .number-wrap{
+            .title{
+                font-size: 12px;
+                line-height: 2;
+                border-bottom: 1px solid #dbdbdb;
+            }
+
+            .list{
+                padding: 10px 0;
+                /*white-space: nowrap;*/
+
+                .list-item{
+                    float: left;
+                    padding: 0 10px;
+
+                    .item-line{
+                        color: #666;
+                        line-height: 1.6;
+                    }
+                }
+            }
+        }
+    }
+
+    .el-dialog__wrapper{
+        button{
+            &:before{
+                font-size: 20px;
+            }
+        }        
+    }
 </style>
 
 <style lang="scss" scoped>
@@ -436,6 +639,13 @@
         .button-add{
             margin-right: 15px;
         }
+    }
+
+    .tooltip-wrap{
+        position: absolute;
+        z-index: 3;
+        top: 19px;
+        right: 80px;
     }
 
 </style>

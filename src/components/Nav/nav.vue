@@ -131,6 +131,55 @@
                         'show': true
                     },
                     {
+                        'name': '标签库',
+                        'title': '标签库',
+                        'url': '',
+                        'leftnav': 'tags',
+                        'show': true
+                    },
+                    {
+                        'name': '标签分类',
+                        'title': '标签分类',
+                        'url': '/tagsClassify',
+                        'leftnav': 'tagsClassify',
+                        'show': true
+                    },
+                    {
+                        'name': '标签管理',
+                        'title': '标签管理',
+                        'url': '/tagsManage',
+                        'leftnav': 'tagsManage',
+                        'show': true
+                    },
+                    {
+                        'name': '视频总览',
+                        'title': '视频总览',
+                        'url': '/video',
+                        'leftnav': 'video',
+                        'show': true
+                    },
+                    {
+                        'name': '课程记录',
+                        'title': '课程记录',
+                        'url': '/videoCourse',
+                        'leftnav': 'videoCourse',
+                        'show': true
+                    },
+                    {
+                        'name': '微课',
+                        'title': '微课',
+                        'url': '/videoWxlist',
+                        'leftnav': 'videoWxlist',
+                        'show': true
+                    },
+                    {
+                        'name': '微课排行榜',
+                        'title': '微课排行榜',
+                        'url': '/videoWxlistRank',
+                        'leftnav': 'videoWxlistRank',
+                        'show': true
+                    },
+                    {
                         'name': '系统日志',
                         'title': '系统日志',
                         'url': '/log',

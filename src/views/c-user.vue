@@ -156,7 +156,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, memberList, memberEdit } from '../api/api';
+    import { uploadPath, memberList, memberEdit, markSix } from '../api/api';
 
     let that;
 
