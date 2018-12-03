@@ -6,9 +6,9 @@ import cusermanage from './views/c-user-manage.vue'
 import cuser from './views/c-user.vue'
 import closed from './views/c-closed.vue'
 import feedback from './views/c-feedback.vue'
-import card from './views/c-card.vue'
+import machine from './views/c-machine.vue'
 import channel from './views/c-channel.vue'
-import control from './views/c-control.vue'
+// import control from './views/c-control.vue'
 import log from './views/c-log.vue'
 
 import schoolmanage from './views/c-school-manage.vue'
@@ -28,6 +28,19 @@ import video from './views/c-video.vue'
 import videoCourse from './views/c-video-course.vue'
 import videoWxlist from './views/c-video-wxlist.vue'
 import videoWxlistRank from './views/c-video-wxlist-rank.vue'
+
+
+import machineVersionCard from './views/c-machine-version-card.vue'
+import machineVersionBoard from './views/c-machine-version-board.vue'
+
+import machineCard from './views/c-machine-card.vue'
+import machineBoard from './views/c-machine-board.vue'
+
+import schoolAttendance from './views/c-school-attendance.vue'
+import schoolKexun from './views/c-school-kexun.vue'
+
+import settingFunction from './views/c-setting-function.vue'
+import settingTrace from './views/c-setting-trace.vue'
 
 
 
@@ -83,15 +96,6 @@ let routes = [{
         }
     },
     {
-        path: "/card",
-        component: card,
-        name: "智慧教学卡综述",
-        meta: {
-            nav: "card",
-            requiresAuth: true
-        }
-    },
-    {
         path: "/channel",
         component: channel,
         name: "渠道管理",
@@ -101,14 +105,59 @@ let routes = [{
         }
     },
     {
-        path: "/control",
-        component: control,
-        name: "智慧卡管理",
+        path: "/machineVersionCard",
+        component: machineVersionCard,
+        name: "智慧卡及手环版本",
         meta: {
-            nav: "control",
+            nav: "machineVersionCard",
             requiresAuth: true
         }
     },
+    {
+        path: "/machineVersionBoard",
+        component: machineVersionBoard,
+        name: "智慧班牌版本",
+        meta: {
+            nav: "machineVersionBoard",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/machine",
+        component: machine,
+        name: "智慧设备总览",
+        meta: {
+            nav: "machine",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/machineCard",
+        component: machineCard,
+        name: "智慧卡及手环",
+        meta: {
+            nav: "machineCard",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/machineBoard",
+        component: machineBoard,
+        name: "智慧班牌",
+        meta: {
+            nav: "machineBoard",
+            requiresAuth: true
+        }
+    },
+    // {
+    //     path: "/control",
+    //     component: control,
+    //     name: "智慧卡管理",
+    //     meta: {
+    //         nav: "control",
+    //         requiresAuth: true
+    //     }
+    // },
     {
         path: "/log",
         component: log,
@@ -193,9 +242,45 @@ let routes = [{
     {
         path: "/schoolTree",
         component: schoolTree,
-        name: "结构树",
+        name: "学校结构树",
         meta: {
             nav: "schoolTree",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/schoolAttendance",
+        component: schoolAttendance,
+        name: "学校考勤时间表",
+        meta: {
+            nav: "schoolAttendance",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/schoolKexun",
+        component: schoolKexun,
+        name: "学校可寻汇总表",
+        meta: {
+            nav: "schoolKexun",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/settingFunction",
+        component: settingFunction,
+        name: "功能设置",
+        meta: {
+            nav: "settingFunction",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/settingTrace",
+        component: settingTrace,
+        name: "行为轨迹显示",
+        meta: {
+            nav: "settingTrace",
             requiresAuth: true
         }
     },

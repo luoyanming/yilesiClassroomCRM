@@ -1,155 +1,147 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym clearfix">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>学校教职工管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym clearfix">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>学校教职工管理</el-breadcrumb-item>
-                    </el-breadcrumb>
+        <div class="pull-left">
+            <div class="search-box">
+                <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
+            </div>
+            <div class="light-overscroll">
+                <el-tree
+                  empty-text="暂无数据"
+                  :data="schoolOptions"
+                  :props="defaultProps"
+                  accordion
+                  highlight-current
+                  @node-click="handleNodeClick">
+                </el-tree>
+            </div>
+        </div>
+        <div class="pull-right">
+            <div class="light-overscroll" v-if="showTable">
+                
+                <section class="search clearfix">
+                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                        <el-form-item label="教职工账号">
+                            <el-input v-model="searchForm.account" size="small" placeholder="请输入账号"></el-input>
+                        </el-form-item>
+                        <el-form-item label="用户角色">
+                            <el-select v-model="searchForm.character" placeholder="请选择">
+                                <el-option v-for="item in characterOptions" :key="item.value" :label="item.label" :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                
+                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleSchoolStaffAdd()" v-if="searchForm.schoolId">添加教职工</el-button>
                 </section>
 
-                <div class="pull-left">
-                    <div class="search-box">
-                        <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
+                <section class="table" style="height: auto">
+                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                        <el-table-column label="手机账号">
+                            <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="学校账号">
+                            <template scope="scope"><p>{{ scope.row.schoolAccount }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="姓名">
+                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="用户状态">
+                            <template scope="scope"><p>{{ scope.row.activeStatusStr }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="用户角色">
+                            <template scope="scope"><p>{{ scope.row.typeStr }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template scope="scope">
+                                <el-button size="small" class="button-link" @click="handleSchoolStaffDelete(scope.$index, scope.row)">从该校去除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <el-pagination
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="pagi.currentPage"
+                        :page-size="pagi.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagi.total"
+                        v-if="!noPagi">
+                    </el-pagination>
+                </section>
+
+                <el-dialog title="添加教职工" :visible.sync="staffDialogShow" :modal-append-to-body="false" custom-class="w80">
+                    <div class="dialog-table clearfix">
+                        <div class="dialog-left">
+                            <section class="table-search">
+                                <el-input v-model="staffDialog.searchParam" @click="staffDialogSearch" size="small" placeholder="搜索用户名/手机号/学校账号" :icon="staffDialog.tableLoading ? 'loading' : 'search'"></el-input>
+                            </section>
+                            <section class="table">
+                                <el-table ref="multipleTable" :data="staffDialog.tableData" stripe style="width: 100%" @selection-change="staffDialogSelect" :loading="staffDialog.tableLoading">
+                                    <el-table-column type="selection" width="75"></el-table-column>
+                                    <el-table-column label="">
+                                        <template scope="scope">{{ scope.row.name }}</template>
+                                    </el-table-column>
+                                    <el-table-column label="">
+                                        <template scope="scope">{{ scope.row.mobile }}</template>
+                                    </el-table-column>
+                                    <el-table-column label="">
+                                        <template scope="scope">{{ scope.row.schoolAccount }}</template>
+                                    </el-table-column>
+                                </el-table>
+
+                                <el-pagination
+                                    @current-change="handleStaffDialogPageChange"
+                                    :current-page.sync="staffDialog.pagi.currentPage"
+                                    :page-size="staffDialog.pagi.pageSize"
+                                    layout="total, prev, pager, next, jumper"
+                                    :total="staffDialog.pagi.total"
+                                    v-if="!staffDialog.noPagi">
+                                </el-pagination>
+                            </section>
+                        </div>
+
+                        <div class="dialog-right">
+                            <section class="table-title">已选择教职工</section>
+                            <section class="table">
+                                <el-table :data="staffDialog.selectedData" stripe style="width: 100%">
+                                    <el-table-column>
+                                        <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                                    </el-table-column>
+                                    <el-table-column>
+                                        <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
+                                    </el-table-column>
+                                    <el-table-column label="">
+                                        <template scope="scope">{{ scope.row.schoolAccount }}</template>
+                                    </el-table-column>
+                                    <el-table-column label="">
+                                        <template scope="scope">
+                                            <el-select v-model="scope.row.type" size="small" placeholder="请选择">
+                                                <el-option v-for="item in characterDialogOptions" :key="item.value" :label="item.label" :value="item.value">
+                                                </el-option>
+                                            </el-select>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="100">
+                                        <template scope="scope">
+                                            <el-button size="small" class="button-link" @click="handleStaffDialogSelectedDelete(scope.$index, scope.row)">删除</el-button>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </section>
+                        </div>
                     </div>
-                    <div class="light-overscroll">
-                        <el-tree
-                          empty-text="暂无数据"
-                          :data="schoolOptions"
-                          :props="defaultProps"
-                          accordion
-                          highlight-current
-                          @node-click="handleNodeClick">
-                        </el-tree>
-                    </div>
-                </div>
-                <div class="pull-right">
-                    <div class="light-overscroll" v-if="showTable">
-                        
-                        <section class="search clearfix">
-                            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                                <el-form-item label="教职工账号">
-                                    <el-input v-model="searchForm.account" size="small" placeholder="请输入账号"></el-input>
-                                </el-form-item>
-                                <el-form-item label="用户角色">
-                                    <el-select v-model="searchForm.character" placeholder="请选择">
-                                        <el-option v-for="item in characterOptions" :key="item.value" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item>
-                                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                                </el-form-item>
-                            </el-form>
-                        
-                            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleSchoolStaffAdd()" v-if="searchForm.schoolId">添加教职工</el-button>
-                        </section>
-
-                        <section class="table" style="height: auto">
-                            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                                <el-table-column label="手机账号">
-                                    <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="学校账号">
-                                    <template scope="scope"><p>{{ scope.row.schoolAccount }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="姓名">
-                                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="用户状态">
-                                    <template scope="scope"><p>{{ scope.row.activeStatusStr }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="用户角色">
-                                    <template scope="scope"><p>{{ scope.row.typeStr }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="操作">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleSchoolStaffDelete(scope.$index, scope.row)">从该校去除</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-
-                            <el-pagination
-                                @current-change="handleCurrentChange"
-                                :current-page.sync="pagi.currentPage"
-                                :page-size="pagi.pageSize"
-                                layout="total, prev, pager, next, jumper"
-                                :total="pagi.total"
-                                v-if="!noPagi">
-                            </el-pagination>
-                        </section>
-
-                        <el-dialog title="添加教职工" :visible.sync="staffDialogShow" :modal-append-to-body="false" custom-class="w80">
-                            <div class="dialog-table clearfix">
-                                <div class="dialog-left">
-                                    <section class="table-search">
-                                        <el-input v-model="staffDialog.searchParam" @click="staffDialogSearch" size="small" placeholder="搜索用户名/手机号/学校账号" :icon="staffDialog.tableLoading ? 'loading' : 'search'"></el-input>
-                                    </section>
-                                    <section class="table">
-                                        <el-table ref="multipleTable" :data="staffDialog.tableData" stripe style="width: 100%" @selection-change="staffDialogSelect" :loading="staffDialog.tableLoading">
-                                            <el-table-column type="selection" width="75"></el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.name }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.mobile }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.schoolAccount }}</template>
-                                            </el-table-column>
-                                        </el-table>
-
-                                        <el-pagination
-                                            @current-change="handleStaffDialogPageChange"
-                                            :current-page.sync="staffDialog.pagi.currentPage"
-                                            :page-size="staffDialog.pagi.pageSize"
-                                            layout="total, prev, pager, next, jumper"
-                                            :total="staffDialog.pagi.total"
-                                            v-if="!staffDialog.noPagi">
-                                        </el-pagination>
-                                    </section>
-                                </div>
-
-                                <div class="dialog-right">
-                                    <section class="table-title">已选择教职工</section>
-                                    <section class="table">
-                                        <el-table :data="staffDialog.selectedData" stripe style="width: 100%">
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.schoolAccount }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">
-                                                    <el-select v-model="scope.row.type" size="small" placeholder="请选择">
-                                                        <el-option v-for="item in characterDialogOptions" :key="item.value" :label="item.label" :value="item.value">
-                                                        </el-option>
-                                                    </el-select>
-                                                </template>
-                                            </el-table-column>
-                                            <el-table-column width="100">
-                                                <template scope="scope">
-                                                    <el-button size="small" class="button-link" @click="handleStaffDialogSelectedDelete(scope.$index, scope.row)">删除</el-button>
-                                                </template>
-                                            </el-table-column>
-                                        </el-table>
-                                    </section>
-                                </div>
-                            </div>
-                            <span slot="footer" class="dialog-footer">
-                                <el-button type="primary" :loading="staffDialog.submitLoading" @click.native="staffDialogSubmit">保存</el-button>
-                            </span>
-                        </el-dialog>                        
-                    </div>
-                </div>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="staffDialog.submitLoading" @click.native="staffDialogSubmit">保存</el-button>
+                    </span>
+                </el-dialog>                        
             </div>
         </div>
     </div>

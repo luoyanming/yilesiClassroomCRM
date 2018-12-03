@@ -2,7 +2,7 @@
     <div class="main-wrapper light-overscroll luoym">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>智慧卡管理</el-breadcrumb-item>
+                <el-breadcrumb-item>智慧卡及手环</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
         

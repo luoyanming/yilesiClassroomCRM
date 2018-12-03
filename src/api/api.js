@@ -4,10 +4,10 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// let base = 'http://classroomcrm.yls.com/privateapi';
-// export const uploadPath = '/privateapi';
-let base = 'http://crmctest.yilesi.cn';
-export const uploadPath = '';
+let base = 'http://classroomcrm.yls.com/privateapi';
+export const uploadPath = '/privateapi';
+// let base = 'http://crmctest.yilesi.cn';
+// export const uploadPath = '';
 // let base = 'http://crmc.yilesi.cn';
 // export const uploadPath = '';
 

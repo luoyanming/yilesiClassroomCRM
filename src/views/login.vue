@@ -1,28 +1,22 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            
-            <section class="login-wrap">
-                <div class="login-box">
-                    <div class="logo"></div>
-                    <h1 class="title">轻课堂CRM管理后台</h1>
+    <section class="login-wrap">
+        <div class="login-box">
+            <div class="logo"></div>
+            <h1 class="title">轻课堂CRM管理后台</h1>
 
-                    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm">
-                        <el-form-item prop="account">
-                            <el-input v-model="ruleForm.account" placeholder="请输入账号"></el-input>
-                        </el-form-item>
-                        <el-form-item prop="password">
-                            <el-input type="password" v-model="ruleForm.password" placeholder="请输入密码"></el-input>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" :loading="loading" :disabled="!ruleForm.account || !ruleForm.password" @click="submitForm('ruleForm')">登录</el-button>
-                        </el-form-item>
-                    </el-form>
-                </div>
-            </section>
-
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm">
+                <el-form-item prop="account">
+                    <el-input v-model="ruleForm.account" placeholder="请输入账号"></el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input type="password" v-model="ruleForm.password" placeholder="请输入密码"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" :loading="loading" :disabled="!ruleForm.account || !ruleForm.password" @click="submitForm('ruleForm')">登录</el-button>
+                </el-form-item>
+            </el-form>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
@@ -82,7 +76,8 @@
 
 <style lang="scss">
     .login-wrap{
-        position: relative;
+        position: absolute;
+        z-index: 10000;
         width: 100%;
         height: 100%;
         overflow: hidden;

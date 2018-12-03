@@ -1,95 +1,87 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym tags-manage">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>标签管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
+        
+        <section class="search clearfix">
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                <el-form-item label="标签">
+                    <el-input v-model="searchForm.name" size="small" placeholder="请输入账号"></el-input>
+                </el-form-item>
+                <el-form-item label="标签分类">
+                    <el-select v-model="searchForm.typeId" placeholder="请选择">
+                        <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym tags-manage">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>标签管理</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-                
-                <section class="search clearfix">
-                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="标签">
-                            <el-input v-model="searchForm.name" size="small" placeholder="请输入账号"></el-input>
-                        </el-form-item>
-                        <el-form-item label="标签分类">
-                            <el-select v-model="searchForm.typeId" placeholder="请选择">
-                                <el-option v-for="item in classifyOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                            </el-select>
-                        </el-form-item>
-
-                        <el-form-item>
-                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                        </el-form-item>
-                    </el-form>
+                <el-form-item>
+                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                </el-form-item>
+            </el-form>
 
 
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签</el-button>
-                </section>
+            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签</el-button>
+        </section>
 
-                <section class="table">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="标签">
-                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="标签分类">
-                            <template scope="scope"><p>{{ scope.row.typeName }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="说明">
-                            <template scope="scope"><p>{{ scope.row.describe }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="来源">
-                            <template scope="scope"><p>{{ scope.row.account }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+        <section class="table">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="标签">
+                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                </el-table-column>
+                <el-table-column label="标签分类">
+                    <template scope="scope"><p>{{ scope.row.typeName }}</p></template>
+                </el-table-column>
+                <el-table-column label="说明">
+                    <template scope="scope"><p>{{ scope.row.describe }}</p></template>
+                </el-table-column>
+                <el-table-column label="来源">
+                    <template scope="scope"><p>{{ scope.row.account }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template scope="scope">
+                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
 
-                
-                <el-dialog :title="dialogInfo.id ? '编辑标签' : '新增标签'" :visible.sync="dialogInfo.show" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
-                            <el-form-item label="标签" prop="name">
-                                <el-input v-model="dialogInfo.name"></el-input>
-                            </el-form-item>
-                            <el-form-item label="标签分类" prop="typeId">
-                                <el-select v-model="dialogInfo.typeId" placeholder="请选择">
-                                    <el-option v-for="item in classifyOptions" :label="item.label" :value="item.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="说明" prop="describe">
-                                <el-input type="textarea" v-model="dialogInfo.describe"></el-input>
-                            </el-form-item>
-                        </el-form>
+        
+        <el-dialog :title="dialogInfo.id ? '编辑标签' : '新增标签'" :visible.sync="dialogInfo.show" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
+                    <el-form-item label="标签" prop="name">
+                        <el-input v-model="dialogInfo.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="标签分类" prop="typeId">
+                        <el-select v-model="dialogInfo.typeId" placeholder="请选择">
+                            <el-option v-for="item in classifyOptions" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="说明" prop="describe">
+                        <el-input type="textarea" v-model="dialogInfo.describe"></el-input>
+                    </el-form-item>
+                </el-form>
 
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialogInfo.loading" @click.native="submitForm('ruleForm')">保存</el-button>
-                    </span>
-                </el-dialog>            
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialogInfo.loading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>            
 
-            </div>
-        </div>
     </div>
 </template>
 

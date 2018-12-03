@@ -1,44 +1,36 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>系统日志</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
+        <section class="table" style="margin-top: 20px;">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="序号" width="65px">
+                    <template scope="scope"><p>{{ scope.row.id }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作时间" width="150px">
+                    <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作者" width="100px">
+                    <template scope="scope"><p>{{ scope.row.account }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作内容">
+                    <template scope="scope"><p>{{ scope.row.content }}</p></template>
+                </el-table-column>
+            </el-table>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>系统日志</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <section class="table" style="margin-top: 20px;">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="序号" width="65px">
-                            <template scope="scope"><p>{{ scope.row.id }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作时间" width="150px">
-                            <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作者" width="100px">
-                            <template scope="scope"><p>{{ scope.row.account }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作内容">
-                            <template scope="scope"><p>{{ scope.row.content }}</p></template>
-                        </el-table-column>
-                    </el-table>
-
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
-            </div>
-        </div>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
     </div>
 </template>
 

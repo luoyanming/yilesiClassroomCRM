@@ -1,125 +1,117 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>微课排行榜</el-breadcrumb-item>
+            </el-breadcrumb>
+            <el-button type="primary" size="small" class="btn-add" @click.native="handleRankingPublish">发布排行榜</el-button>   
+        </section>
 
-            <Nav></Nav>
+        <section class="table">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="视频">
+                    <template scope="scope">
+                        <p><img :src="scope.row.videoThumbnailUrl" class="video-thumb"></p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="">
+                    <template scope="scope"><p>{{ scope.row.courseName }}</p></template>
+                </el-table-column>                        
+                <el-table-column label="用户账号">
+                    <template scope="scope">
+                        <p>{{ scope.row.memberName }}</p>
+                        <p>{{ scope.row.mobile }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="视频时长">
+                    <template scope="scope"><p>{{ scope.row.videoLength }}</p></template>
+                </el-table-column>
+                <el-table-column label="生成时间">
+                    <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
+                </el-table-column>
+                <el-table-column label="微课排名">
+                    <template scope="scope"><p>{{ scope.row.seq }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template scope="scope">
+                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </section>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>微课排行榜</el-breadcrumb-item>
-                    </el-breadcrumb>
-                    <el-button type="primary" size="small" class="btn-add" @click.native="handleRankingPublish">发布排行榜</el-button>   
-                </section>
+        
+        <el-dialog title="编辑微课排行榜" :visible.sync="editDialogShow" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" label-width="180px">
+                    <el-form-item label="视频">
+                        <p class="form-item-thumb"><img :src="editDialogInfo.info.videoThumbnailUrl" class="video-thumb"></p>
+                    </el-form-item>
+                    <el-form-item label="微课名称">
+                        <p class="form-item-text">{{ editDialogInfo.info.courseName }}</p>
+                    </el-form-item>
+                    <el-form-item label="用户">
+                        <p class="form-item-text">{{ editDialogInfo.info.memberName }}（{{ editDialogInfo.info.mobile }}）</p>
+                    </el-form-item>
+                    <el-form-item label="微课介绍">
+                        <p class="form-item-text">{{ editDialogInfo.info.explains }}</p>
+                    </el-form-item>
+                    <el-form-item label="视频时长">
+                        <p class="form-item-text">{{ editDialogInfo.info.videoLength }}</p>
+                    </el-form-item>
+                    <el-form-item label="生成时间">
+                        <p class="form-item-text">{{ editDialogInfo.info.createdDate }}</p>
+                    </el-form-item>
+                    <el-form-item label="播放次数">
+                        <p class="form-item-text">{{ editDialogInfo.info.playNum }}</p>
+                    </el-form-item>
+                    <el-form-item label="点赞数">
+                        <p class="form-item-text">{{ editDialogInfo.info.likeNum }}</p>
+                    </el-form-item>
+                    <el-form-item label="标签">
+                        <div class="tag-list">
+                            <el-button type="primary" size="small" disabled class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="微课排名">
+                        <el-select v-model="editDialogInfo.info.seq" placeholder="请选择">
+                            <el-option v-for="item in seqOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>                                
+                    </el-form-item>
+                    <el-form-item label="视频缩略图">
+                        <el-upload
+                            class="upload-demo"
+                            :action="uploadUrl"
+                            :before-upload="handleBefore"
+                            :on-remove="handleRemove"
+                            :on-success="handleSuccess"
+                            :on-error="handleError"
+                            :file-list="editDialogInfo.logoUrl"
+                            list-type="picture">
+                            <el-button size="small" type="primary" :disabled="editDialogInfo.logoUrl.length != 0">点击上传</el-button>
+                            <div slot="tip" class="el-upload__tip">上传尺寸300像素 X 300像素，支持jpg、jpeg、png</div>
+                        </el-upload>                                
+                    </el-form-item>
+                    <el-form-item label="加入排行榜">
+                        <el-switch
+                            v-model="editDialogInfo.info.hasRanking"
+                            on-text=""
+                            off-text=""
+                            on-color="#18c79c"
+                            off-color="#aaaaaa"
+                            on-value="true"
+                            off-value="false">
+                        </el-switch> 
+                    </el-form-item>
+                </el-form>
 
-                <section class="table">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="视频">
-                            <template scope="scope">
-                                <p><img :src="scope.row.videoThumbnailUrl" class="video-thumb"></p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="">
-                            <template scope="scope"><p>{{ scope.row.courseName }}</p></template>
-                        </el-table-column>                        
-                        <el-table-column label="用户账号">
-                            <template scope="scope">
-                                <p>{{ scope.row.memberName }}</p>
-                                <p>{{ scope.row.mobile }}</p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="视频时长">
-                            <template scope="scope"><p>{{ scope.row.videoLength }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="生成时间">
-                            <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="微课排名">
-                            <template scope="scope"><p>{{ scope.row.seq }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </section>
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="editDialogLoading" @click.native="handleSaveCourse">保存</el-button>
+            </span>
+        </el-dialog>                    
 
-                
-                <el-dialog title="编辑微课排行榜" :visible.sync="editDialogShow" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" label-width="180px">
-                            <el-form-item label="视频">
-                                <p class="form-item-thumb"><img :src="editDialogInfo.info.videoThumbnailUrl" class="video-thumb"></p>
-                            </el-form-item>
-                            <el-form-item label="微课名称">
-                                <p class="form-item-text">{{ editDialogInfo.info.courseName }}</p>
-                            </el-form-item>
-                            <el-form-item label="用户">
-                                <p class="form-item-text">{{ editDialogInfo.info.memberName }}（{{ editDialogInfo.info.mobile }}）</p>
-                            </el-form-item>
-                            <el-form-item label="微课介绍">
-                                <p class="form-item-text">{{ editDialogInfo.info.explains }}</p>
-                            </el-form-item>
-                            <el-form-item label="视频时长">
-                                <p class="form-item-text">{{ editDialogInfo.info.videoLength }}</p>
-                            </el-form-item>
-                            <el-form-item label="生成时间">
-                                <p class="form-item-text">{{ editDialogInfo.info.createdDate }}</p>
-                            </el-form-item>
-                            <el-form-item label="播放次数">
-                                <p class="form-item-text">{{ editDialogInfo.info.playNum }}</p>
-                            </el-form-item>
-                            <el-form-item label="点赞数">
-                                <p class="form-item-text">{{ editDialogInfo.info.likeNum }}</p>
-                            </el-form-item>
-                            <el-form-item label="标签">
-                                <div class="tag-list">
-                                    <el-button type="primary" size="small" disabled class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
-                                </div>
-                            </el-form-item>
-                            <el-form-item label="微课排名">
-                                <el-select v-model="editDialogInfo.info.seq" placeholder="请选择">
-                                    <el-option v-for="item in seqOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                                </el-select>                                
-                            </el-form-item>
-                            <el-form-item label="视频缩略图">
-                                <el-upload
-                                    class="upload-demo"
-                                    :action="uploadUrl"
-                                    :before-upload="handleBefore"
-                                    :on-remove="handleRemove"
-                                    :on-success="handleSuccess"
-                                    :on-error="handleError"
-                                    :file-list="editDialogInfo.logoUrl"
-                                    list-type="picture">
-                                    <el-button size="small" type="primary" :disabled="editDialogInfo.logoUrl.length != 0">点击上传</el-button>
-                                    <div slot="tip" class="el-upload__tip">上传尺寸300像素 X 300像素，支持jpg、jpeg、png</div>
-                                </el-upload>                                
-                            </el-form-item>
-                            <el-form-item label="加入排行榜">
-                                <el-switch
-                                    v-model="editDialogInfo.info.hasRanking"
-                                    on-text=""
-                                    off-text=""
-                                    on-color="#18c79c"
-                                    off-color="#aaaaaa"
-                                    on-value="true"
-                                    off-value="false">
-                                </el-switch> 
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="editDialogLoading" @click.native="handleSaveCourse">保存</el-button>
-                    </span>
-                </el-dialog>                    
-
-            </div>
-        </div>
     </div>
 </template>
 

@@ -1,16 +1,8 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
-
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym">
-                
-                <section class="welcome">欢迎来到轻课堂CRM管理后台</section>
-                
-            </div>
-        </div>
+    <div class="main-wrapper light-overscroll luoym">
+        
+        <section class="welcome">欢迎来到轻课堂CRM管理后台</section>
+        
     </div>
 </template>
 

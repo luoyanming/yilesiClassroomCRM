@@ -1,200 +1,192 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym clearfix">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>学校区域管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym clearfix">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>学校区域管理</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <div class="pull-left">
-                    <div class="search-box">
-                        <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
-                    </div>
-                    <div class="light-overscroll">
-                        <el-tree
-                          empty-text="暂无数据"
-                          :data="schoolOptions"
-                          :props="defaultProps"
-                          accordion
-                          highlight-current
-                          @node-click="handleNodeClick">
-                        </el-tree>
-                    </div>
-                </div>
-                <div class="pull-right">
-                    <div class="light-overscroll" v-if="showTable">
-                        
-                        <section class="search clearfix">
-                            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                                <el-form-item label="区域名称">
-                                    <el-input v-model="searchForm.name" size="small" placeholder="请输入"></el-input>
-                                </el-form-item>
-                                <el-form-item label="区域类型">
-                                    <el-select v-model="searchForm.type" placeholder="请选择">
-                                        <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                                </el-form-item>                                
-                                
-                                <el-form-item>
-                                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                                </el-form-item>
-                            </el-form>
-                        
-                            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAddArea()" v-if="searchForm.schoolId">添加区域</el-button>
-                            <el-button type="primary" size="small" class="btn-add" icon="view" @click.native="handleShowSchoolArea()" v-if="searchForm.schoolId" style="margin-right: 20px;">学校总览</el-button>
-                        </section>
-
-                        <section class="table" style="height: auto">
-                            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                                <el-table-column label="区域编号">
-                                    <template scope="scope">
-                                        <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
-                                        <p v-else>{{ scope.row.code }}</p>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="区域名称">
-                                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="区域设备数量">
-                                    <template scope="scope"><p>{{ scope.row.acceptorNum }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="区域类型">
-                                    <template scope="scope"><p>{{ scope.row.typeStr }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="所属大区域编号">
-                                    <template scope="scope"><p>{{ scope.row.parentRegionCode }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="区域视图">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleDetail(scope.$index, scope.row)" v-if="scope.row.type == 1">查看</el-button>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="操作">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                        <el-button size="small" class="button-link" v-if="scope.row.type == 1" @click="handleAddChildArea(scope.$index, scope.row)">添加子区域</el-button>
-                                        <el-button size="small" class="button-link" v-if="(scope.row.type == 1 && scope.row.subRegionNum == 0) || scope.row.type == 0" @click="handleDeleteArea(scope.$index, scope.row)">删除</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-
-                            <el-pagination
-                                @current-change="handleCurrentChange"
-                                :current-page.sync="pagi.currentPage"
-                                :page-size="pagi.pageSize"
-                                layout="total, prev, pager, next, jumper"
-                                :total="pagi.total"
-                                v-if="!noPagi">
-                            </el-pagination>
-                        </section>    
-                    </div>
-                </div>
-                
-                <el-dialog :title="!dialogInfo.id ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false" class="areaDialog-wrapper">
-                    <section class="formation">
-               
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
-                            <el-form-item label="区域名称" prop="name">
-                                <el-input v-model="dialogInfo.name"></el-input>
-                                <el-input v-model="dialogInfo.code" style="width: 100px !important;" disabled></el-input>
-                                <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
-                                <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
-                            </el-form-item>
-                            <el-form-item label="区域类型">
-                                <el-select v-model="dialogInfo.type" placeholder="请选择">
-                                    <el-option v-for="item in dialogTypeOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="所属大区域编号" v-if="dialogInfo.type == 0">
-                                <el-input v-model="dialogInfo.parentRegionCode"></el-input>
-                            </el-form-item>
-                            <el-form-item label="区域作用" v-if="dialogInfo.type == 1">
-                                <el-radio-group v-model="dialogInfo.action">
-                                    <el-radio :label="0" :disabled="!!dialogInfo.id">起定位作用</el-radio>
-                                    <el-radio :label="1" :disabled="!!dialogInfo.id">起装饰作用，用来完成地图拼接</el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-
-                            <el-form-item label="标签">
-                                <div class="tag-list">
-                                    <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in dialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
-                                    <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
-                                </div>
-                            </el-form-item>                            
-                            <el-form-item label="是否检测进出门" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
-                                <el-select v-model="dialogInfo.checkDoorType" placeholder="请选择">
-                                    <el-option v-for="item in checkDoorTypeOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="是否推送通知" v-if="dialogInfo.checkDoorType == 1">
-                                <el-select v-model="dialogInfo.pushStatus" placeholder="请选择">
-                                    <el-option v-for="item in pushStatusOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>                            
-
-                            <el-form-item label="添加接收器" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
-                                <el-transfer
-                                    v-model="dialogInfo.acceptorIds"
-                                    filterable
-                                    filter-placeholder="搜索接收器MAC号"
-                                    :titles="['未添加的接收器', '已添加的接收器']"
-                                    :button-texts="['删除', '添加']"
-                                    :data="acceptorOptions">
-                                </el-transfer>
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialogInfo.dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
-                    </span>
-                </el-dialog>
-                
-
-                <el-dialog :title="areaDetail.name" :visible.sync="areaDetail.dialogShow" :modal-append-to-body="false">
-                    <div class="area-map">
-                        <canvas id="canvas-area" width="500" height="300" v-if="areaDetail.regionMapVo"></canvas>
-                        <div class="text" v-else>暂无预览图</div>
-                    </div>
-                    <!-- <div class="area-title">下属子区域</div>
-                    <div class="area-subRegion">
-                        <p class="subRegion-item" v-for="item in areaDetail.subRegionNameList" key="item">{{ item }}</p>
-                    </div> -->
-                </el-dialog>
-
-                <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
-                            <el-form-item label="标签分类" prop="typeId">
-                                <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
-                                    <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="标签" prop="id">
-                                <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
-                                    <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
-                    </span>
-                </el-dialog>                  
+        <div class="pull-left">
+            <div class="search-box">
+                <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
+            </div>
+            <div class="light-overscroll">
+                <el-tree
+                  empty-text="暂无数据"
+                  :data="schoolOptions"
+                  :props="defaultProps"
+                  accordion
+                  highlight-current
+                  @node-click="handleNodeClick">
+                </el-tree>
             </div>
         </div>
+        <div class="pull-right">
+            <div class="light-overscroll" v-if="showTable">
+                
+                <section class="search clearfix">
+                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                        <el-form-item label="区域名称">
+                            <el-input v-model="searchForm.name" size="small" placeholder="请输入"></el-input>
+                        </el-form-item>
+                        <el-form-item label="区域类型">
+                            <el-select v-model="searchForm.type" placeholder="请选择">
+                                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                        </el-form-item>                                
+                        
+                        <el-form-item>
+                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                
+                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAddArea()" v-if="searchForm.schoolId">添加区域</el-button>
+                    <el-button type="primary" size="small" class="btn-add" icon="view" @click.native="handleShowSchoolArea()" v-if="searchForm.schoolId" style="margin-right: 20px;">学校总览</el-button>
+                </section>
+
+                <section class="table" style="height: auto">
+                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                        <el-table-column label="区域编号">
+                            <template scope="scope">
+                                <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
+                                <p v-else>{{ scope.row.code }}</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="区域名称">
+                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="区域设备数量">
+                            <template scope="scope"><p>{{ scope.row.acceptorNum }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="区域类型">
+                            <template scope="scope"><p>{{ scope.row.typeStr }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="所属大区域编号">
+                            <template scope="scope"><p>{{ scope.row.parentRegionCode }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="区域视图">
+                            <template scope="scope">
+                                <el-button size="small" class="button-link" @click="handleDetail(scope.$index, scope.row)" v-if="scope.row.type == 1">查看</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template scope="scope">
+                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                                <el-button size="small" class="button-link" v-if="scope.row.type == 1" @click="handleAddChildArea(scope.$index, scope.row)">添加子区域</el-button>
+                                <el-button size="small" class="button-link" v-if="(scope.row.type == 1 && scope.row.subRegionNum == 0) || scope.row.type == 0" @click="handleDeleteArea(scope.$index, scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <el-pagination
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="pagi.currentPage"
+                        :page-size="pagi.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagi.total"
+                        v-if="!noPagi">
+                    </el-pagination>
+                </section>    
+            </div>
+        </div>
+        
+        <el-dialog :title="!dialogInfo.id ? '添加区域' : '编辑区域'" :visible.sync="dialogShow" :modal-append-to-body="false" class="areaDialog-wrapper">
+            <section class="formation">
+       
+                <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
+                    <el-form-item label="区域名称" prop="name">
+                        <el-input v-model="dialogInfo.name"></el-input>
+                        <el-input v-model="dialogInfo.code" style="width: 100px !important;" disabled></el-input>
+                        <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
+                        <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
+                    </el-form-item>
+                    <el-form-item label="区域类型">
+                        <el-select v-model="dialogInfo.type" placeholder="请选择">
+                            <el-option v-for="item in dialogTypeOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="所属大区域编号" v-if="dialogInfo.type == 0">
+                        <el-input v-model="dialogInfo.parentRegionCode"></el-input>
+                    </el-form-item>
+                    <el-form-item label="区域作用" v-if="dialogInfo.type == 1">
+                        <el-radio-group v-model="dialogInfo.action">
+                            <el-radio :label="0" :disabled="!!dialogInfo.id">起定位作用</el-radio>
+                            <el-radio :label="1" :disabled="!!dialogInfo.id">起装饰作用，用来完成地图拼接</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+
+                    <el-form-item label="标签">
+                        <div class="tag-list">
+                            <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in dialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
+                            <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
+                        </div>
+                    </el-form-item>                            
+                    <el-form-item label="是否检测进出门" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
+                        <el-select v-model="dialogInfo.checkDoorType" placeholder="请选择">
+                            <el-option v-for="item in checkDoorTypeOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="是否推送通知" v-if="dialogInfo.checkDoorType == 1">
+                        <el-select v-model="dialogInfo.pushStatus" placeholder="请选择">
+                            <el-option v-for="item in pushStatusOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>                            
+
+                    <el-form-item label="添加接收器" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
+                        <el-transfer
+                            v-model="dialogInfo.acceptorIds"
+                            filterable
+                            filter-placeholder="搜索接收器MAC号"
+                            :titles="['未添加的接收器', '已添加的接收器']"
+                            :button-texts="['删除', '添加']"
+                            :data="acceptorOptions">
+                        </el-transfer>
+                    </el-form-item>
+                </el-form>
+
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialogInfo.dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>
+        
+
+        <el-dialog :title="areaDetail.name" :visible.sync="areaDetail.dialogShow" :modal-append-to-body="false">
+            <div class="area-map">
+                <canvas id="canvas-area" width="500" height="300" v-if="areaDetail.regionMapVo"></canvas>
+                <div class="text" v-else>暂无预览图</div>
+            </div>
+            <!-- <div class="area-title">下属子区域</div>
+            <div class="area-subRegion">
+                <p class="subRegion-item" v-for="item in areaDetail.subRegionNameList" key="item">{{ item }}</p>
+            </div> -->
+        </el-dialog>
+
+        <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
+                    <el-form-item label="标签分类" prop="typeId">
+                        <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
+                            <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="标签" prop="id">
+                        <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
+                            <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
+            </span>
+        </el-dialog>                  
     </div>
 </template>
 

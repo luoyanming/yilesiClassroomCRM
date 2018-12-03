@@ -1,33 +1,25 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>OU总览</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>OU总览</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <section class="card-list clearfix" v-loading.body="loading">
-                    <article class="list-item">
-                        <p>{{ allData.schoolAccount }}<span>所</span></p>
-                        <h4>入驻学校</h4>
-                    </article>
-                    <article class="list-item">
-                        <p>{{ allData.classAccount }}<span>个</span></p>
-                        <h4>共创建班级</h4>
-                    </article>                    
-                    <article class="list-item">
-                        <p>{{ allData.studentAccount }}<span>人</span></p>
-                        <h4>在籍学生</h4>
-                    </article>
-                </section>
-            </div>
-        </div>
+        <section class="card-list clearfix" v-loading.body="loading">
+            <article class="list-item">
+                <p>{{ allData.schoolAccount }}<span>所</span></p>
+                <h4>入驻学校</h4>
+            </article>
+            <article class="list-item">
+                <p>{{ allData.classAccount }}<span>个</span></p>
+                <h4>共创建班级</h4>
+            </article>                    
+            <article class="list-item">
+                <p>{{ allData.studentAccount }}<span>人</span></p>
+                <h4>在籍学生</h4>
+            </article>
+        </section>
     </div>
 </template>
 

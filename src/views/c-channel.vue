@@ -1,89 +1,81 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>渠道管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
+        
+        <section class="search clearfix">
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                <el-form-item label="渠道商">
+                    <el-input v-model="searchForm.name" size="small" placeholder="请输入渠道商"></el-input>
+                </el-form-item>
+                <el-form-item label="渠道状态">
+                    <el-select v-model="searchForm.status" placeholder="请选择">
+                        <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                </el-form-item>
+            </el-form>
+        
+            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增渠道</el-button>
+        </section>
 
-            <Nav></Nav>
+        <section class="table">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="渠道商">
+                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                </el-table-column>
+                <el-table-column label="渠道建立时间">
+                    <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
+                </el-table-column>
+                <el-table-column label="状态">
+                    <template scope="scope">
+                        <p v-if="scope.row.status == 0">解除</p>
+                        <p v-if="scope.row.status == 1">正常</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template scope="scope">
+                        <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)">编辑</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>渠道管理</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-                
-                <section class="search clearfix">
-                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="渠道商">
-                            <el-input v-model="searchForm.name" size="small" placeholder="请输入渠道商"></el-input>
-                        </el-form-item>
-                        <el-form-item label="渠道状态">
-                            <el-select v-model="searchForm.status" placeholder="请选择">
-                                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                        </el-form-item>
-                    </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增渠道</el-button>
-                </section>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
 
-                <section class="table">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="渠道商">
-                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="渠道建立时间">
-                            <template scope="scope"><p>{{ scope.row.createdDateStr }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="状态">
-                            <template scope="scope">
-                                <p v-if="scope.row.status == 0">解除</p>
-                                <p v-if="scope.row.status == 1">正常</p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)">编辑</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+        <el-dialog :title="dialogInfo.type == 0 ? '新增渠道' : '渠道编辑'" :visible.sync="dialogShow" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
+                    <el-form-item label="渠道商" prop="name">
+                        <el-input v-model="dialogInfo.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="状态" prop="status">
+                        <el-select v-model="dialogInfo.status" placeholder="请选择">
+                            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
 
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
-
-                <el-dialog :title="dialogInfo.type == 0 ? '新增渠道' : '渠道编辑'" :visible.sync="dialogShow" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
-                            <el-form-item label="渠道商" prop="name">
-                                <el-input v-model="dialogInfo.name"></el-input>
-                            </el-form-item>
-                            <el-form-item label="状态" prop="status">
-                                <el-select v-model="dialogInfo.status" placeholder="请选择">
-                                    <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
-                    </span>
-                </el-dialog>
-            </div>
-        </div>
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 

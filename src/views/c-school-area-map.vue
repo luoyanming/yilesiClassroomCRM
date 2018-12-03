@@ -1,166 +1,160 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div>
+        <div class="main-wrapper light-overscroll luoym" v-loading="pageLoading">
+            <section class="crumbs">
+                <el-breadcrumb separator="/">
+                    <el-breadcrumb-item>绘制区域地图</el-breadcrumb-item>
+                </el-breadcrumb>
+            </section>                
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym" v-loading="pageLoading">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>绘制区域地图</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>                
-
-                <section class="map-wrapper" v-show="mapurl">
-                    <div class="map-info flex-h" style="position:relative;">
-                        <div class="info-item flex-a-i">
-                            <div class="title el-icon-picture">原图（分辨率：1000 * 600）</div>
-                            <div class="thumb-box">
-                                <img :src="mapurl" class="thumb">
-                            </div>
-                        </div>
-                        <div class="info-item flex-a-i">
-                            <div class="title el-icon-picture">预览图</div>
-                            <div class="canvas-box">
-                                <canvas id="canvas-map"></canvas>
-                            </div>
-                        </div>
-                        <section class="formation" v-show="mapurl">
-                            <div class="upload-wrap absolute-upload-wrap">
-                                <el-upload
-                                    class="upload-demo list-pic-box"
-                                    :data="schoolParam"
-                                    :action="uploadUrl"
-                                    :file-list="dialog.thumbList"
-                                    list-type="picture"
-                                    :before-upload="uploadBeforeList"
-                                    :on-success="uploadSuccList"
-                                    :on-error="uploadErrorList"
-                                    :on-remove="uploadRemoveList">
-                                    <el-button type="primary" class="el-icon-upload reloadUpload" element-loading-text="正在上传"> 重新上传图片</el-button>
-                                </el-upload>
-                            </div>
-                        </section>
-                    </div>
-                    
-                    <!-- <div class="area-list clearfix">
-                        <div class="list-item" v-for="(item, index) in areaList">
-                            <div class="item-header flex-h">
-                                <div v-bind:class="[ item.point.length > 0 ? 'name el-icon-star-on flex-a-i' : 'name el-icon-star-off flex-a-i' ]">{{ item.name }}</div>
-                                <div class="btn btn-start el-icon-plus" v-if="item.point.length == 0" @click="handleAddPoint(index, item)">区域描点</div>
-                                <div class="btn btn-end el-icon-plus" v-if="item.point.length > 0" @click="handleAddPoint(index, item)">重新绘制</div>
-                                <div class="btn btn-end el-icon-delete" v-if="!item.id" @click="handleDeleteDecorateArea(index, item)">删除</div>
-                            </div>
-                            <div class="item-body">
-                                <canvas :id="'canvas-area-' + index" width="350" height="200" v-if="item.point.length > 0"></canvas>
-                                <div class="text" v-else>暂无预览图</div>
-                            </div>
-                        </div>
-                        <div class="list-item add-more">
-                            <div class="btn-add el-icon-plus" @click="handleAddDecorateArea">添加装饰区域</div>
-                        </div>
-                    </div> -->
-
-                    <section class="table" style="height: auto; margin-top: 30px;">
-                        <el-table :data="schoolRegionList" stripe style="width: 100%">
-                            <el-table-column label="区域编号">
-                                <template scope="scope">
-                                    <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
-                                    <p v-else>{{ scope.row.code }}</p>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="区域名称">
-                                <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                            </el-table-column>
-                            <el-table-column label="区域类型">
-                                <template scope="scope">
-                                    <p v-if="scope.row.type == 0">子区域</p>
-                                    <p v-if="scope.row.type == 1">大区域</p>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="作用">
-                                <template scope="scope">
-                                    <p v-if="scope.row.action == 0">起定位作用</p>
-                                    <p v-if="scope.row.action == 1">起装饰作用</p>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="操作">
-                                <template scope="scope">
-                                    <el-button size="small" class="button-link" @click="handleAddPoint(scope.$index, scope.row)">编辑</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </section>                      
-                </section>
-
-                <section class="upload-wrapper formation" v-show="!mapurl">
-                    <div class="map-info flex-h">
-                        <div class="info-item flex-a-i">
-                            <div class="title el-icon-picture">上传图片（分辨率：1000 * 600）</div>
+            <section class="map-wrapper" v-show="mapurl">
+                <div class="map-info flex-h" style="position:relative;">
+                    <div class="info-item flex-a-i">
+                        <div class="title el-icon-picture">原图（分辨率：1000 * 600）</div>
+                        <div class="thumb-box">
+                            <img :src="mapurl" class="thumb">
                         </div>
                     </div>
-                    <div class="list-item add-more upload-wrap">
-                        <el-upload
-                            class="upload-demo list-pic-box"
-                            :data="schoolParam"
-                            :action="uploadUrl"
-                            :file-list="dialog.thumbList"
-                            list-type="picture"
-                            :before-upload="uploadBeforeList"
-                            :on-success="uploadSuccList"
-                            :on-error="uploadErrorList"
-                            :on-remove="uploadRemoveList">
-                            <el-button type="primary" class="btn-add el-icon-upload" element-loading-text="正在上传">上传图片</el-button>
-                            <div slot="tip" class="el-upload__tip" style="text-align: center;position: absolute;width: 100%;bottom: 30%;">只能上传jpg/png文件</div>
-                        </el-upload>
+                    <div class="info-item flex-a-i">
+                        <div class="title el-icon-picture">预览图</div>
+                        <div class="canvas-box">
+                            <canvas id="canvas-map"></canvas>
+                        </div>
                     </div>
-                </section>
+                    <section class="formation" v-show="mapurl">
+                        <div class="upload-wrap absolute-upload-wrap">
+                            <el-upload
+                                class="upload-demo list-pic-box"
+                                :data="schoolParam"
+                                :action="uploadUrl"
+                                :file-list="dialog.thumbList"
+                                list-type="picture"
+                                :before-upload="uploadBeforeList"
+                                :on-success="uploadSuccList"
+                                :on-error="uploadErrorList"
+                                :on-remove="uploadRemoveList">
+                                <el-button type="primary" class="el-icon-upload reloadUpload" element-loading-text="正在上传"> 重新上传图片</el-button>
+                            </el-upload>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- <div class="area-list clearfix">
+                    <div class="list-item" v-for="(item, index) in areaList">
+                        <div class="item-header flex-h">
+                            <div v-bind:class="[ item.point.length > 0 ? 'name el-icon-star-on flex-a-i' : 'name el-icon-star-off flex-a-i' ]">{{ item.name }}</div>
+                            <div class="btn btn-start el-icon-plus" v-if="item.point.length == 0" @click="handleAddPoint(index, item)">区域描点</div>
+                            <div class="btn btn-end el-icon-plus" v-if="item.point.length > 0" @click="handleAddPoint(index, item)">重新绘制</div>
+                            <div class="btn btn-end el-icon-delete" v-if="!item.id" @click="handleDeleteDecorateArea(index, item)">删除</div>
+                        </div>
+                        <div class="item-body">
+                            <canvas :id="'canvas-area-' + index" width="350" height="200" v-if="item.point.length > 0"></canvas>
+                            <div class="text" v-else>暂无预览图</div>
+                        </div>
+                    </div>
+                    <div class="list-item add-more">
+                        <div class="btn-add el-icon-plus" @click="handleAddDecorateArea">添加装饰区域</div>
+                    </div>
+                </div> -->
+
+                <section class="table" style="height: auto; margin-top: 30px;">
+                    <el-table :data="schoolRegionList" stripe style="width: 100%">
+                        <el-table-column label="区域编号">
+                            <template scope="scope">
+                                <p style="color: orange" v-if="scope.row.syncStatus == 0">{{ scope.row.code }}</p>
+                                <p v-else>{{ scope.row.code }}</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="区域名称">
+                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="区域类型">
+                            <template scope="scope">
+                                <p v-if="scope.row.type == 0">子区域</p>
+                                <p v-if="scope.row.type == 1">大区域</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="作用">
+                            <template scope="scope">
+                                <p v-if="scope.row.action == 0">起定位作用</p>
+                                <p v-if="scope.row.action == 1">起装饰作用</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template scope="scope">
+                                <el-button size="small" class="button-link" @click="handleAddPoint(scope.$index, scope.row)">编辑</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </section>                      
+            </section>
+
+            <section class="upload-wrapper formation" v-show="!mapurl">
+                <div class="map-info flex-h">
+                    <div class="info-item flex-a-i">
+                        <div class="title el-icon-picture">上传图片（分辨率：1000 * 600）</div>
+                    </div>
+                </div>
+                <div class="list-item add-more upload-wrap">
+                    <el-upload
+                        class="upload-demo list-pic-box"
+                        :data="schoolParam"
+                        :action="uploadUrl"
+                        :file-list="dialog.thumbList"
+                        list-type="picture"
+                        :before-upload="uploadBeforeList"
+                        :on-success="uploadSuccList"
+                        :on-error="uploadErrorList"
+                        :on-remove="uploadRemoveList">
+                        <el-button type="primary" class="btn-add el-icon-upload" element-loading-text="正在上传">上传图片</el-button>
+                        <div slot="tip" class="el-upload__tip" style="text-align: center;position: absolute;width: 100%;bottom: 30%;">只能上传jpg/png文件</div>
+                    </el-upload>
+                </div>
+            </section>
+        </div>
+
+
+        <el-dialog :title="'绘制大区域（' + dialog.name + '）'" :visible.sync="dialog.show" class="dialog-canvas">
+            <div class="form-section flex-h">
+                <div class="title">区域颜色：</div>
+                <div class="input-wrap">
+                    <el-input v-model="dialog.color" class="input-color"></el-input>
+                </div>
+                <div class="tips flex-a-i el-icon-warning">6位区域色号(如：#AAAAAA)</div>
             </div>
 
-
-            <el-dialog :title="'绘制大区域（' + dialog.name + '）'" :visible.sync="dialog.show" class="dialog-canvas">
-                <div class="form-section flex-h">
-                    <div class="title">区域颜色：</div>
-                    <div class="input-wrap">
-                        <el-input v-model="dialog.color" class="input-color"></el-input>
-                    </div>
-                    <div class="tips flex-a-i el-icon-warning">6位区域色号(如：#AAAAAA)</div>
+            <div class="form-section flex-h" style="margin-bottom: 5px;">
+                <div class="title">区域描点：</div>
+                <div class="tips el-icon-warning">至少三个点，起点不限，描点顺序请严格按照区域边缘进行</div>
+                <div class="flex-a-i">
+                    <div class="btn el-icon-circle-close" @click="dialogCanvasPointClear" v-if="dialog.point.length > 0">重绘</div>
                 </div>
+            </div>
 
-                <div class="form-section flex-h" style="margin-bottom: 5px;">
-                    <div class="title">区域描点：</div>
-                    <div class="tips el-icon-warning">至少三个点，起点不限，描点顺序请严格按照区域边缘进行</div>
-                    <div class="flex-a-i">
-                        <div class="btn el-icon-circle-close" @click="dialogCanvasPointClear" v-if="dialog.point.length > 0">重绘</div>
-                    </div>
+            <div class="form-section">
+                <div class="canvas-box">
+                    <img :src="mapurl">
+                    <canvas width="1000" height="600" id="canvas-dialog-point"></canvas>
                 </div>
+            </div>
 
-                <div class="form-section">
-                    <div class="canvas-box">
-                        <img :src="mapurl">
-                        <canvas width="1000" height="600" id="canvas-dialog-point"></canvas>
-                    </div>
-                </div>
+            <div class="form-section flex-h" style="margin-bottom: 5px;" v-if="dialog.id">
+                <div class="title">文字描点：</div>
+                <div class="tips flex-a-i el-icon-warning">一个点，尽量选择当前区域中心，防止与其它区域重叠</div>
+            </div>
 
-                <div class="form-section flex-h" style="margin-bottom: 5px;" v-if="dialog.id">
-                    <div class="title">文字描点：</div>
-                    <div class="tips flex-a-i el-icon-warning">一个点，尽量选择当前区域中心，防止与其它区域重叠</div>
+            <div class="form-section" v-if="dialog.id">
+                <div class="canvas-box">
+                    <img :src="mapurl">
+                    <canvas width="1000" height="600" id="canvas-dialog-center"></canvas>
                 </div>
+            </div>
 
-                <div class="form-section" v-if="dialog.id">
-                    <div class="canvas-box">
-                        <img :src="mapurl">
-                        <canvas width="1000" height="600" id="canvas-dialog-center"></canvas>
-                    </div>
-                </div>
-
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialog.show = false"> 取消 </el-button>
-                    <el-button type="primary" :loading="dialog.loading" @click="dialogSubmit" element-loading-text="正在保存"> 保存 </el-button>
-                </div>
-            </el-dialog>
-        </div>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialog.show = false"> 取消 </el-button>
+                <el-button type="primary" :loading="dialog.loading" @click="dialogSubmit" element-loading-text="正在保存"> 保存 </el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 

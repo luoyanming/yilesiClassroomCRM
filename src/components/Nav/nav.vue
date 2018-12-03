@@ -5,12 +5,11 @@
                 <a href="javascript:void(0);" class="navitem"
                     v-bind:class="{ 'current': (item.leftnav == status) }" 
                     v-show="item.show"
-                    @click="linkTo(item.url)"
+                    @click="linkTo(item.url, item.leftnav)"
                     v-if="item.url">{{ item.title }}</a>
-                <a href="javascript:void(0);" class="navitem"
+                <a href="javascript:void(0);" class="navitem navitem-nourl"
                     v-bind:class="{ 'current': (item.leftnav == status) }" 
                     v-show="item.show"
-                    @click="linkTo(item.url)"
                     v-if="!item.url">{{ item.title }}</a>
             </li>
         </ul>
@@ -54,13 +53,6 @@
                         'show': true
                     },
                     {
-                        'name': '智慧教学卡综述',
-                        'title': '智慧教学卡综述',
-                        'url': '/card',
-                        'leftnav': 'card',
-                        'show': true
-                    },
-                    {
                         'name': '渠道管理',
                         'title': '渠道管理',
                         'url': '/channel',
@@ -68,24 +60,59 @@
                         'show': true
                     },
                     {
-                        'name': '智慧卡管理',
-                        'title': '智慧卡管理',
-                        'url': '/control',
-                        'leftnav': 'control',
+                        'name': '智慧设备版本',
+                        'title': '智慧设备版本',
+                        'url': '',
+                        'leftnav': 'version',
                         'show': true
                     },
                     {
-                        'name': 'OU总览',
-                        'title': 'OU总览',
-                        'url': '/schoolmanage',
-                        'leftnav': 'schoolmanage',
+                        'name': '智慧卡及手环版本',
+                        'title': '智慧卡及手环版本',
+                        'url': '/machineVersionCard',
+                        'leftnav': 'machineVersionCard',
                         'show': true
                     },
                     {
-                        'name': '学制管理',
-                        'title': '学制管理',
+                        'name': '智慧班牌版本',
+                        'title': '智慧班牌版本',
+                        'url': '/machineVersionBoard',
+                        'leftnav': 'machineVersionBoard',
+                        'show': true
+                    },
+                    {
+                        'name': '智慧设备总览',
+                        'title': '智慧设备总览',
+                        'url': '/machine',
+                        'leftnav': 'machine',
+                        'show': true
+                    },
+                    {
+                        'name': '智慧卡及手环',
+                        'title': '智慧卡及手环',
+                        'url': '/machineCard',
+                        'leftnav': 'machineCard',
+                        'show': true
+                    },
+                    {
+                        'name': '智慧班牌',
+                        'title': '智慧班牌',
+                        'url': '/machineBoard',
+                        'leftnav': 'machineBoard',
+                        'show': true
+                    },
+                    {
+                        'name': '学校学制管理',
+                        'title': '学校学制管理',
                         'url': '/schoolSystem',
                         'leftnav': 'schoolSystem',
+                        'show': true
+                    },
+                    {
+                        'name': '学校OU总览',
+                        'title': '学校OU总览',
+                        'url': '/schoolmanage',
+                        'leftnav': 'schoolmanage',
                         'show': true
                     },
                     {
@@ -101,14 +128,42 @@
                         'url': '/schoolStaff',
                         'leftnav': 'schoolStaff',
                         'show': true
-                    },                    
+                    },             
+                    {
+                        'name': '学校班级管理',
+                        'title': '学校班级管理',
+                        'url': '/schoolClass',
+                        'leftnav': 'schoolClass',
+                        'show': true
+                    },      
+                    {
+                        'name': '学校结构树',
+                        'title': '学校结构树',
+                        'url': '/schoolTree',
+                        'leftnav': 'schoolTree',
+                        'show': true
+                    }, 
+                    {
+                        'name': '学校考勤时间表',
+                        'title': '学校考勤时间表',
+                        'url': '/schoolAttendance',
+                        'leftnav': 'schoolAttendance',
+                        'show': true
+                    }, 
+                    {
+                        'name': '学校可寻汇总表',
+                        'title': '学校可寻汇总表',
+                        'url': '/schoolKexun',
+                        'leftnav': 'schoolKexun',
+                        'show': true
+                    }, 
                     {
                         'name': '学校接收器管理',
                         'title': '学校接收器管理',
                         'url': '/schoolMachine',
                         'leftnav': 'schoolMachine',
                         'show': true
-                    },                    
+                    },
                     {
                         'name': '学校区域管理',
                         'title': '学校区域管理',
@@ -117,17 +172,24 @@
                         'show': true
                     },
                     {
-                        'name': '班级管理',
-                        'title': '班级管理',
-                        'url': '/schoolClass',
-                        'leftnav': 'schoolClass',
+                        'name': '学校个性化设置',
+                        'title': '学校个性化设置',
+                        'url': '',
+                        'leftnav': 'setting',
                         'show': true
                     },
                     {
-                        'name': '结构树',
-                        'title': '结构树',
-                        'url': '/schoolTree',
-                        'leftnav': 'schoolTree',
+                        'name': '功能设置',
+                        'title': '功能设置',
+                        'url': '/settingFunction',
+                        'leftnav': 'settingFunction',
+                        'show': true
+                    },
+                    {
+                        'name': '行为轨迹设置',
+                        'title': '行为轨迹设置',
+                        'url': '/settingTrace',
+                        'leftnav': 'settingTrace',
                         'show': true
                     },
                     {
@@ -192,9 +254,13 @@
         },
         methods: {
             getNavType() {
-                this.status = this.$route.meta.nav;
+                let that = this;
+                setTimeout(function() {
+                    that.status = that.$route.meta.nav;
+                }, 1)
             },
-            linkTo: function(url) {
+            linkTo: function(url, nav) {
+                this.status = nav;
                 this.$router.push({ path: url });
             },
             getPermission: function() {

@@ -1,35 +1,27 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>视频总览</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>视频总览</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <section class="card-list clearfix" v-loading.body="loading">
-                    <article class="list-item">
-                        <p>{{ allData.totalCount }}<span>个</span></p>
-                        <h4>视频总数</h4>
-                    </article>
-                    <article class="list-item">
-                        <p>{{ allData.courseCount }}<span>个</span></p>
-                        <h4>课程记录视频</h4>
-                        <el-button size="small" class="button-link" @click="handlePageLinkToVideoCourse">详情 ></el-button>
-                    </article>                    
-                    <article class="list-item">
-                        <p>{{ allData.microCourseCount }}<span>个</span></p>
-                        <h4>微课视频</h4>
-                        <el-button size="small" class="button-link" @click="handlePageLinkToVideoWxlist">详情 ></el-button>
-                    </article>
-                </section>
-            </div>
-        </div>
+        <section class="card-list clearfix" v-loading.body="loading">
+            <article class="list-item">
+                <p>{{ allData.totalCount }}<span>个</span></p>
+                <h4>视频总数</h4>
+            </article>
+            <article class="list-item">
+                <p>{{ allData.courseCount }}<span>个</span></p>
+                <h4>课程记录视频</h4>
+                <el-button size="small" class="button-link" @click="handlePageLinkToVideoCourse">详情 ></el-button>
+            </article>                    
+            <article class="list-item">
+                <p>{{ allData.microCourseCount }}<span>个</span></p>
+                <h4>微课视频</h4>
+                <el-button size="small" class="button-link" @click="handlePageLinkToVideoWxlist">详情 ></el-button>
+            </article>
+        </section>
     </div>
 </template>
 

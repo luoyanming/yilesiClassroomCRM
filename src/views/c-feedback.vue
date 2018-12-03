@@ -1,73 +1,65 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>用户反馈</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
+        
+        <section class="search clearfix">
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                <el-form-item label="起始日期">
+                    <el-date-picker
+                        v-model="searchForm.startDate"
+                        size="small"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        placeholder="请选择">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="结束日期">
+                    <el-date-picker
+                        v-model="searchForm.endDate"
+                        size="small"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        placeholder="请选择">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                </el-form-item>
+            </el-form>
 
-            <Nav></Nav>
+            <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleFeedbackExport">导出</el-button>
+        </section>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>用户反馈</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-                
-                <section class="search clearfix">
-                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="起始日期">
-                            <el-date-picker
-                                v-model="searchForm.startDate"
-                                size="small"
-                                type="date"
-                                format="yyyy-MM-dd"
-                                placeholder="请选择">
-                            </el-date-picker>
-                        </el-form-item>
-                        <el-form-item label="结束日期">
-                            <el-date-picker
-                                v-model="searchForm.endDate"
-                                size="small"
-                                type="date"
-                                format="yyyy-MM-dd"
-                                placeholder="请选择">
-                            </el-date-picker>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                        </el-form-item>
-                    </el-form>
+        <section class="table">
+            <el-table ref="multipleTable" :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column label="账号">
+                    <template scope="scope">{{ scope.row.mobile }}</template>
+                </el-table-column>
+                <el-table-column label="姓名">
+                    <template scope="scope">{{ scope.row.name }}</template>
+                </el-table-column>
+                <el-table-column label="意见时间">
+                    <template scope="scope">{{ scope.row.createdDateStr }}</template>
+                </el-table-column>
+                <el-table-column label="反馈内容">
+                    <template scope="scope">{{ scope.row.contents }}</template>
+                </el-table-column>
+            </el-table>
 
-                    <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleFeedbackExport">导出</el-button>
-                </section>
-
-                <section class="table">
-                    <el-table ref="multipleTable" :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading" @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column label="账号">
-                            <template scope="scope">{{ scope.row.mobile }}</template>
-                        </el-table-column>
-                        <el-table-column label="姓名">
-                            <template scope="scope">{{ scope.row.name }}</template>
-                        </el-table-column>
-                        <el-table-column label="意见时间">
-                            <template scope="scope">{{ scope.row.createdDateStr }}</template>
-                        </el-table-column>
-                        <el-table-column label="反馈内容">
-                            <template scope="scope">{{ scope.row.contents }}</template>
-                        </el-table-column>
-                    </el-table>
-
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
-            </div>
-        </div>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
     </div>
 </template>
 

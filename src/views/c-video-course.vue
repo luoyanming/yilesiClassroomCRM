@@ -1,146 +1,138 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>课程记录</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
+        
+        <section class="search clearfix">
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                <el-form-item label="关键词">
+                    <el-input v-model="searchForm.keyword" size="small" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="用户账号">
+                    <el-input v-model="searchForm.account" size="small" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="生成时间">
+                    <el-date-picker
+                        v-model="searchForm.searchDate"
+                        size="small"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        placeholder="请选择">
+                    </el-date-picker>
+                </el-form-item>                        
 
-            <Nav></Nav>
+                <el-form-item>
+                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                </el-form-item>
+            </el-form>
+        </section>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>课程记录</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-                
-                <section class="search clearfix">
-                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="关键词">
-                            <el-input v-model="searchForm.keyword" size="small" placeholder="请输入"></el-input>
-                        </el-form-item>
-                        <el-form-item label="用户账号">
-                            <el-input v-model="searchForm.account" size="small" placeholder="请输入"></el-input>
-                        </el-form-item>
-                        <el-form-item label="生成时间">
-                            <el-date-picker
-                                v-model="searchForm.searchDate"
-                                size="small"
-                                type="date"
-                                format="yyyy-MM-dd"
-                                placeholder="请选择">
-                            </el-date-picker>
-                        </el-form-item>                        
+        <section class="table">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="视频">
+                    <template scope="scope">
+                        <p><img :src="scope.row.thumbnailUrl" class="video-thumb"></p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="">
+                    <!-- <template scope="scope"><p>未命名课程</p></template> -->
+                    <template scope="scope"><p>{{ scope.row.courseName }}</p></template>
+                </el-table-column>                        
+                <el-table-column label="用户账号">
+                    <template scope="scope">
+                        <p>{{ scope.row.memberName }}</p>
+                        <p>{{ scope.row.mobile }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="上课班级/小组">
+                    <template scope="scope"><p>{{ scope.row.className }}</p></template>
+                </el-table-column>
+                <el-table-column label="视频时长">
+                    <template scope="scope"><p>{{ scope.row.videoLength }}</p></template>
+                </el-table-column>
+                <el-table-column label="生成时间">
+                    <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template scope="scope">
+                        <el-button size="small" class="button-link" @click="handlePlayVideo(scope.row.videoUrl)" v-if="scope.row.videoUrl">播放</el-button>
+                        <el-button size="small" class="button-link" @click="handleDownloadCourse(scope.row.id)" v-if="scope.row.videoUrl">下载</el-button>
+                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-                        <el-form-item>
-                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                        </el-form-item>
-                    </el-form>
-                </section>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
 
-                <section class="table">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="视频">
-                            <template scope="scope">
-                                <p><img :src="scope.row.thumbnailUrl" class="video-thumb"></p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="">
-                            <!-- <template scope="scope"><p>未命名课程</p></template> -->
-                            <template scope="scope"><p>{{ scope.row.courseName }}</p></template>
-                        </el-table-column>                        
-                        <el-table-column label="用户账号">
-                            <template scope="scope">
-                                <p>{{ scope.row.memberName }}</p>
-                                <p>{{ scope.row.mobile }}</p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="上课班级/小组">
-                            <template scope="scope"><p>{{ scope.row.className }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="视频时长">
-                            <template scope="scope"><p>{{ scope.row.videoLength }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="生成时间">
-                            <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handlePlayVideo(scope.row.videoUrl)" v-if="scope.row.videoUrl">播放</el-button>
-                                <el-button size="small" class="button-link" @click="handleDownloadCourse(scope.row.id)" v-if="scope.row.videoUrl">下载</el-button>
-                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+        
+        <el-dialog title="编辑课程记录" :visible.sync="editDialogShow" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" label-width="180px">
+                    <el-form-item label="视频">
+                        <p class="form-item-thumb"><img :src="editDialogInfo.info.thumbnailUrl" class="video-thumb"></p>
 
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
+                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadCourse(editDialogInfo.info.id)" style="float: right; margin-right: 50px;">下载课程记录</el-button>
+                    </el-form-item>
+                    <el-form-item label="视频名称">
+                        <p class="form-item-text">{{ editDialogInfo.info.courseName }}</p>
+                    </el-form-item>
+                    <el-form-item label="用户">
+                        <p class="form-item-text">{{ editDialogInfo.info.memberName }}（{{ editDialogInfo.info.mobile }}）</p>
+                    </el-form-item>
+                    <el-form-item label="视频时长">
+                        <p class="form-item-text">{{ editDialogInfo.info.videoLength }}</p>
+                    </el-form-item>
+                    <el-form-item label="生成时间">
+                        <p class="form-item-text">{{ editDialogInfo.info.createdDate }}</p>
+                    </el-form-item>
+                    <el-form-item label="标签">
+                        <div class="tag-list">
+                            <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
+                            <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
+                        </div>
+                    </el-form-item> 
+                </el-form>
 
-                
-                <el-dialog title="编辑课程记录" :visible.sync="editDialogShow" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" label-width="180px">
-                            <el-form-item label="视频">
-                                <p class="form-item-thumb"><img :src="editDialogInfo.info.thumbnailUrl" class="video-thumb"></p>
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="editDialogLoading" @click.native="handleSaveCourse">保存</el-button>
+            </span>
+        </el-dialog>
 
-                                <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadCourse(editDialogInfo.info.id)" style="float: right; margin-right: 50px;">下载课程记录</el-button>
-                            </el-form-item>
-                            <el-form-item label="视频名称">
-                                <p class="form-item-text">{{ editDialogInfo.info.courseName }}</p>
-                            </el-form-item>
-                            <el-form-item label="用户">
-                                <p class="form-item-text">{{ editDialogInfo.info.memberName }}（{{ editDialogInfo.info.mobile }}）</p>
-                            </el-form-item>
-                            <el-form-item label="视频时长">
-                                <p class="form-item-text">{{ editDialogInfo.info.videoLength }}</p>
-                            </el-form-item>
-                            <el-form-item label="生成时间">
-                                <p class="form-item-text">{{ editDialogInfo.info.createdDate }}</p>
-                            </el-form-item>
-                            <el-form-item label="标签">
-                                <div class="tag-list">
-                                    <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
-                                    <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
-                                </div>
-                            </el-form-item> 
-                        </el-form>
+        <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
+                    <el-form-item label="标签分类" prop="typeId">
+                        <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
+                            <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="标签" prop="id">
+                        <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
+                            <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
 
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="editDialogLoading" @click.native="handleSaveCourse">保存</el-button>
-                    </span>
-                </el-dialog>
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
+            </span>
+        </el-dialog>                        
 
-                <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
-                            <el-form-item label="标签分类" prop="typeId">
-                                <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
-                                    <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="标签" prop="id">
-                                <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
-                                    <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
-                    </span>
-                </el-dialog>                        
-
-            </div>
-        </div>
     </div>
 </template>
 

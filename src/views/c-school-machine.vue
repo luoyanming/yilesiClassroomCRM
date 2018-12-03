@@ -1,117 +1,109 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym clearfix">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>学校接收器管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym clearfix">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>学校接收器管理</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <div class="pull-left">
-                    <div class="search-box">
-                        <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
-                    </div>
-                    <div class="light-overscroll">
-                        <el-tree
-                          empty-text="暂无数据"
-                          :data="schoolOptions"
-                          :props="defaultProps"
-                          accordion
-                          highlight-current
-                          @node-click="handleNodeClick">
-                        </el-tree>
-                    </div>
-                </div>
-                <div class="pull-right">
-                    <div class="light-overscroll" v-if="showTable">
-                        
-                        <section class="search clearfix">
-                            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                                <el-form-item label="接收器MAC号">
-                                    <el-input v-model="searchForm.account" size="small" placeholder="请输入"></el-input>
-                                </el-form-item>
-                                
-                                <el-form-item>
-                                    <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                                </el-form-item>
-                            </el-form>
-                        
-                            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd()" v-if="searchForm.schoolId">添加接收器</el-button>
-                        </section>
-
-                        <section class="table" style="height: auto">
-                            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                                <el-table-column label="接收器MAC号">
-                                    <template scope="scope"><p>{{ scope.row.macNo }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="所处位置">
-                                    <template scope="scope"><p>{{ scope.row.location }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="布设方向">
-                                    <template scope="scope">
-                                        <p v-if="scope.row.layDirection == 0">内</p>
-                                        <p v-if="scope.row.layDirection == 1">外</p>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="信号过滤">
-                                    <template scope="scope"><p>{{ scope.row.signalFilterStr }}</p></template>
-                                </el-table-column>
-                                <el-table-column label="操作">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                        <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-
-                            <el-pagination
-                                @current-change="handleCurrentChange"
-                                :current-page.sync="pagi.currentPage"
-                                :page-size="pagi.pageSize"
-                                layout="total, prev, pager, next, jumper"
-                                :total="pagi.total"
-                                v-if="!noPagi">
-                            </el-pagination>
-                        </section>    
-                    </div>
-                </div>
-
-                <el-dialog :title="dialog.type == 0 ? '添加接收器' : '编辑接收器'" :visible.sync="dialogShow" :modal-append-to-body="false">
-                    <section class="formation">
-               
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialog">
-                            <el-form-item label="接收器MAC号" prop="macNo">
-                                <el-input v-model="dialog.macNo"></el-input>
-                            </el-form-item>
-                            <el-form-item label="所处位置" prop="location">
-                                <el-input v-model="dialog.location"></el-input>
-                            </el-form-item>
-                            <el-form-item label="布设方向" prop="layDirection">
-                                <el-select v-model="dialog.layDirection" placeholder="请选择">
-                                    <el-option v-for="item in layDirectionOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="信号过滤" prop="signalFilter">
-                                <el-select v-model="dialog.signalFilter" placeholder="请选择">
-                                    <el-option v-for="item in signalFilterOptions" :key="item.value" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>                                    
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialog.dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
-                    </span>
-                </el-dialog>                        
+        <div class="pull-left">
+            <div class="search-box">
+                <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
+            </div>
+            <div class="light-overscroll">
+                <el-tree
+                  empty-text="暂无数据"
+                  :data="schoolOptions"
+                  :props="defaultProps"
+                  accordion
+                  highlight-current
+                  @node-click="handleNodeClick">
+                </el-tree>
             </div>
         </div>
+        <div class="pull-right">
+            <div class="light-overscroll" v-if="showTable">
+                
+                <section class="search clearfix">
+                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                        <el-form-item label="接收器MAC号">
+                            <el-input v-model="searchForm.account" size="small" placeholder="请输入"></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item>
+                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                
+                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd()" v-if="searchForm.schoolId">添加接收器</el-button>
+                </section>
+
+                <section class="table" style="height: auto">
+                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                        <el-table-column label="接收器MAC号">
+                            <template scope="scope"><p>{{ scope.row.macNo }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="所处位置">
+                            <template scope="scope"><p>{{ scope.row.location }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="布设方向">
+                            <template scope="scope">
+                                <p v-if="scope.row.layDirection == 0">内</p>
+                                <p v-if="scope.row.layDirection == 1">外</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="信号过滤">
+                            <template scope="scope"><p>{{ scope.row.signalFilterStr }}</p></template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template scope="scope">
+                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                                <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <el-pagination
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="pagi.currentPage"
+                        :page-size="pagi.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagi.total"
+                        v-if="!noPagi">
+                    </el-pagination>
+                </section>    
+            </div>
+        </div>
+
+        <el-dialog :title="dialog.type == 0 ? '添加接收器' : '编辑接收器'" :visible.sync="dialogShow" :modal-append-to-body="false">
+            <section class="formation">
+       
+                <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialog">
+                    <el-form-item label="接收器MAC号" prop="macNo">
+                        <el-input v-model="dialog.macNo"></el-input>
+                    </el-form-item>
+                    <el-form-item label="所处位置" prop="location">
+                        <el-input v-model="dialog.location"></el-input>
+                    </el-form-item>
+                    <el-form-item label="布设方向" prop="layDirection">
+                        <el-select v-model="dialog.layDirection" placeholder="请选择">
+                            <el-option v-for="item in layDirectionOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="信号过滤" prop="signalFilter">
+                        <el-select v-model="dialog.signalFilter" placeholder="请选择">
+                            <el-option v-for="item in signalFilterOptions" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>                                    
+                </el-form>
+
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialog.dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>                        
     </div>
 </template>
 

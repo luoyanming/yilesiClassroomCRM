@@ -1,41 +1,33 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>用户总览</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
 
-            <Nav></Nav>
-
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>用户总览</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <section class="card-list clearfix" v-loading.body="loading">
-                    <article class="list-item">
-                        <p>{{ allData.userTotal }}<span>人</span></p>
-                        <h4>用户总人数</h4>
-                    </article>
-                    <article class="list-item">
-                        <p>{{ allData.activeWeek }}<span>人</span></p>
-                        <h4>七天内活跃用户人数</h4>
-                    </article>                    
-                    <article class="list-item">
-                        <p>{{ allData.noActive }}<span>人</span></p>
-                        <h4>不活跃用户人数</h4>
-                    </article>
-                    <article class="list-item">
-                        <p>{{ allData.leaderAccount }}<span>人</span></p>
-                        <h4>校领导</h4>
-                    </article>
-                    <article class="list-item">
-                        <p>{{ allData.teacherAccount }}<span>人</span></p>
-                        <h4>教师</h4>
-                    </article>
-                </section>
-            </div>
-        </div>
+        <section class="card-list clearfix" v-loading.body="loading">
+            <article class="list-item">
+                <p>{{ allData.userTotal }}<span>人</span></p>
+                <h4>用户总人数</h4>
+            </article>
+            <article class="list-item">
+                <p>{{ allData.activeWeek }}<span>人</span></p>
+                <h4>七天内活跃用户人数</h4>
+            </article>                    
+            <article class="list-item">
+                <p>{{ allData.noActive }}<span>人</span></p>
+                <h4>不活跃用户人数</h4>
+            </article>
+            <article class="list-item">
+                <p>{{ allData.leaderAccount }}<span>人</span></p>
+                <h4>校领导</h4>
+            </article>
+            <article class="list-item">
+                <p>{{ allData.teacherAccount }}<span>人</span></p>
+                <h4>教师</h4>
+            </article>
+        </section>
     </div>
 </template>
 

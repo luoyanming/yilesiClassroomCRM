@@ -2,7 +2,7 @@
     <div class="main-wrapper light-overscroll luoym clearfix">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>班级管理</el-breadcrumb-item>
+                <el-breadcrumb-item>学校考勤时间表</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
 

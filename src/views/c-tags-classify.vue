@@ -1,59 +1,51 @@
 <template>
-    <div class="app-container">
-        <div class="container-wrapper">
-            <Header></Header>
+    <div class="main-wrapper light-overscroll luoym">
+        <section class="crumbs clearfix">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>标签分类</el-breadcrumb-item>
+            </el-breadcrumb>
+            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签分类</el-button>
+        </section>
+        
+        <section class="table">
+            <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
+                <el-table-column label="标签分类">
+                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template scope="scope">
+                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-            <Nav></Nav>
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="pagi.currentPage"
+                :page-size="pagi.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="pagi.total"
+                v-if="!noPagi">
+            </el-pagination>
+        </section>
 
-            <div class="main-wrapper light-overscroll luoym">
-                <section class="crumbs clearfix">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>标签分类</el-breadcrumb-item>
-                    </el-breadcrumb>
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签分类</el-button>
-                </section>
-                
-                <section class="table">
-                    <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="标签分类">
-                            <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                <el-button size="small" class="button-link" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+        
+        <el-dialog :title="dialogInfo.id ? '编辑标签分类' : '新增标签分类'" :visible.sync="dialogInfo.show" :modal-append-to-body="false">
+            <section class="formation">
+               
+                <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
+                    <el-form-item label="标签分类" prop="classify">
+                        <el-input v-model="dialogInfo.classify"></el-input>
+                    </el-form-item>
+                </el-form>
 
-                    <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="pagi.currentPage"
-                        :page-size="pagi.pageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="pagi.total"
-                        v-if="!noPagi">
-                    </el-pagination>
-                </section>
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialogInfo.loading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>
 
-                
-                <el-dialog :title="dialogInfo.id ? '编辑标签分类' : '新增标签分类'" :visible.sync="dialogInfo.show" :modal-append-to-body="false">
-                    <section class="formation">
-                       
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
-                            <el-form-item label="标签分类" prop="classify">
-                                <el-input v-model="dialogInfo.classify"></el-input>
-                            </el-form-item>
-                        </el-form>
-
-                    </section>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialogInfo.loading" @click.native="submitForm('ruleForm')">保存</el-button>
-                    </span>
-                </el-dialog>
-
-            </div>
-        </div>
     </div>
 </template>
 

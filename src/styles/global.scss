@@ -415,7 +415,7 @@ html {
             padding-left: 30px;
             color: #666;
             line-height: 70px;
-            background-image: url('/static/icon_user01.png');
+            background-image: url('/static/icon-user@2x.png');
             background-repeat: no-repeat;
             background-position: left center;
             background-size: 18px auto;
@@ -442,7 +442,7 @@ html {
     top: 70px;
     left: 0;
     bottom: 0;
-    width: 180px;
+    width: 190px;
     background: #363A44;
     
     ul {
@@ -451,7 +451,7 @@ html {
         top: 0;
         left: 0;
         bottom: 0;
-        width: 180px;
+        width: 190px;
         overflow-x: hidden;
         overflow-y: auto;
 
@@ -460,94 +460,154 @@ html {
                 display: block;
                 padding-left: 62px;
                 font-size: 14px;
-                line-height: 60px;
+                line-height: 50px;
                 color: rgba(255, 255, 255, .5);
                 &.current {
                     background: #3FCB9A;
                     color: rgba(255, 255, 255, 1);
                 }
+
+                &.navitem-nourl{
+                    cursor: default;
+                }
             }
             &:nth-of-type(1) {
                 .navitem {
-                    background-image: url('/static/icon_user.png');
+                    background-image: url('/static/icon-user@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
                     &.current {
-                        background-image: url('/static/icon_user_white.png');
+                        background-image: url('/static/icon-user-white@2x.png');
                         background-repeat: no-repeat;
-                        background-position: 18px center;
-                        background-size: 32px 32px;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
                     }
                 }
             }
             &:nth-of-type(5) {
                 .navitem {
-                    background-image: url('/static/icon_log.png');
+                    background-image: url('/static/icon-channel@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
                     &.current {
-                        background-image: url('/static/icon_log_white.png');
+                        background-image: url('/static/icon-channel-white@2x.png');
                         background-repeat: no-repeat;
-                        background-position: 18px center;
-                        background-size: 32px 32px;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
                     }
                 }
             }
-            &:nth-of-type(8) {
+            &:nth-of-type(6) {
                 .navitem {
-                    background-image: url('/static/icon_special.png');
+                    background-image: url('/static/icon-version@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
-                }
-                &.current {
-                    background-image: url('/static/icon_special_white.png');
-                    background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-version-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
                 }
             }
-            &:nth-of-type(16) {
+            &:nth-of-type(9) {
                 .navitem {
-                    background-image: url('/static/icon_tag.png');
+                    background-image: url('/static/icon-machine@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
                     &.current {
-                        background-image: url('/static/icon_tag_white.png');
+                        background-image: url('/static/icon-machine-white@2x.png');
                         background-repeat: no-repeat;
-                        background-position: 18px center;
-                        background-size: 32px 32px;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
+                }
+            }
+            &:nth-of-type(12) {
+                .navitem {
+                    background-image: url('/static/icon-system@2x.png');
+                    background-repeat: no-repeat;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-system-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
+                }
+            }  
+            &:nth-of-type(13) {
+                .navitem {
+                    background-image: url('/static/icon-ou@2x.png');
+                    background-repeat: no-repeat;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-ou-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
                     }
                 }
             }            
-            &:nth-of-type(19) {
+            &:nth-of-type(22) {
                 .navitem {
-                    background-image: url('/static/icon_word.png');
+                    background-image: url('/static/icon-setting@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
                     &.current {
-                        background-image: url('/static/icon_word_white.png');
+                        background-image: url('/static/icon-setting-white@2x.png');
                         background-repeat: no-repeat;
-                        background-position: 18px center;
-                        background-size: 32px 32px;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
                     }
                 }
-            }            
-            &:nth-of-type(23) {
+            }                    
+            &:nth-of-type(25) {
                 .navitem {
-                    background-image: url('/static/icon_word.png');
+                    background-image: url('/static/icon-tag@2x.png');
                     background-repeat: no-repeat;
-                    background-position: 18px center;
-                    background-size: 32px 32px;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
                     &.current {
-                        background-image: url('/static/icon_word_white.png');
+                        background-image: url('/static/icon-tag-white@2x.png');
                         background-repeat: no-repeat;
-                        background-position: 18px center;
-                        background-size: 32px 32px;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
+                }
+            }
+            &:nth-of-type(28) {
+                .navitem {
+                    background-image: url('/static/icon-video@2x.png');
+                    background-repeat: no-repeat;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-video-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
+                }
+            }
+            &:nth-of-type(32) {
+                .navitem {
+                    background-image: url('/static/icon-log@2x.png');
+                    background-repeat: no-repeat;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-log-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
                     }
                 }
             }
@@ -566,7 +626,7 @@ html {
     top: 70px;
     right: 0;
     bottom: 0;
-    left: 180px;
+    left: 190px;
     padding: 30px;
 }
 
