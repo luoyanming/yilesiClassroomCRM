@@ -190,6 +190,10 @@
 
             // 编辑微课记录保存
             handleSaveCourse: function() {
+                if(this.editDialogLoading) {
+                    return false;
+                }
+                
                 let idArr = [],
                     id = this.editDialogInfo.info.id,
                     index = '',

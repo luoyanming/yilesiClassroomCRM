@@ -387,7 +387,7 @@
                     that.editInfo.name = row.name;
                     that.editInfo.classify = ''+ row.type;
                     that.editInfo.memberRoleList = [];
-                    that.editInfo.tagList = row.tagVoList;
+                    that.editInfo.tagList = row.tagVoList || [];
 
                     if(row.memberRoleList.length > 0) {
                         for(let i = 0; i < row.memberRoleList.length; i++) {
@@ -529,6 +529,10 @@
             },                   
             // 保存编辑
             submitForm(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                      if(valid){
                         this.dialogLoading = true;
@@ -547,9 +551,9 @@
                         }
 
                         let tagIds = [];
-                        if(this.editDialogInfo.tagList.length > 0) {
-                            for(let i = 0; i < this.editDialogInfo.tagList.length; i++) {
-                                tagIds.push(this.editDialogInfo.tagList[i].id);
+                        if(this.editInfo.tagList.length > 0) {
+                            for(let i = 0; i < this.editInfo.tagList.length; i++) {
+                                tagIds.push(this.editInfo.tagList[i].id);
                             }
                         }                        
 

@@ -43,6 +43,10 @@
         },
         methods: {
             submitForm(formName) {
+                if(this.loading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;

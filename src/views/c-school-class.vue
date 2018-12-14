@@ -52,7 +52,7 @@
                     </el-upload> -->
                 </section>
 
-                <section class="table">
+                <section class="table" style="height: auto;">
                     <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
                         <el-table-column label="班级名称">
                             <template scope="scope"><p>{{ scope.row.name }}</p></template>
@@ -517,6 +517,10 @@
 
             // 提交用户信息
             submitForm: function(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         this.dialogLoading = true;

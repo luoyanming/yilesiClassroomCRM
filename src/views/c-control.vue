@@ -570,6 +570,10 @@
 
             // 单卡转移 提交
             submitTransfer: function(formName) {
+                if(this.transferDialogLoading) {
+                    return false;
+                }
+
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         if(!this.transferDialogInfo.newCardNo) {
@@ -610,6 +614,10 @@
 
             // 提交编辑内容
             submitEdit: function(formName) {
+                if(this.editDialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         this.editDialogLoading = true;

@@ -398,6 +398,10 @@
             },
             // 添加教职工保存
             staffDialogSubmit: function() {
+                if(this.staffDialog.submitLoading) {
+                    return false;
+                }
+                
                 if(this.staffDialog.selectedData.length == 0) {
                     this.$message({ message: '请选择需要添加的教职工', type: 'error'});
                     return false;

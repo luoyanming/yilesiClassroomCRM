@@ -327,6 +327,10 @@
 
             // 提交用户信息
             submitForm: function(formName) {
+                if(this.dialog.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         this.dialog.dialogLoading = true;

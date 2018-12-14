@@ -173,6 +173,10 @@
         
             // 保存编辑
             submitForm(formName) {
+                if(this.dialogInfo.loading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                      if(valid){
                         this.dialogInfo.loading = true;

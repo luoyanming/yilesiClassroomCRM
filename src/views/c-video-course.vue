@@ -265,6 +265,10 @@
 
             // 编辑课程记录保存
             handleSaveCourse: function() {
+                if(this.editDialogLoading) {
+                    return false;
+                }
+                
                 let tagIds = [];
                 if(this.editDialogInfo.tagList.length > 0) {
                     for(let i = 0; i < this.editDialogInfo.tagList.length; i++) {

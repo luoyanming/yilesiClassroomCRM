@@ -624,6 +624,10 @@
             dialogSubmit: function() {
                 let that = this;
 
+                if(that.dialog.loading) {
+                    return false;
+                }
+
                 if(!that.dialog.color || that.dialog.color.length != 7) {
                     that.$message({ message: '请输入正确的色号', type: 'error', duration: '2000' });
                     return false;

@@ -473,6 +473,10 @@
 
             // 提交用户信息
             submitForm: function(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         if(this.dialogInfo.pre == 0 && this.dialogInfo.primarys == 0 && this.dialogInfo.junior == 0 && this.dialogInfo.senior == 0 && this.dialogInfo.college == 0) {

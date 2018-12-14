@@ -146,6 +146,19 @@ export const transferCard = params => {
     }).then(res => res.data);
 };
 
+// 获取所有的版本
+export const getAllSmartDeviceVersion = params => {
+    return axios.post(`${base}/ajax/allSmartDeviceVersion`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 渠道id 搜索学校
+export const getSchoolListByChannel = params => {
+    return axios.post(`${base}/ajax/smartCard/export/condition/schoolList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
 
 
 // 操作日志
@@ -271,6 +284,13 @@ export const schoolTeacherAdd = params => {
 // 删除教师
 export const schoolTeacherDelete = params => {
     return axios.post(`${base}/ajax/schoolTeacher/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 编辑教师
+export const schoolTeacherEdit = params => {
+    return axios.post(`${base}/ajax/schoolTeacher/edit`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
@@ -518,9 +538,144 @@ export const courseRecordRankingPublish = params => {
 
 
 
+// 学校个性化设置 - 获取功能设置
+export const schoolPersonalFunctionSet = params => {
+    return axios.post(`${base}/ajax/schoolPersonalSet/getFunctionSet`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 学校个性化设置 - 修改功能设置
+export const schoolPersonalFunctionSetUpdate = params => {
+    return axios.post(`${base}/ajax/schoolPersonalSet/updateFunctionSet`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 学校个性化设置 - 获取轨迹显示设置
+export const schoolPersonalTraceSet = params => {
+    return axios.post(`${base}/ajax/schoolPersonalSet/getTrajectorySet`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 学校个性化设置 - 修改轨迹显示设置
+export const schoolPersonalTraceSetUpdate = params => {
+    return axios.post(`${base}/ajax/schoolPersonalSet/updateTrajectorySet`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
 
 
 
+// 考勤时间表 - 获取年级
+export const schoolAttendanceGradeList = params => {
+    return axios.post(`${base}/ajax/attendanceTime/schoolSystemGradeList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 新增课时
+export const schoolAttendanceAdd = params => {
+    return axios.post(`${base}/ajax/attendanceTime/insert`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 获取学校的某年级考勤时间表
+export const schoolAttendanceList = params => {
+    return axios.post(`${base}/ajax/attendanceTime/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 编辑课时
+export const schoolAttendanceEdit = params => {
+    return axios.post(`${base}/ajax/attendanceTime/update`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 课时复用
+export const schoolAttendanceReUsed = params => {
+    return axios.post(`${base}/ajax/attendanceTime/reused`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 删除课时
+export const schoolAttendanceDelete = params => {
+    return axios.post(`${base}/ajax/attendanceTime/delete`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 获取学校可复用课时的学段列表
+export const schoolAttendanceCanUsePeriodList = params => {
+    return axios.post(`${base}/ajax/attendanceTime/canReusedPeriod`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 考勤时间表 - 获取学校可复用课时的年纪列表
+export const schoolAttendanceCanUseGradeList = params => {
+    return axios.post(`${base}/ajax/attendanceTime/canReusedGrades`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+// 智慧卡和手环版本列表 - 版本列表
+export const smartVersionList = params => {
+    return axios.post(`${base}/ajax/smartDeviceVersion/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧卡和手环版本列表 - 储存版本
+export const smartVersionSave = params => {
+    return axios.post(`${base}/ajax/smartDeviceVersion/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+// 根据班级统计考勤
+export const attendanceSystemStatistics = params => {
+    return axios.post(`${base}/attendance/systemStatistics`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 老师发起的考勤统计
+export const attendanceTeacherStatistics = params => {
+    return axios.post(`${base}/attendance/teacherStatistics`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 根据学校查询老师
+export const schoolTeacherList = params => {
+    return axios.post(`${base}/ajax/school/teacherList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+
+// 智慧班牌 - 获取列表
+export const smartClassBrandList = params => {
+    return axios.post(`${base}/ajax/smartClassBrand/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧班牌 - 修改
+export const smartClassBrandSave = params => {
+    return axios.post(`${base}/ajax/smartClassBrand/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// // 智慧班牌 - 导入基本信息
+// export const smartClassBrandImportActivate = params => {
+//     return axios.post(`${base}/ajax/smartClassBrand/import/activate`, qs.stringify(params), {
+//         headers: header
+//     }).then(res => res.data);
+// };
+// // 智慧班牌 - 导入应用信息
+// export const  = params => {
+//     return axios.post(`${base}/schoolPersonalSet/applicationInfo`, qs.stringify(params), {
+//         headers: header
+//     }).then(res => res.data);
+// };
 
 
 

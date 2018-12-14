@@ -1,9 +1,8 @@
 <template>
     <div class="main-wrapper light-overscroll luoym clearfix">
-        <section class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item>学校可寻汇总表</el-breadcrumb-item>
-            </el-breadcrumb>
+        <section class="btn-wrap">
+            <el-button type="primary" size="small" class="" :disabled="tabNav == 1" @click.native="handleTabNavChange(1)">由系统发起</el-button>
+            <el-button type="primary" size="small" class="" :disabled="tabNav == 2" @click.native="handleTabNavChange(2)">由用户发起</el-button>
         </section>
 
         <div class="pull-left">
@@ -13,7 +12,7 @@
                     </el-option>
                 </el-select>
             </div>
-            <div class="light-overscroll">
+            <div class="light-overscroll" v-show="tabNav == 1">
                 <el-tree
                   empty-text="暂无数据"
                   :data="treeOptions"
@@ -28,258 +27,129 @@
                   @node-click="handleNodeClick">
                 </el-tree>
             </div>
+            <div class="light-overscroll" v-show="tabNav == 2" style="position: relative;">
+                <div class="statistics-input-wrap">
+                    <el-input v-model="teacherName" placeholder="搜索老师名称" icon="search" :on-icon-click="handleTeacherSearchClick"></el-input>
+                </div>
+                <div class="statistics-teacher-list" v-loading.body="teacherSearchLoading">
+                    <p v-for="item in teacherData" key="item.id" :class="teacherId == item.id ? 'list-item selected' : 'list-item'" @click="handleSelectTeacher(item.id)">{{ item.name }}</p>
+                </div>
+            </div>
         </div>
-        <div class="pull-right" v-if="showTable">
-            <section class="table-left">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>班级教师</el-breadcrumb-item>
-                    </el-breadcrumb>
+
+        <div class="pull-right">
+            <div class="light-overscroll" v-if="showTable">
+                
+                <section class="search clearfix">
+                    <el-form :inline="true" class="demo-form-inline">
+                        <el-form-item label="" class="week-picker">
+                            <el-input v-model="weekDuration" class="week-picker-input" placeholder="请选择时间范围"></el-input>
+                            <el-date-picker v-model="week" type="week" format="yyyy-MM-dd" placeholder="请选择时间范围" :picker-options="pickerOptions" @change="handleWeekChange" class="week-picker-picker"></el-date-picker>
+                        </el-form-item>
+                    </el-form>
+                
+                    <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport" v-if="showSystemStatisticsData">导出</el-button>
                 </section>
 
-                <div class="overflow">
-                    <section class="search clearfix">
-                        <el-input v-model="classTeacherSearchForm.searchParam" size="small" placeholder="搜索用户名/手机号/学校账号" :icon="classTeacherTableloading ? 'loading' : 'search'" @click="keyDownClassTeacher"></el-input>
-                    
-                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassTeacherAdd">添加教师</el-button>
+                <div class="" style="height: calc(100% - 68px);" v-loading.body="systemStatisticsLoading" v-if="showSystemStatisticsData">
+                    <section class="table" style="height: auto;">
+                        <el-table :data="tableData" style="width: 100%" class="class-statistics-table" v-if="tabNav == 1">
+                            <el-table-column label="">
+                                <template scope="scope"><p>{{ scope.row[0] }}</p></template>
+                            </el-table-column>
+                            <el-table-column label="周一">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[1]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周二">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[2]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周三">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[3]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周四">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[4]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周五">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[5]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周六">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[6]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周日">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[7]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                        <el-table :data="tableData" style="width: 100%" class="teacher-statistics-table" v-if="tabNav == 2">
+                            <el-table-column label="周一">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[0]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周二">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[1]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周三">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[2]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周四">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[3]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周五">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[4]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周六">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[5]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="周日">
+                                <template scope="scope">
+                                    <p v-for="item in scope.row[6]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                </template>
+                            </el-table-column>
+                        </el-table>
                     </section>
-
-                    <div class="light-overscroll" style="height: calc(100% - 72px);">
-                        <section class="table">
-                            <el-table :data="classTeacherTableData" stripe style="width: 100%" v-loading="classTeacherTableloading">
-                                <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                </el-table-column>
-                                <el-table-column width="130">
-                                    <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
-                                </el-table-column>
-                                <el-table-column width="70">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleClassTeacherDelete(scope.$index, scope.row)">删除</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </section>
-
-                        <el-dialog title="添加教师" :visible.sync="classTeacherDialogShow" :modal-append-to-body="false" custom-class="w80">
-                            <div class="dialog-table clearfix">
-                                <div class="dialog-left">
-                                    <section class="table-search">
-                                        <el-input v-model="classTeacherDialog.searchParam" @click="classTeacherDialogSearch" size="small" placeholder="搜索用户名/手机号/学校账号" :icon="classTeacherDialog.tableLoading ? 'loading' : 'search'"></el-input>
-                                    </section>
-                                    <section class="table">
-                                        <el-table ref="multipleTable" :data="classTeacherDialog.tableData" stripe style="width: 100%" @selection-change="classTeacherDialogSelect" :loading="classTeacherDialog.tableLoading">
-                                            <el-table-column type="selection" width="75"></el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.name }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.mobile }}</template>
-                                            </el-table-column>
-                                        </el-table>
-
-                                        <el-pagination
-                                            @current-change="handleClassTeacherDialogPageChange"
-                                            :current-page.sync="classTeacherDialog.pagi.currentPage"
-                                            :page-size="classTeacherDialog.pagi.pageSize"
-                                            layout="total, prev, pager, next, jumper"
-                                            :total="classTeacherDialog.pagi.total"
-                                            v-if="!classTeacherDialog.noPagi">
-                                        </el-pagination>
-                                    </section>
-                                </div>
-
-                                <div class="dialog-right">
-                                    <section class="table-title">已选择教师</section>
-                                    <section class="table">
-                                        <el-table :data="classTeacherDialog.selectedData" stripe style="width: 100%">
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column width="100">
-                                                <template scope="scope">
-                                                    <el-button size="small" class="button-link" @click="handleClassTeacherDialogSelectedDelete(scope.$index, scope.row)">删除</el-button>
-                                                </template>
-                                            </el-table-column>
-                                        </el-table>
-                                    </section>
-                                </div>
-                            </div>
-                            <span slot="footer" class="dialog-footer">
-                                <el-button type="primary" :loading="classTeacherDialog.submitLoading" @click.native="classTeacherDialogSubmit">保存</el-button>
-                            </span>
-                        </el-dialog>
-                    </div>
                 </div>
-            </section>
-
-            <section class="table-right">
-                <section class="crumbs">
-                    <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>班级学生</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </section>
-
-                <div class="overflow">
-                    <section class="search clearfix">
-                        <el-input v-model="classStudentSearchForm.searchParam" size="small" placeholder="搜索姓名/mac号/nfc号" :icon="classStudentTableloading ? 'loading' : 'search'" @click="keyDownClassStudent"></el-input>
-                    
-                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassStudentAdd">添加学生</el-button>
-                    </section>
-
-                    <div class="light-overscroll" style="height: calc(100% - 72px);">
-                        <section class="table">
-                            <el-table :data="classStudentTableData" stripe style="width: 100%" v-loading="classStudentTableloading">
-                                <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
-                                </el-table-column>
-                                <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.nfcCode }}</p></template>
-                                </el-table-column>
-                                <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.code }}</p></template>
-                                </el-table-column>
-                                <el-table-column width="110">
-                                    <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleClassStudentShift(scope.$index, scope.row)">转移</el-button>
-                                        <span class="button-separate">|</span>
-                                        <el-button size="small" class="button-link" @click="handleClassStudentDelete(scope.$index, scope.row)">删除</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </section> 
-
-                        <el-dialog title="添加学生" :visible.sync="classStudentDialogShow" :modal-append-to-body="false" custom-class="w80">
-                            <div class="dialog-table clearfix">
-                                <div class="dialog-left">
-                                    <section class="table-search">
-                                        <el-input v-model="classStudentDialog.searchParam" @click="classStudentDialogSearch" size="small" placeholder="搜索姓名/mac号/nfc号" :icon="classStudentDialog.tableLoading ? 'loading' : 'search'"></el-input>
-                                    </section>
-                                    <section class="table">
-                                        <el-table ref="multipleTable" :data="classStudentDialog.tableData" stripe style="width: 100%" @selection-change="classStudentDialogSelect" :loading="classStudentDialog.tableLoading">
-                                            <el-table-column type="selection" width="75"></el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.holder }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.nfcCode }}</template>
-                                            </el-table-column>
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.code }}</template>
-                                            </el-table-column>
-                                        </el-table>
-
-                                        <el-pagination
-                                            @current-change="handleClassStudentDialogPageChange"
-                                            :current-page.sync="classStudentDialog.pagi.currentPage"
-                                            :page-size="classStudentDialog.pagi.pageSize"
-                                            layout="total, prev, pager, next, jumper"
-                                            :total="classStudentDialog.pagi.total"
-                                            v-if="!classStudentDialog.noPagi">
-                                        </el-pagination>
-                                    </section>
-                                </div>
-
-                                <div class="dialog-right">
-                                    <section class="table-title">已选择学生</section>
-                                    <section class="table">
-                                        <el-table :data="classStudentDialog.selectedData" stripe style="width: 100%">
-                                            <el-table-column label="">
-                                                <template scope="scope">{{ scope.row.holder }}</template>
-                                            </el-table-column>
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.nfcCode }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column>
-                                                <template scope="scope"><p>{{ scope.row.code }}</p></template>
-                                            </el-table-column>
-                                            <el-table-column width="100">
-                                                <template scope="scope">
-                                                    <el-button size="small" class="button-link" @click="handleClassStudentDialogSelectedDelete(scope.$index, scope.row)">删除</el-button>
-                                                </template>
-                                            </el-table-column>
-                                        </el-table>
-                                    </section>
-                                </div>
-                            </div>
-                            <span slot="footer" class="dialog-footer">
-                                <el-button type="primary" :loading="classStudentDialog.submitLoading" @click.native="classStudentDialogSubmit">保存</el-button>
-                            </span>
-                        </el-dialog>
-
-                        <el-dialog title="学生转移" :visible.sync="classStudentShiftDialogShow" :modal-append-to-body="false" custom-class="w80">
-                            <div class="dialog-table clearfix">
-                                <div class="dialog-left" style="width: calc(100% - 302px);">
-                                    <section class="table-search">
-                                        <el-input v-model="classStudentShiftDialog.searchParam" @click="classStudentShiftDialogSearch" size="small" placeholder="搜索姓名/mac号/nfc号" :icon="classStudentShiftDialog.tableLoading ? 'loading' : 'search'"></el-input>
-                                    </section>
-                                    <div class="overflow">
-                                        <section class="table">
-                                            <el-table ref="multipleTableShift" :data="classStudentShiftDialog.tableData" stripe style="width: 100%" @selection-change="classStudentShiftDialogSelect" :loading="classStudentShiftDialog.tableLoading">
-                                                <el-table-column type="selection" width="75"></el-table-column>
-                                                <el-table-column label="">
-                                                    <template scope="scope">{{ scope.row.name }}</template>
-                                                </el-table-column>
-                                                <el-table-column label="">
-                                                    <template scope="scope">{{ scope.row.nfcCode }}</template>
-                                                </el-table-column>
-                                                <el-table-column label="">
-                                                    <template scope="scope">{{ scope.row.code }}</template>
-                                                </el-table-column>
-                                            </el-table>
-                                        </section>
-                                    </div>
-                                </div>
-
-                                <div class="dialog-middle">
-                                    <p class="shift">
-                                        <span class="icon">>></span>
-                                        <span class="text">转移至</span>
-                                    </p>
-                                </div>
-
-                                <div class="dialog-right" style="width: 202px; height: calc(100% - 36px); border-left: 1px solid #eee;">
-                                    <div class="search-box">
-                                        <el-select v-model="classStudentShiftDialog.schoolId" placeholder="请选择学校" @change="handleClassStudentShiftSchoolChange">
-                                            <el-option v-for="item in classStudentShiftDialog.schoolOptions" :key="item.id" :label="item.fullName" :value="item.id">
-                                            </el-option>
-                                        </el-select>
-                                    </div>
-                                    <div class="light-overscroll">
-                                        <el-tree
-                                          empty-text="暂无数据"
-                                          :data="classStudentShiftDialog.treeOptions"
-                                          :props="defaultProps"
-                                          accordion
-                                          highlight-current
-                                          @node-click="handleClassStudentShiftNodeClick">
-                                        </el-tree>
-                                    </div>
-                                </div>
-                            </div>
-                            <span slot="footer" class="dialog-footer">
-                                <el-button type="primary" :loading="classStudentShiftDialog.submitLoading" @click.native="classStudentShiftDialogSubmit">保存</el-button>
-                            </span>
-                        </el-dialog>
-                    </div>
-                </div>
-            </section>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolList, schoolClassTeacherList, schoolClassStudentList, memberList, smartCardList, schoolTeacherAdd, schoolTeacherDelete, schoolStudentAdd, schoolStudentShift, schoolStudentDelete, schoolStaffList } from '../api/api';
+    import { uploadPath, schoolList, attendanceSystemStatistics, attendanceTeacherStatistics, schoolTeacherList } from '../api/api';
+    import { COMMON } from '../common/js/common';
 
     let that;
 
     export default {
         data() {
             return {
+                tabNav: 1,
+
                 showTable: false,
 
                 // 左侧学校列表
@@ -297,72 +167,36 @@
                 currentKeys: [],
                 currentKey: '',
 
-                // 班级教师
-                classTeacherSearchForm: {
-                    searchParam: ''
+                systemStatisticsLoading: true,
+                showSystemStatisticsData: false,
+                week: '',
+                weekDuration: '',
+                pickerOptions: {
+                    firstDayOfWeek: 1
                 },
-                classTeacherTableData: [],
-                classTeacherTableloading: true,
-                // 班级教师新增
-                classTeacherDialog: {
-                    searchParam: '',
-                    notContainIds: [],
-                    tableData: [],
-                    tableLoading: true,
-                    noPagi: true,
-                    pagi: {
-                        currentPage: 1,
-                        pageSize: 10,
-                        pageTotal: '',
-                        total: ''
-                    },
-                    selectedData: [],
-                    submitLoading: false
-                },
-                classTeacherDialogShow: false,
+                tableData: [],
 
-                // 班级学生
-                classStudentSearchForm: {
-                    searchParam: ''
-                },
-                classStudentTableData: [],
-                classStudentTableloading: true,
-                // 班级学生新增
-                classStudentDialog: {
-                    searchParam: '',
-                    notContainIds: [],
-                    tableData: [],
-                    tableLoading: true,
-                    noPagi: true,
-                    pagi: {
-                        currentPage: 1,
-                        pageSize: 10,
-                        pageTotal: '',
-                        total: ''
-                    },
-                    selectedData: [],
-                    submitLoading: false
-                },
-                classStudentDialogShow: false,
+                teacherName: '',
+                teacherSearchLoading: false,
+                teacherData: [],
+                teacherId: ''
 
-                // 学生转移
-                classStudentShiftDialogShow: false,
-                classStudentShiftDialog: {
-                    searchParam: '',
-                    tableData: [],
-                    tableLoading: false,
-                    selectedData: [],
-                    submitLoading: false,
-                    schoolOptions: [],
-                    treeOptions: [],
-                    schoolId: '',
-                    schoolPeriodId: '',
-                    schoolGradeId: '',
-                    schoolClassId: '',
-                }
+                
             };
         },
         methods: {
+            // tab切换
+            handleTabNavChange: function(tabNav) {
+                this.tabNav = tabNav;
+
+                this.schoolId = '';
+                this.treeOptions = [];
+                this.showTable = false;
+                this.teacherName = '';
+                this.teacherSearchLoading = false;
+                this.teacherData = [];
+                this.teacherId = '';
+            },
             // 获取学校列表
             getSchoolList: function() {
                 let param = {
@@ -391,11 +225,25 @@
             },
             // 选择学校触发的事件
             handleSchoolChange: function(val) {
+                this.schoolId = val;
+
                 for(let i = 0; i < this.schoolOptions.length; i++) {
                     let item = this.schoolOptions[i];
 
                     if(val == item.id) {
-                        this.setTreeOptions(item);
+                        this.showTable = false;
+                        this.showSystemStatisticsData = false;
+                        this.week = '';
+                        this.weekDuration = '';
+                        this.tableData = [];   
+                        this.teacherId = '';                     
+
+                        if(this.tabNav == 1) {
+                            this.setTreeOptions(item);
+                        } else {
+                            this.getTeacherList();
+                        }
+                        
                         break;
                     }
                 }
@@ -442,26 +290,6 @@
                         'children': gradeArr
                     });
                 }
-
-                this.handleSetChecked();
-            },
-            // 设置选中的节点
-            handleSetChecked: function() {
-                if(this.$route.query.period && this.$route.query.grade && this.$route.query.class) {
-                    let keyStr = this.$route.query.period +'-'+ this.$route.query.grade +'-'+ this.$route.query.class;
-                    this.currentKeys.push(keyStr);
-                    this.currentKey = keyStr;
-
-                    this.schoolPeriodId = this.$route.query.period;
-                    this.schoolGradeId = this.$route.query.grade;
-                    this.schoolClassId = this.$route.query.class;
-
-                    this.showTable = true;
-                    this.classTeacherSearchForm.searchParam = '';
-                    this.classStudentSearchForm.searchParam = '';
-                    this.getClassTeacherList();
-                    this.getClassStudentList();
-                }
             },
             // 选择节点触发的事件
             handleNodeClick(data) {
@@ -472,10 +300,11 @@
                     this.schoolClassId = data.id;
 
                     this.showTable = true;
-                    this.classTeacherSearchForm.searchParam = '';
-                    this.classStudentSearchForm.searchParam = '';
-                    this.getClassTeacherList();
-                    this.getClassStudentList();
+                    this.showSystemStatisticsData = false;
+                    this.week = '';
+                    this.weekDuration = '';
+                    this.tableData = [];
+                    this.teacherId = '';
                 } else if(!data.gradeId && data.periodId) {
                     // 选中年级
                     this.schoolPeriodId = data.periodId;
@@ -492,495 +321,270 @@
                     this.showTable = false;
                 }
             },
+            // 教师搜索
+            handleTeacherSearchClick: function() {
+                if(!this.schoolId) {
+                    this.$message({ message: '请选择学校！', type: 'error'});
+                    return false;
+                }
 
-            // =======================================================
+                this.showTable = false;
+                this.showSystemStatisticsData = false;
+                this.week = '';
+                this.weekDuration = '';
+                this.teacherId = '';
+                this.tableData = [];                  
+
+                this.getTeacherList();
+            },
             // 获取教师列表
-            getClassTeacherList: function() {
-                this.classTeacherTableloading = true;
+            getTeacherList: function() {
+                this.teacherSearchLoading = true;
 
                 let param = {
-                    'searchParam': this.classTeacherSearchForm.searchParam,
                     'schoolId': this.schoolId,
-                    'period': this.schoolPeriodId,
-                    'schoolSystemGradeId': this.schoolGradeId,
-                    'schoolClassId': this.schoolClassId
+                    'teacherName': this.teacherName
                 };
 
-                schoolClassTeacherList(param).then(res => {
-                    this.classTeacherTableloading = false;
+                schoolTeacherList(param).then(res => {
+                    this.teacherSearchLoading = false;
 
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        this.classTeacherTableData = data.list;
-
-                        this.classTeacherDialog.notContainIds = [];
-                        for(let i = 0; i < this.classTeacherTableData.length; i++) {
-                            this.classTeacherDialog.notContainIds.push(this.classTeacherTableData[i].memberId);
-                        }
+                        this.teacherData = data;
                     }
                 }).catch(error => {
-                    this.classTeacherTableloading = false;
+                    this.teacherSearchLoading = false;
+
                     this.$message({ message: '网络异常！获取教师列表失败！', type: 'error'});
-                });
+                });                
             },
-            // 班级教师搜索
-            keyDownClassTeacher: function() {
-                this.getClassTeacherList();
-            },
-            // 删除班级教师
-            handleClassTeacherDelete: function(index, row) {
-                let param = {
-                    'id': row.id
-                };
-
-                schoolTeacherDelete(param).then(res => {
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.$message({ message: '删除成功', type: 'success'});
-                        this.getClassTeacherList();
-                    }
-                }).catch(error => {
-                    this.$message({ message: '网络异常！删除班级教师失败！', type: 'error'});
-                });
-            },
-            // 显示添加班级教师弹窗
-            handleClassTeacherAdd: function() {
-                this.classTeacherDialog.searchParam = '';
-                this.classTeacherDialog.selectedData = [];
-                this.classTeacherDialogShow = true;
-
-                this.getClassTeacherDialogList();
-            },
-            // 获取所有教师列表
-            getClassTeacherDialogList: function() {
-                this.classTeacherDialog.tableLoading = true;
-
-                let param = {
-                    'searchParam': this.classTeacherDialog.searchParam,
-                    'schoolId': this.schoolId,
-                    'notContainIds': this.classTeacherDialog.notContainIds.join(','),
-                    'pageNo': this.classTeacherDialog.pagi.currentPage,
-                    'pageSize': this.classTeacherDialog.pagi.pageSize
-                };
-
-                schoolStaffList(param).then(res => {
-                    this.classTeacherDialog.tableLoading = false;
-
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        if(data.list.length == 0) {
-                            this.classTeacherDialog.noPagi = true;
-                            this.classTeacherDialog.tableData = [];
-                            return false;
-                        }
-
-                        this.classTeacherDialog.tableData = data.list;
-                        if(data.total % this.classTeacherDialog.pagi.pageSize == 0) {
-                            this.classTeacherDialog.pagi.pageTotal = data.total/this.classTeacherDialog.pagi.pageSize;
-                        } else {
-                            this.classTeacherDialog.pagi.pageTotal = parseInt(data.total/this.classTeacherDialog.pagi.pageSize) + 1;
-                        }
-                        this.classTeacherDialog.pagi.total = data.total;
-                        this.classTeacherDialog.noPagi = false;
-                    }
-                }).catch(error => {
-                    this.classTeacherDialog.tableLoading = false;
-                    this.$message({ message: '网络异常！获取所有教师列表失败！', type: 'error'});
-                });
-            },
-            // 所有教师列表分页
-            handleClassTeacherDialogPageChange: function(val) {
-                this.classTeacherDialog.pagi.currentPage = parseInt(val);
-                this.getClassTeacherDialogList();
-            },
-            // 所有教师列表搜索
-            classTeacherDialogSearch: function() {
-                this.classTeacherDialog.pagi.currentPage = 1;
-                this.getClassTeacherDialogList();
-            },
-            // 所有教师列表选中checkbox触发事件
-            classTeacherDialogSelect: function(val) {
-                this.classTeacherDialog.selectedData = val;
-            },
-            // 所有教师列表删除已选中
-            handleClassTeacherDialogSelectedDelete: function(index, row) {
-                this.classTeacherDialog.selectedData.splice(index, 1);
-            },
-            // 添加班级教师保存
-            classTeacherDialogSubmit: function() {
-                if(this.classTeacherDialog.selectedData.length == 0) {
-                    this.$message({ message: '请选择需要添加的教师', type: 'error'});
+            // 选择教师
+            handleSelectTeacher: function(teacherId) {
+                if(this.teacherId == teacherId) {
                     return false;
                 }
 
-                this.classTeacherDialog.submitLoading = true;
+                this.teacherId = teacherId;
 
-                let ids = [];
-                for(let i = 0; i < this.classTeacherDialog.selectedData.length; i++) {
-                    ids.push(this.classTeacherDialog.selectedData[i].memberId);
+                this.showTable = true;
+                this.showSystemStatisticsData = false;
+                this.week = '';
+                this.weekDuration = '';
+                this.tableData = [];
+            },
+            // 选择星期
+            handleWeekChange: function(e) {
+                if(!e) {
+                    return false;
                 }
 
-                let param = {
-                    'schoolClassId': this.schoolClassId,
-                    'memberIds': ids.join(',')
-                };
+                let startDate = COMMON.getMonday(e),
+                    endDate = COMMON.getSunday(e);
 
-                schoolTeacherAdd(param).then(res => {
-                    this.classTeacherDialog.submitLoading = false;
+                this.weekDuration = startDate + ' ~ ' + endDate;
 
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.$message({ message: '成功添加教师', type: 'success'});
-                        this.classTeacherDialogShow = false;
-                        this.getClassTeacherList();
-                    }
-                }).catch(error => {
-                    this.classTeacherDialog.submitLoading = false;
-                    this.$message({ message: '网络异常！保存班级教师失败！', type: 'error'});
-                });
+                if(this.tabNav == 1) {
+                    this.getAttendanceSystemStatistics();
+                } else if(this.tabNav == 2) {
+                    this.getAttendanceTeacherStatistics();
+                }
+                
             },
 
             // =======================================================
-            // 获取学生列表
-            getClassStudentList: function() {
-                this.classStudentTableloading = true;
+            // 获取班级统计考勤
+            getAttendanceSystemStatistics: function() {
+                this.showSystemStatisticsData = true;
+                this.systemStatisticsLoading = true;
 
                 let param = {
-                    'searchParam': this.classStudentSearchForm.searchParam,
-                    'schoolId': this.schoolId,
-                    'period': this.schoolPeriodId,
-                    'schoolSystemGradeId': this.schoolGradeId,
-                    'schoolClassId': this.schoolClassId,
+                    'classId': this.schoolClassId,
+                    'startDate': COMMON.getMonday(this.week)
                 };
 
-                schoolClassStudentList(param).then(res => {
-                    this.classStudentTableloading = false;
+                attendanceSystemStatistics(param).then(res => {
+                    this.systemStatisticsLoading = false;
 
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        this.classStudentTableData = data.list;
-
-                        this.classStudentDialog.notContainIds = [];
-                        for(let i = 0; i < this.classStudentTableData.length; i++) {
-                            this.classStudentDialog.notContainIds.push(this.classStudentTableData[i].studentId);
-                        }
+                        this.dataPackageSystem(data);
                     }
                 }).catch(error => {
-                    this.classStudentTableloading = false;
-                    this.$message({ message: '网络异常！获取班级学生列表失败！', type: 'error'});
+                    this.systemStatisticsLoading = false;
+                    this.$message({ message: '网络异常！获取失败！', type: 'error'});
                 });
             },
-            // 班级学生搜索
-            keyDownClassStudent: function() {
-                this.getClassStudentList();
-            },
-            // 转移班级学生
-            handleClassStudentShift: function(index, row) {
-                this.classStudentShiftDialog.searchParam = '';
-                this.classStudentShiftDialogShow = true;
+            // 重新封装汇总表数据 -- 班级
+            dataPackageSystem: function(data) {
+                let classLength = parseInt(data.maxRow),
+                    packageData = [];
 
-                this.classStudentShiftDialog.schoolOptions = this.schoolOptions;
-                this.classStudentShiftDialog.treeOptions = this.treeOptions;
-                this.classStudentShiftDialog.schoolId = this.schoolId;
-                this.classStudentShiftDialog.schoolPeriodId = '';
-                this.classStudentShiftDialog.schoolGradeId = '';
-                this.classStudentShiftDialog.schoolClassId = '';
+                data = data.list;
 
-                this.getClassStudentShiftList(index);
-            },
-            // 删除班级学生
-            handleClassStudentDelete: function(index, row) {
-                let param = {
-                    'id': row.id
-                };
 
-                schoolStudentDelete(param).then(res => {
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.$message({ message: '删除成功', type: 'success'});
-                        this.getClassStudentList();
+                for(let i = 0; i < classLength; i++) { //课时长度
+                    let classSort = '',
+                        classItem = [];
+                    switch (i) {
+                        case 0:
+                            classSort = '一';
+                            break;
+                        case 1:
+                            classSort = '二';
+                            break;
+                        case 2:
+                            classSort = '三';
+                            break;
+                        case 3:
+                            classSort = '四';
+                            break;
+                        case 4:
+                            classSort = '五';
+                            break;
+                        case 5:
+                            classSort = '六';
+                            break;
+                        case 6:
+                            classSort = '七';
+                            break;
+                        case 7:
+                            classSort = '八';
+                            break;
+                        case 8:
+                            classSort = '九';
+                            break;
+                        case 9:
+                            classSort = '十';
+                            break;
+                        case 10:
+                            classSort = '十一';
+                            break;
+                        case 11:
+                            classSort = '十二';
+                            break;
+                        case 12:
+                            classSort = '十三';
+                            break;
+                        case 13:
+                            classSort = '十四';
+                            break;
+                        case 14:
+                            classSort = '十五';
+                            break;
+                        default:
+                            classSort = i;
+                            break;                            
                     }
-                }).catch(error => {
-                    this.$message({ message: '网络异常！删除班级学生失败！', type: 'error'});
-                });
-            },
-            // 显示添加班级学生弹窗
-            handleClassStudentAdd: function() {
-                this.classStudentDialog.searchParam = '';
-                this.classStudentDialog.selectedData = [];
-                this.classStudentDialogShow = true;
 
-                this.getClassStudentDialogList();
-            },
-            // 获取所有学生列表
-            getClassStudentDialogList: function() {
-                this.classStudentDialog.tableLoading = true;
+                    classItem.push('第'+ classSort +'课时');
 
-                let param = {
-                    'searchParam': this.classStudentDialog.searchParam,
-                    'notContainIds': this.classStudentDialog.notContainIds.join(','),
-                    'pageNo': this.classStudentDialog.pagi.currentPage,
-                    'pageSize': this.classStudentDialog.pagi.pageSize,
-                    'filterClassStudent': 1
-                };
+                    for(let j = 0; j < data.length; j++) { //周几长度
+                        let dataItem = data[j],
+                            listItem = [];
 
-                smartCardList(param).then(res => {
-                    this.classStudentDialog.tableLoading = false;
-
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        if(data.list.length == 0) {
-                            this.classStudentDialog.noPagi = true;
-                            this.classStudentDialog.tableData = [];
-                            return false;
-                        }
-
-                        this.classStudentDialog.tableData = data.list;
-                        if(data.total % this.classStudentDialog.pagi.pageSize == 0) {
-                            this.classStudentDialog.pagi.pageTotal = data.total/this.classStudentDialog.pagi.pageSize;
+                        if(dataItem.list.length > 0) { //某周几课时数据
+                            for(let k = 0; k < dataItem.list.length; k++) {
+                                if(dataItem.list[k].numberOfClass == i + 1) {
+                                    classItem.push(dataItem.list[k].infoList);
+                                    break;
+                                }
+                            }
                         } else {
-                            this.classStudentDialog.pagi.pageTotal = parseInt(data.total/this.classStudentDialog.pagi.pageSize) + 1;
+                            classItem.push('');
                         }
-                        this.classStudentDialog.pagi.total = data.total;
-                        this.classStudentDialog.noPagi = false;
                     }
-                }).catch(error => {
-                    this.classStudentDialog.tableLoading = false;
-                    this.$message({ message: '网络异常！获取所有学生列表失败！', type: 'error'});
-                });
-            },
-            // 所有学生列表分页
-            handleClassStudentDialogPageChange: function(val) {
-                this.classStudentDialog.pagi.currentPage = parseInt(val);
-                this.getClassStudentDialogList();
-            },
-            // 所有学生列表搜索
-            classStudentDialogSearch: function() {
-                this.classStudentDialog.pagi.currentPage = 1;
-                this.getClassStudentDialogList();
-            },
-            // 所有学生列表选中checkbox触发事件
-            classStudentDialogSelect: function(val) {
-                this.classStudentDialog.selectedData = val;
-            },
-            // 所有学生列表删除已选中
-            handleClassStudentDialogSelectedDelete: function(index, row) {
-                this.classStudentDialog.selectedData.splice(index, 1);
-            },
-            // 添加班级学生保存
-            classStudentDialogSubmit: function() {
-                if(this.classStudentDialog.selectedData.length == 0) {
-                    this.$message({ message: '请选择需要添加的学生', type: 'error'});
-                    return false;
+
+                    packageData.push(classItem)
                 }
 
-                this.classStudentDialog.submitLoading = true;
+                this.tableData = packageData;
+            },
 
-                let ids = [];
-                for(let i = 0; i < this.classStudentDialog.selectedData.length; i++) {
-                    ids.push(this.classStudentDialog.selectedData[i].id);
-                }
+            // =======================================================
+            // 获取教师统计考勤
+            getAttendanceTeacherStatistics: function() {
+                this.showSystemStatisticsData = true;
+                this.systemStatisticsLoading = true;
 
                 let param = {
-                    'schoolClassId': this.schoolClassId,
-                    'studentIds': ids.join(',')
+                    'teacherId': this.teacherId,
+                    'startDate': COMMON.getMonday(this.week)
                 };
 
-                schoolStudentAdd(param).then(res => {
-                    this.classStudentDialog.submitLoading = false;
+                attendanceTeacherStatistics(param).then(res => {
+                    this.systemStatisticsLoading = false;
 
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        this.$message({ message: '成功添加学生', type: 'success'});
-                        this.classStudentDialogShow = false;
-                        this.getClassStudentList();
+                        this.dataPackageTeacher(data);
                     }
                 }).catch(error => {
-                    this.classStudentDialog.submitLoading = false;
-                    this.$message({ message: '网络异常！保存班级学生失败！', type: 'error'});
+                    this.systemStatisticsLoading = false;
+                    this.$message({ message: '网络异常！获取失败！', type: 'error'});
                 });
             },
+            // 重新封装汇总表数据 -- 教师
+            dataPackageTeacher: function(data) {
+                let classLength = parseInt(data.maxRow),
+                    packageData = [],
+                    listLength = 0;
+
+                data = data.list;
 
 
-            // 学生转移弹框学生列表
-            getClassStudentShiftList: function(index) {
-                this.classStudentShiftDialog.tableLoading = true;
+                for(let i = 0; i < classLength; i++) { //课时长度
+                    let classItem = [];
 
-                let param = {
-                    'searchParam': this.classStudentShiftDialog.searchParam,
-                    'schoolId': this.schoolId,
-                    'period': this.schoolPeriodId,
-                    'schoolSystemGradeId': this.schoolGradeId,
-                    'schoolClassId': this.schoolClassId,
-                };
+                    for(let j = 0; j < data.length; j++) { //周几长度
+                        let dataItem = data[j],
+                            listItem = [];
 
-                schoolClassStudentList(param).then(res => {
-                    this.classStudentShiftDialog.tableLoading = false;
-
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.classStudentShiftDialog.tableData = data.list;
-
-
-                        setTimeout(function() {
-                            let row = that.classStudentShiftDialog.tableData[index];
-                            that.$refs.multipleTableShift.toggleRowSelection(row, true);
-                        }, 1);
-                    }
-                }).catch(error => {
-                    this.classStudentShiftDialog.tableLoading = false;
-                    this.$message({ message: '网络异常！获取学生列表失败！', type: 'error'});
-                });
-            },
-            // 学生转移弹框搜索
-            classStudentShiftDialogSearch: function() {
-                this.getClassStudentShiftList();
-            },
-            // 学生转移checkbox选中事件
-            classStudentShiftDialogSelect: function(val) {
-                this.classStudentShiftDialog.selectedData = val;
-            },
-            // 学生转移选择学校触发事件
-            handleClassStudentShiftSchoolChange: function(val) {
-                for(let i = 0; i < this.classStudentShiftDialog.schoolOptions.length; i++) {
-                    let item = this.classStudentShiftDialog.schoolOptions[i];
-
-                    if(val == item.id) {
-                        this.ClassStudentShiftSetTreeOptions(item);
-                        break;
-                    }
-                }
-            },
-            // 学生转移 生成树结构数据
-            ClassStudentShiftSetTreeOptions: function(school) {
-                this.classStudentShiftDialog.treeOptions = [];
-                let periodVoList = school.periodVoList;
-                for(let i = 0; i < periodVoList.length; i++) {
-                    let periodItem = periodVoList[i],
-                        gradeVoList = periodItem.schoolSystemGradeVoList,
-                        gradeArr = [];
-
-                    for(let j = 0; j < gradeVoList.length; j++) {
-                        let gradeItem = gradeVoList[j],
-                            classVoList = gradeItem.schoolClassList,
-                            classArr = [];
-
-                        for(let k = 0; k < classVoList.length; k++) {
-                            let classItem = classVoList[k];
-
-                            classArr.push({
-                                'id': classItem.id,
-                                'label': classItem.name,
-                                'periodId': classItem.period,
-                                'gradeId': classItem.schoolSystemGradeId
-                            });
+                        if(dataItem.list.length > 0) { //某周几课时数据
+                            if(dataItem.list.length > listLength) {
+                                listLength = dataItem.list.length;
+                            }
+                            for(let k = 0; k < dataItem.list.length; k++) {
+                                if(i == k) {
+                                    classItem.push(dataItem.list[k].list);
+                                    break;
+                                }
+                            }
+                        } else {
+                            classItem.push('');
                         }
-
-                        gradeArr.push({
-                            'id': gradeItem.id,
-                            'label': gradeItem.name,
-                            'periodId': gradeItem.period,
-                            'children': classArr
-                        });
                     }
 
-                    this.classStudentShiftDialog.treeOptions.push({
-                        'id': periodItem.periodValue,
-                        'label': periodItem.periodName,
-                        'children': gradeArr
-                    });
+                    packageData.push(classItem)
+
+                    packageData = packageData.splice(0, listLength);
                 }
+
+                this.tableData = packageData;                
             },
-            // 学生转移选择树节点触发事件
-            handleClassStudentShiftNodeClick: function(data) {
-                if(data.gradeId && data.periodId) {
-                    // 选中班级
-                    this.classStudentShiftDialog.schoolPeriodId = data.periodId;
-                    this.classStudentShiftDialog.schoolGradeId = data.gradeId;
-                    this.classStudentShiftDialog.schoolClassId = data.id;
-                } else if(!data.gradeId && data.periodId) {
-                    // 选中年级
-                    this.classStudentShiftDialog.schoolPeriodId = data.periodId;
-                    this.classStudentShiftDialog.schoolGradeId = data.id;
-                    this.classStudentShiftDialog.schoolClassId = '';
-                } else {
-                    // 选中学段
-                    this.classStudentShiftDialog.schoolPeriodId = data.id;
-                    this.classStudentShiftDialog.schoolGradeId = '';
-                    this.classStudentShiftDialog.schoolClassId = '';
+
+            // 导出
+            handleExport: function() {
+                if(this.tabNav == 1) {
+                    location.href = uploadPath + '/attendance/systemStatistics/exportExcel?classId=' + this.schoolClassId + '&startDate=' + COMMON.getMonday(this.week);
+                } else if(this.tabNav == 2) {
+                    location.href = uploadPath + '/attendance/teacherStatistics/exportExcel?teacherId=' + this.teacherId + '&startDate=' + COMMON.getMonday(this.week);
                 }
-            },
-            // 学生转移保存
-            classStudentShiftDialogSubmit: function() {
-                if(this.classStudentShiftDialog.selectedData.length == 0) {
-                    this.$message({ message: '请选择需要转移的学生', type: 'error'});
-                    return false;
-                }
-
-                if(this.classStudentShiftDialog.schoolClassId == '') {
-                    this.$message({ message: '请选择需要转移到的班级', type: 'error'});
-                    return false;
-                }
-
-                this.classStudentShiftDialog.submitLoading = true;
-
-                let ids = [];
-                for(let i = 0; i < this.classStudentShiftDialog.selectedData.length; i++) {
-                    ids.push(this.classStudentShiftDialog.selectedData[i].id);
-                }
-
-                let param = {
-                    'schoolClassId': this.classStudentShiftDialog.schoolClassId,
-                    'schoolStudentIds': ids.join(',')
-                };
-
-                schoolStudentShift(param).then(res => {
-                    this.classStudentShiftDialog.submitLoading = false;
-
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.$message({ message: '成功转移学生', type: 'success'});
-                        this.classStudentShiftDialogShow = false;
-                        this.getClassStudentList();
-                    }
-                }).catch(error => {
-                    this.classStudentShiftDialog.submitLoading = false;
-                    this.$message({ message: '网络异常！转移学生失败！', type: 'error'});
-                });
             }
         },
         mounted() {
             that = this;
+
+            // console.log(COMMON.getMonday(new Date()), COMMON.getPreviousMonday(COMMON.getMonday(new Date())))
 
             this.getSchoolList();
         }
@@ -1049,214 +653,142 @@
             }
         }
     }
-    .pull-right{
-        .el-checkbox{
-            margin-left: 10px;
 
-            .el-checkbox__label{
-                font-size: 12px;
-                color: #333;
-            }
-        }
-
-        .upload-demo{
-            float: right;
-
-            .el-upload-list{
-                display: none !important;
-            }
-        }
-
-        .table-left,
-        .table-right{
+    .week-picker{
+        .el-form-item__content{
             position: relative;
+        }
 
-            .overflow{
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
+        .week-picker-input{
+            .el-input__inner{
+                width: 200px !important;
             }
+        }
 
-            .crumbs{
-                position: absolute;
-                z-index: 3;
-                top: -14px;
-                left: 0;
+        .week-picker-picker{
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            left: 0;
+            width: 200px !important;
+
+            .el-input__inner{
+                width: 100% !important;
+                opacity: 0;
             }
+        }
+    }
 
-            .el-input{
-                width: 200px;
-                font-size: 12px;
-                
-                .el-input__inner {
-                    height: 36px;
-                    background: #FFFFFF;
-                    border: none;
-                    border: 1px solid #E5E5E5;
-                    border-radius: 0;
-                    text-align: center;
-                    &:hover {
-                        background: transparent;
-                    }
-                    &:focus {
-                        outline: 0;
-                        background: transparent;
-                    }
-                    &::placeholder,
-                    &::-webkit-input-placeholder {
-                        color: rgba(51, 51, 51, .3);
-                    }
-                }
+    .class-statistics-table{
+        .el-table__header-wrapper{
+            background: #18c79c;
 
-                .el-input__icon{
-                    cursor: pointer;
+            tr th{
+                border-right: 1px solid #FFF !important;
+                border-bottom: 1px solid #FFF !important;
+
+                .cell{
+                    color: #FFF !important;
+                    font-weight: 500 !important;
+                    font-size: 14px !important;
+                    text-align: center !important;                    
                 }
             }
+        }
 
-            .el-button--primary{
-                padding: 2px 14px;
-            }
+        .el-table__body-wrapper{
+            .el-table__body{
+                .el-table__row{
+                    td{
+                        border-right: 1px solid rgb(223, 236, 234) !important;
+                        border-bottom: 1px solid rgb(223, 236, 234) !important;
 
-            .table{
-                height: 100%;
+                        .cell{
+                            padding-left: 5px !important;
+                            padding-right: 5px !important;                            
+                        }
 
-                .el-table{
-                    height: 100%;
-                }
+                        &:first-child{
+                            background: #18c79c;
 
-                thead{
-                    display: none;
-                }
-            }
+                            .cell{
+                                padding-left: 10px !important;
+                                padding-right: 10px !important;
 
-            .el-dialog__wrapper,
-            .el-table__body-wrapper{
-                height: 100%;
-                overflow-x: hidden;
-                overflow-y: auto;
-
-                .el-dialog{
-                    height: 70%;
-
-                    .el-dialog__body{
-                        padding-top: 15px;
-                        height: calc(100% - 132px);
-
-                        .dialog-table{
-                            height: 100%;
-
-                            .dialog-left{
-                                position: relative;
-                                float: left;
-                                width: 50%;
-                                height: 100%;
-                                border: 1px solid #eee;
-
-                                .table-search{
-                                    position: absolute;
-                                    z-index: 3;
-                                    top: 2px;
-                                    right: 15px;
-
-                                    .el-input{
-                                        width: 250px;
-                                    }
-                                }
-                            }
-
-                            .dialog-middle{
-                                position: relative;
-                                float: left;
-                                width: 100px;
-                                height: 100%;
-
-                                .shift{
-                                    position: absolute;
-                                    z-index: 3;
-                                    top: 50%;
-                                    left: 50%;
-                                    -webkit-transform: translate3d(-50%, -50%, 0);
-                                            transform: translate3d(-50%, -50%, 0);
-
-                                    .icon{
-                                        display: block;
-                                        width: 60px;
-                                        height: 60px;
-                                        font-size: 16px;
-                                        color: #fff;
-                                        line-height: 60px;
-                                        text-align: center;
-                                        border-radius: 4px;
-                                        background: #18c79c;
-                                    }
-
-                                    .text{
-                                        display: block;
-                                        margin-top: 6px;
-                                        font-size: 14px;
-                                        line-height: 22px;
-                                        color: #333;
-                                        text-align: center;
-                                    }
-                                }
-                            }
-
-                            .dialog-right{
-                                position: relative;
-                                float: right;
-                                width: 50%;
-                                height: 100%;
-                                border: 1px solid #eee;
-                                border-left: none;
-
-                                .table-title{
-                                    position: absolute;
-                                    z-index: 3;
-                                    top: 0;
-                                    left: 0;
-                                    color: #000;
-                                    line-height: 40px;
-                                    padding-left: 15px;
-                                }
-
-
-                            }
-
-                            .table{
-                                .el-table__header-wrapper{
-                                    .el-table__header{
-                                        thead{
-                                            display: block;
-                                        }
-                                    }
-                                }
-
-                                .el-table__body-wrapper{
-                                    .el-table__body{
-                                        .el-table__row{
-                                            .el-table-column--selection{
-                                                .cell{
-                                                    padding-right: 20px;
-                                                    text-overflow: initial;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                p{
+                                    color: #FFF;
+                                    font-weight: 500;
+                                    font-size: 14px;
+                                    text-align: center;
+                                }                                
                             }
                         }
                     }
                 }
             }
+        }
+    }
 
-            .el-pagination{
-                padding: 20px 0;
+    .teacher-statistics-table{
+        .el-table__header-wrapper{
+            background: #18c79c;
+
+            tr th{
+                border-right: 1px solid #FFF !important;
+                border-bottom: 1px solid #FFF !important;
+
+                .cell{
+                    color: #FFF !important;
+                    font-weight: 500 !important;
+                    font-size: 14px !important;
+                    text-align: center !important;                    
+                }
             }
         }
 
-        .w80{
-            width: 80%;
-            margin-left: 5%;
+        .el-table__body-wrapper{
+            .el-table__body{
+                .el-table__row{
+                    td{
+                        border-right: 1px solid rgb(223, 236, 234) !important;
+                        border-bottom: 1px solid rgb(223, 236, 234) !important;
+
+                        .cell{
+                            padding-left: 5px !important;
+                            padding-right: 5px !important;                            
+                        }
+                    }
+                }
+            }
+        }
+    }    
+
+    .statistics-input-wrap{
+        padding: 10px;
+        border-bottom: 1px solid #E5E5E5;
+        background: #FFF;
+
+        .el-input{
+            font-size: 12px;
+        }
+    }
+
+    .statistics-teacher-list{
+        padding: 10px 0;
+
+        .list-item{
+            padding: 10px 20px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333;
+            background: transparent;
+            cursor: pointer;
+
+            &.selected{
+                background: #18c79c;
+                color: #FFF;
+                cursor: default;
+            }
         }
     }
 </style>
@@ -1270,7 +802,7 @@
         .pull-left{
             position: relative;
             width: 200px;
-            height: calc(100% - 29px);
+            height: calc(100% - 59px);
             margin-top: 15px;
             overflow: hidden;
             box-shadow: 0 1px 4px 0 rgba(65, 86, 105, 0.2);
@@ -1291,28 +823,11 @@
 
         .pull-right{
             width: calc(100% - 215px);
-            height: calc(100% - 14px);
-            /*overflow: hidden;*/
-
-            .table-left{
-                float: left;
-                height: 100%;
-                width: 350px;
-            }
-
-            .table-right{
-                float: right;
-                height: 100%;
-                width: calc(100% - 360px);
-            }
+            height: calc(100% - 34px);
+            overflow: hidden;
 
             .light-overscroll{
                 height: 100%;
-            }
-
-            .button-separate{
-                margin-right: 10px;
-                color: #999;
             }
         }
     }

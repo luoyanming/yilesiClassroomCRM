@@ -146,6 +146,10 @@
                             :data="acceptorOptions">
                         </el-transfer>
                     </el-form-item>
+
+                    <el-form-item label="相关班级编号" prop="classCode">
+                        <el-input v-model="dialogInfo.classCode"></el-input>
+                    </el-form-item>                    
                 </el-form>
 
             </section>
@@ -302,6 +306,7 @@
                     checkDoorType: '0',
                     pushStatus: '1',
                     acceptorIds: [],
+                    classCode: '',
                     dialogLoading: false
                 },
                 rules: {
@@ -497,6 +502,7 @@
                         checkDoorType: '0',
                         pushStatus: '1',
                         acceptorIds: [],
+                        classCode: '',
                         dialogLoading: false
                     }
 
@@ -540,7 +546,8 @@
                         checkDoorType: '0',
                         pushStatus: '1',
                         dialogLoading: false,
-                        acceptorIds: []
+                        acceptorIds: [],
+                        classCode: ''
                     }
 
                     that.fileArr = [];
@@ -593,6 +600,7 @@
                         checkDoorType: '' + row.checkDoorType,
                         pushStatus: '' + row.pushStatus,
                         acceptorIds: that.transArray(row.acceptorIds),
+                        classCode: row.classCode || '',
                         dialogLoading: false
                     }
                 }, 1);                
@@ -600,6 +608,10 @@
 
             // 提交
             submitForm: function(formName) {
+                if(this.dialogInfo.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                     if(valid){
                         this.dialogInfo.dialogLoading = true;
@@ -622,7 +634,8 @@
                             tagIds: tagIds.join(','),
                             checkDoorType: this.dialogInfo.checkDoorType,
                             pushStatus: this.dialogInfo.pushStatus,
-                            acceptorIds: this.dialogInfo.acceptorIds.join(',')
+                            acceptorIds: this.dialogInfo.acceptorIds.join(','),
+                            classCode: this.dialogInfo.classCode
                         };
 
                         areaSave(params).then(res=>{
@@ -650,7 +663,6 @@
 
             // 查看区域
             handleDetail: function(index, row) {
-
                 that.areaDetail = {
                     name: '',
                     regionMapVo: [],

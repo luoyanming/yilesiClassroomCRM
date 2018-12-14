@@ -6,15 +6,23 @@
             </el-breadcrumb>
         </section>
 
-        <div class="pull-left">
+        <div class="pull-left" v-loading.body="schoolLoading">
             <div class="search-box">
-                <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
+                <el-select v-model="schoolId" placeholder="请选择学校" @change="handleSchoolChange">
+                    <el-option v-for="item in schoolOptions" :key="item.id" :label="item.fullName" :value="item.id">
+                    </el-option>
+                </el-select>
             </div>
             <div class="light-overscroll">
                 <el-tree
                   empty-text="暂无数据"
-                  :data="schoolOptions"
+                  :data="treeOptions"
                   :props="defaultProps"
+                  auto-expand-parent
+                  :default-expanded-keys="currentKeys"
+                  :current-node-key="currentKey"
+                  node-key="key"
+                  ref="tree"
                   accordion
                   highlight-current
                   @node-click="handleNodeClick">
@@ -22,64 +30,36 @@
             </div>
         </div>
         <div class="pull-right">
-            <div class="light-overscroll" v-if="showTable">
+            <div class="light-overscroll" v-if="showTable" >
                 
                 <section class="search clearfix">
-                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="班级编号">
-                            <el-input v-model="searchForm.code" size="small" placeholder="请输入班级编号"></el-input>
-                        </el-form-item>
-                        <el-form-item label="年级">
-                            <el-select v-model="searchForm.schoolSystemGradeId" placeholder="请选择">
-                                <el-option v-for="item in schoolGradeOptions" :key="item.id" :label="item.name" :value="item.id">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
-                        </el-form-item>
+                    <el-form :inline="true" class="demo-form-inline">
+                        <el-form-item label="课时设置"></el-form-item>
                     </el-form>
                 
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增班级</el-button>
-                    <!-- <el-upload
-                        class="upload-demo"
-                        :action="uploadUrl"
-                        :before-upload="handleBefore"
-                        :on-success="handleSuccess"
-                        :on-error="handleError"
-                        :file-list="fileList">
-                        <el-button type="primary" size="small" class="btn-add" icon="upload" :loading="uploadLoading" style="margin-right: 15px;">导入班级</el-button>
-                    </el-upload> -->
+                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)" style="margin-left: 20px;">新增课时</el-button>
+                    <el-button type="primary" size="small" class="btn-add" icon="menu" @click.native="handleReuse">复用课时</el-button>
                 </section>
 
-                <section class="table">
+                <section class="table" style="height: auto;">
                     <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
-                        <el-table-column label="班级名称">
+                        <el-table-column label="课时名称">
                             <template scope="scope"><p>{{ scope.row.name }}</p></template>
                         </el-table-column>
-                        <el-table-column label="班级编号">
-                            <template scope="scope"><p>{{ scope.row.code }}</p></template>
+                        <el-table-column label="课时顺序">
+                            <template scope="scope"><p>{{ scope.row.sort }}</p></template>
                         </el-table-column>
-                        <el-table-column label="建班年份（学届）">
-                            <template scope="scope"><p>{{ scope.row.buildYear }}</p></template>
+                        <el-table-column label="课时开始时间">
+                            <template scope="scope"><p>{{ scope.row.startTime }}</p></template>
                         </el-table-column>
-                        <el-table-column label="学段">
-                            <template scope="scope"><p>{{ scope.row.periodStr }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="年级">
-                            <template scope="scope"><p>{{ scope.row.gradeName }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="班号">
-                            <template scope="scope"><p>{{ scope.row.classNum }}</p></template>
-                        </el-table-column>
-                        <el-table-column label="班级状态">
-                            <template scope="scope"><p>{{ scope.row.statusStr }}</p></template>
+                        <el-table-column label="课时结束时间">
+                            <template scope="scope"><p>{{ scope.row.endTime }}</p></template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)" v-if="scope.row.statusStr == '在读'">编辑</el-button>
-                                <span class="button-separate" v-if="scope.row.statusStr == '在读'">|</span>
-                                <el-button size="small" class="button-link" @click="handleDetail(scope.row)" v-if="scope.row.statusStr == '在读'">查看成员</el-button>
+                                <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)">编辑</el-button>
+                                <span class="button-separate">|</span>
+                                <el-button size="small" class="button-link" @click="handleDelete(scope.row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -94,55 +74,80 @@
                     </el-pagination>
                 </section>
 
-                <el-dialog :title="dialogInfo.type == 0 ? '新增班级' : '编辑班级'" :visible.sync="dialogShow" :modal-append-to-body="false">
+                <el-dialog :title="dialogInfo.type == 0 ? '新增课时' : '编辑课时'" :visible.sync="dialogShow" :modal-append-to-body="false" class="attendance-dialog">
                     <section class="formation"> 
                        
-                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
-                            <el-form-item label="班级编号">
-                                <el-input v-model="dialogInfo.code" disabled></el-input>
-                                <input type="text" v-model="dialogInfo.code" id="cCode" class="cCodeCopyInput">
-                                <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
-                            </el-form-item>
-                            <el-form-item label="班级名称">
+                        <el-form label-position="right" label-width="180px" :model="dialogInfo">
+                            <el-form-item label="课时名称">
                                 <el-input v-model="dialogInfo.name"></el-input>
                             </el-form-item>
-                            <el-form-item label="建班年份" prop="buildYear">
-                                <el-select v-model="dialogInfo.buildYear" placeholder="请选择">
-                                    <el-option v-for="item in buildYearOptions" :key="item.id" :label="item.name" :value="item.id">
+                            <el-form-item label="课时开始时间">
+                                <el-select v-model="dialogInfo.startHour" placeholder="请选择">
+                                    <el-option v-for="item in hourOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>
+                                :
+                                <el-select v-model="dialogInfo.startMinute" placeholder="请选择">
+                                    <el-option v-for="item in minuteOptions" :key="item.id" :label="item.name" :value="item.id">
+                                    </el-option>
+                                </el-select>                                
                             </el-form-item>
-                            <el-form-item label="学段" prop="period">
-                                <el-select v-model="dialogInfo.period" placeholder="请选择" @change="handlePeriodChange">
-                                    <el-option v-for="item in schoolPeriodOptions" :key="item.id" :label="item.name" :value="item.id">
+                            <el-form-item label="课时结束时间">
+                                <el-select v-model="dialogInfo.endHour" placeholder="请选择">
+                                    <el-option v-for="item in hourOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>
-                            </el-form-item>
-                            <el-form-item label="年级" prop="schoolSystemGradeId">
-                                <el-select v-model="dialogInfo.schoolSystemGradeId" placeholder="请选择" :disabled="dialogInfo.status == 1">
-                                    <el-option v-for="item in schoolSystemGradeOptions" :key="item.id" :label="item.name" :value="item.id">
+                                :
+                                <el-select v-model="dialogInfo.endMinute" placeholder="请选择">
+                                    <el-option v-for="item in minuteOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
-                                </el-select>
-                                <el-checkbox v-model="dialogInfo.status" true-label="1" false-label="0" v-if="dialogInfo.schoolSystemGradeId">使此班级毕业</el-checkbox>
-                            </el-form-item>
-                            <el-form-item label="班号" prop="classNum">
-                                <el-input v-model="dialogInfo.classNum"></el-input>
+                                </el-select>                                
                             </el-form-item>
                         </el-form>
 
                     </section>
                     <span slot="footer" class="dialog-footer">
-                        <el-button type="primary" :loading="dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
+                        <el-button type="primary" :loading="dialogLoading" @click.native="submitForm">保存</el-button>
                     </span>
                 </el-dialog>
+
+                <el-dialog title="复用课时表" :visible.sync="reUsedDialogShow" :modal-append-to-body="false" class="attendance-dialog">
+                    <section class="formation"> 
+                       
+                        <el-form label-position="right" label-width="180px" :model="reUsedDialogInfo">
+                            <el-form-item label="选择学校">
+                                <el-select v-model="reUsedDialogInfo.schoolId" placeholder="请选择" @change="handleReusedSchoolChange">
+                                    <el-option v-for="item in schoolOptions" :key="item.id" :label="item.fullName" :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="选择学段">
+                                <el-select v-model="reUsedDialogInfo.periodId" placeholder="请选择" @change="handleReusedPeriodChange">
+                                    <el-option v-for="item in periodOptions" :key="item.periodValue" :label="item.periodName" :value="item.periodValue">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="选择年级">
+                                <el-select v-model="reUsedDialogInfo.gradeId" placeholder="请选择">
+                                    <el-option v-for="item in gradeOptions" :key="item.id" :label="item.name" :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="reusedDialogLoading" @click.native="reuseSubmitForm">保存</el-button>
+                    </span>
+                </el-dialog>                
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import { Message } from 'element-ui';
-    import { uploadPath, schoolList, schoolGradeList, schoolClassCode, schoolClassSave, schoolClassList } from '../api/api';
+    import { Message, Loading } from 'element-ui';
+    import { schoolList, schoolGradeList, schoolAttendanceList, schoolAttendanceAdd, schoolAttendanceEdit, schoolAttendanceDelete, schoolAttendanceReUsed, schoolAttendanceCanUsePeriodList, schoolAttendanceCanUseGradeList } from '../api/api';
 
     let that;
 
@@ -152,20 +157,21 @@
                 showTable: false,
 
                 // 左侧学校列表
+                schoolLoading: true,
+                schoolId: '',
+                schoolPeriodId: '',
+                schoolGradeId: '',
+
                 schoolOptions: [],
+                treeOptions: [],
                 defaultProps: {
                     children: 'children',
                     label: 'label'
                 },
-                schoolname: '',
-                schoolSearchLoading: false,
+                currentKeys: [],
+                currentKey: '', 
 
-                searchForm: {
-                    schoolId: '',
-                    code: '',
-                    period: '',
-                    schoolSystemGradeId: ''
-                },
+
                 tableData: [],
                 tableloading: true,
 
@@ -177,221 +183,164 @@
                     total: ''
                 },
 
-                schoolGradeOptions: [
+                hourOptions: [
                     {
                         'id': '',
                         'name': '请选择'
                     }
                 ],
-                schoolPeriodOptions: [
+                minuteOptions: [
                     {
                         'id': '',
                         'name': '请选择'
                     }
-                ],
-                buildYearOptions: [],
-                schoolSystemGradeOptions: [],
+                ],                
 
                 dialogInfo: {
+                    type: '',
                     id: '',
-                    index: '',
-                    buildYear: '',
-                    period: '',
-                    code: '',
-                    schoolSystemGradeId: '',
                     name: '',
-                    classNum: '',
-                    status: '0'
+                    startHour: '',
+                    startMinute: '',
+                    endHour: '',
+                    endMinute: ''
                 },
                 dialogShow: false,
                 dialogLoading: false,
-                rules: {
-                    classNum: [
-                        { required: true, message: '*请输入班号', trigger: 'blur' }
-                    ],
-                    buildYear: [
-                        { required: true, message: '*请选择建班年份', trigger: 'change' }
-                    ],
-                    schoolSystemGradeId: [
-                        { required: true, message: '*请选择年级', trigger: 'change' }
-                    ],
-                    period: [
-                        { required: true, message: '*请选择学段', trigger: 'change' }
-                    ]
-                },
 
-                uploadUrl: uploadPath + '/schoolClass/excel/import',
-                fileList: [],
-                uploadLoading: false
+
+                reUsedDialogShow: false,
+                reUsedDialogInfo: {
+                    schoolId: '',
+                    periodId: '',
+                    gradeId: ''
+                },
+                periodOptions: [],
+                gradeOptions: [],
+                reusedDialogLoading: false
             };
         },
         methods: {
-            // 获取班级编号事件
-            copyBind: function() {
-                var clipboard = new Clipboard('.cCodeCopyBtn');
-
-                clipboard.on('success', function(e) {
-                    that.$message({ message: '复制班级编号成功！', type: 'success' });
-
-                    e.clearSelection();
-                });
-
-                clipboard.on('error', function(e) {
-                    that.$message({ message: '复制班级编号失败！', type: 'error' });
-                });
-            },
-            // 建班年份
-            setBuildYear: function() {
-                this.buildYearOptions = [{
-                    'id': '',
-                    'name': '请选择'
-                }];
-                for(let i = 2000; i < 2101; i++) {
-                    this.buildYearOptions.push({
-                        'id': '' + i,
-                        'name': '' + i
-                    });
+            // 设置事件选择列表
+            setTimeOptions: function() {
+                for(let i = 1; i < 25; i++) {
+                    this.hourOptions.push({
+                        'id': i < 10 ? '0' + i : '' + i,
+                        'name': i < 10 ? '0' + i : '' + i
+                    })
                 }
+                for(let i = 1; i < 61; i++) {
+                    this.minuteOptions.push({
+                        'id': i < 10 ? '0' + i : '' + i,
+                        'name': i < 10 ? '0' + i : '' + i
+                    })
+                }                
             },
             // 获取学校列表
             getSchoolList: function() {
-                this.schoolSearchLoading = true;
+                this.schoolLoading = true;
 
                 let param = {
-                    'name': this.schoolname,
+                    'name': '',
                     'pageNo': 1,
                     'pageSize': 5000
                 };
 
                 schoolList(param).then(res => {
-                    this.schoolSearchLoading = false;
+                    this.schoolLoading = false;
 
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        that.schoolOptions = [];
                         if(data.list && data.list.length > 0) {
-                            for(let i = 0; i < data.list.length; i++) {
-                                let item = data.list[i],
-                                    childrenArr = [];
+                            this.schoolOptions = data.list;
 
-                                for(let j = 0; j < item.periodVoList.length; j++) {
-                                    childrenArr.push({
-                                        'label': item.periodVoList[j].periodName,
-                                        'id': item.periodVoList[j].periodValue,
-                                        'schoolSystemId': item.periodVoList[j].schoolSystemId,
-                                        'schoolId': item.id,
-                                        'periodVoList': item.periodVoList
-                                    });
-                                }
-
-                                this.schoolOptions.push({
-                                    'label': item.fullName,
-                                    'id': item.id,
-                                    'schoolSystemId': item.schoolSystemId,
-                                    'children': childrenArr,
-                                    'periodVoList': item.periodVoList
-                                });
+                            if(this.$route.query.school) {
+                                that.schoolId = parseInt(this.$route.query.school);
                             }
                         }
                     }
                 }).catch(error => {
-                    this.schoolSearchLoading = false;
                     this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 });
             },
+            // 选择学校触发的事件
+            handleSchoolChange: function(val) {
+                for(let i = 0; i < this.schoolOptions.length; i++) {
+                    let item = this.schoolOptions[i];
+
+                    if(val == item.id) {
+                        this.setTreeOptions(item);
+                        break;
+                    }
+                }
+            },
+            // 生成树结构数据
+            setTreeOptions: function(school) {
+                this.treeOptions = [];
+                let periodVoList = school.periodVoList;
+                for(let i = 0; i < periodVoList.length; i++) {
+                    let periodItem = periodVoList[i],
+                        gradeVoList = periodItem.schoolSystemGradeVoList,
+                        gradeArr = [];
+
+                    for(let j = 0; j < gradeVoList.length; j++) {
+                        let gradeItem = gradeVoList[j];
+
+                        gradeArr.push({
+                            'id': gradeItem.id,
+                            'label': gradeItem.name,
+                            'periodId': gradeItem.period,
+                            'key': periodItem.periodValue + '-' + gradeItem.id
+                        });
+                    }
+
+                    this.treeOptions.push({
+                        'id': periodItem.periodValue,
+                        'label': periodItem.periodName,
+                        'key': '' + periodItem.periodValue,
+                        'children': gradeArr
+                    });
+                }
+            },
             // 选择节点触发的事件
             handleNodeClick(data) {
-                if(data.schoolId) {
-                    // 选中学段
-                    this.searchForm.schoolId = data.schoolId;
-                    this.searchForm.period = data.id;
-                    this.getSystemGradeList(data.id, data.schoolSystemId);
+                if(!data.gradeId && data.periodId) {
+                    // 选中年级
+                    this.schoolPeriodId = data.periodId;
+                    this.schoolGradeId = data.id;
+                    this.schoolClassId = '';
+
+                    this.showTable = true;
+
+                    that.getList();
                 } else {
-                    // 选中学校
-                    this.searchForm.schoolId = data.id;
-                    this.searchForm.period = '';
-                    this.schoolGradeOptions = [];
+                    // 选中学段
+                    this.schoolPeriodId = data.id;
+                    this.schoolGradeId = '';
+                    this.schoolClassId = '';
                 }
-
-                this.searchForm.schoolSystemId = data.schoolSystemId;
-                this.searchForm.code = '';
-                this.searchForm.schoolSystemGradeId = '';
-                this.schoolPeriodOptions = [
-                    {
-                        'id': '',
-                        'name': '请选择'
-                    }
-                ]
-                for(let i = 0; i < data.periodVoList.length; i++) {
-                    this.schoolPeriodOptions.push(
-                        {
-                            'id': '' + data.periodVoList[i].periodValue,
-                            'name': data.periodVoList[i].periodName
-                        }
-                    );
-                }
-
-                this.showTable = true;
-
-                this.getList();
             },
-            // 根据学制id获取年级
-            getSystemGradeList: function(period, schoolSystemId) {
-                let param = {
-                    'period': period,
-                    'schoolSystemId': schoolSystemId
-                };
 
-                schoolGradeList(param).then(res => {
-                    let { errorInfo, code, data } = res;
 
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        if(data.list && data.list.length > 0) {
-                            this.schoolGradeOptions = [
-                                {
-                                    'id': '',
-                                    'name': '请选择'
-                                }
-                            ];
-                            for(let i = 0; i < data.list.length; i++) {
-                                this.schoolGradeOptions.push({
-                                    'id': '' + data.list[i].id,
-                                    'name': '' + data.list[i].name
-                                });
-                            }
-                        }
-                    }
-                });
-            },
-            // 搜索按钮
-            onSearchSubmit: function() {
-                this.pagi.currentPage = 1;
-
-                this.getList();
-            },
             handleCurrentChange(val) {
                 this.pagi.currentPage = parseInt(val);
                 this.getList();
             },
-            // 获取班级列表
+            // 获取列表
             getList: function() {
                 this.tableloading = true;
 
                 let param = {
-                    'schoolId': this.searchForm.schoolId,
-                    'code': this.searchForm.code,
-                    'period': this.searchForm.period,
-                    'schoolSystemGradeId': this.searchForm.schoolSystemGradeId,
+                    'schoolId': this.schoolId,
+                    'schoolSystemGradeId': this.schoolGradeId,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };
 
-                schoolClassList(param).then(res => {
+                schoolAttendanceList(param).then(res => {
                     this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
@@ -420,172 +369,253 @@
                 });
             },
 
-            // 添加、编辑内测用户
+            // 新增、编辑
             handleAdd: function(type, index, row) {
                 this.dialogShow = true;
 
                 setTimeout(function() {
-                    that.$refs['ruleForm'].resetFields();
                     if(type == 0) {
                         // add
                         that.dialogInfo = {
-                            id: '',
+                            type: type,
                             index: '',
-                            buildYear: '',
-                            period: '',
-                            code: '',
-                            schoolSystemGradeId: '',
+                            id: '',
                             name: '',
-                            classNum: '',
-                            status: '0'
+                            startHour: '',
+                            startMinute: '',
+                            endHour: '',
+                            endMinute: ''
                         };
-                        
-                        that.getCode();
                     } else if(type == 1) {
                         // edit
-                        that.dialogInfo.id = row.id;
-                        that.dialogInfo.index = index;
-                        that.dialogInfo.buildYear = '' + row.buildYear;
-                        that.dialogInfo.period = '' + row.period;
-                        setTimeout(function() {
-                            that.dialogInfo.schoolSystemGradeId = '' + row.schoolSystemGradeId;
-                        },1);
-                        that.dialogInfo.code = row.code;
-                        that.dialogInfo.name = row.name;
-                        that.dialogInfo.classNum = row.classNum;
-                        that.dialogInfo.status = '' + row.status;
+                        let startTimeArr = row.startTime.split(':'),
+                            endTimeArr = row.endTime.split(':');
+                        that.dialogInfo = {
+                            type: type,
+                            index: index,
+                            id: row.id,
+                            name: row.name,
+                            startHour: startTimeArr[0],
+                            startMinute: startTimeArr[1],
+                            endHour: endTimeArr[0],
+                            endMinute: endTimeArr[1]
+                        };
                     }
                 }, 1);
             },
 
-            // 查看成员
-            handleDetail: function(row) {
-                this.$router.push({path : "schoolTree" , query : { 'school' : this.searchForm.schoolId, 'period': this.searchForm.period, 'grade': row.schoolSystemGradeId, 'class': row.id }});
+            // 提交用户信息
+            submitForm: function(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+
+                if(!this.dialogInfo.name) {
+                    this.$message({ message: '请输入课时名称', type: 'error' });
+                    return false;
+                }                
+                if(!this.dialogInfo.startHour || !this.dialogInfo.startMinute) {
+                    this.$message({ message: '请选择课时开始时间', type: 'error' });
+                    return false;
+                }
+                if(!this.dialogInfo.endHour || !this.dialogInfo.endMinute) {
+                    this.$message({ message: '请选择课时结束时间', type: 'error' });
+                    return false;
+                }
+
+                this.dialogLoading = true;
+
+                
+
+                if(this.dialogInfo.type == 0) {
+                    // 新增
+                    let params = {
+                        'schoolId': this.schoolId,
+                        'schoolSystemGradeId': this.schoolGradeId,
+                        'name': this.dialogInfo.name,
+                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute,
+                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute
+                    };                    
+                    schoolAttendanceAdd(params).then(res=>{
+                        this.dialogLoading = false;
+
+                        let { errorInfo, code, data } = res;
+
+                        if(code !== 0){
+                            this.$message({ message: errorInfo, type: 'error' });
+                        }else{
+                            this.$message({ message: '保存成功！', type: 'success' });
+                            this.dialogShow = false;
+                            this.getList();
+                        }
+                    }).catch(error => {
+                        this.dialogLoading = false;
+                        this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                    });                    
+                } else if(this.dialogInfo.type == 1) {
+                    // 编辑
+                    let params = {
+                        'id': this.dialogInfo.id,
+                        'name': this.dialogInfo.name,
+                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute,
+                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute
+                    };                    
+                    schoolAttendanceEdit(params).then(res=>{
+                        this.dialogLoading = false;
+
+                        let { errorInfo, code, data } = res;
+
+                        if(code !== 0){
+                            this.$message({ message: errorInfo, type: 'error' });
+                        }else{
+                            this.$message({ message: '保存成功！', type: 'success' });
+                            this.dialogShow = false;
+                            this.getList();
+                        }
+                    }).catch(error => {
+                        this.dialogLoading = false;
+                        this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                    });
+                }
             },
 
-            // 获取班级编号
-            getCode: function() {
-                schoolClassCode({}).then(res => {
+            // 删除
+            handleDelete: function(row) {
+                let params = {
+                    'id': row.id,
+                };                    
+                schoolAttendanceDelete(params).then(res=>{
+                    this.dialogLoading = false;
+
                     let { errorInfo, code, data } = res;
 
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.dialogInfo.code = data.code;
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.$message({ message: '删除成功！', type: 'success' });
+                        this.getList();
                     }
                 }).catch(error => {
-                    this.$message({ message: '网络异常！获取班级编号失败！', type: 'error'});
-                });
+                    this.dialogLoading = false;
+                    this.$message({ message: '网络异常！操作失败！', type: 'error'});
+                });                 
             },
 
-            // 学段改变触发事件 
-            handlePeriodChange: function(val) {
+            // 复用课时
+            handleReuse: function() {
+                this.reUsedDialogShow = true;
+                this.periodOptions = [];
+                this.gradeOptions = [];
+                this.reUsedDialogInfo = {
+                    schoolId: this.schoolId || '',
+                    periodId: '',
+                    gradeId: ''
+                }
+
+                if(this.schoolId) {
+                    this.handleReusedSchoolChange(this.schoolId);
+                }
+            },
+            // 复用课时 - 选择学校触发的事件
+            handleReusedSchoolChange: function(val) {
                 if(!val) {
                     return false;
                 }
 
                 let param = {
-                    'period': val,
-                    'schoolSystemId': this.searchForm.schoolSystemId
+                    schoolId: val
                 };
 
-                schoolGradeList(param).then(res => {
+                schoolAttendanceCanUsePeriodList(param).then(res => {
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        if(data.list && data.list.length > 0) {
-                            this.schoolSystemGradeOptions = [
-                                {
-                                    'id': '',
-                                    'name': '请选择'
-                                }
-                            ];
-                            for(let i = 0; i < data.list.length; i++) {
-                                this.schoolSystemGradeOptions.push({
-                                    'id': '' + data.list[i].id,
-                                    'name': '' + data.list[i].name
-                                });
-                            }
-                        }
+                        this.periodOptions = data.list;
                     }
                 }).catch(error => {
-                    this.$message({ message: '网络异常！获取年级列表失败！', type: 'error'});
+                    this.$message({ message: '网络异常！获取失败！', type: 'error'});
                 });
             },
 
-            // 提交用户信息
-            submitForm: function(formName) {
-                this.$refs[formName].validate((valid)=>{
-                    if(valid){
-                        this.dialogLoading = true;
+            // 复用课时 - 选择学段触发的事件
+            handleReusedPeriodChange: function(val) {
+                if(!val) {
+                    return false;
+                }                
 
-                        let params = {
-                            'id': this.dialogInfo.id,
-                            'period': this.dialogInfo.period,
-                            'schoolId': this.searchForm.schoolId,
-                            'code': this.dialogInfo.code,
-                            'name': this.dialogInfo.name,
-                            'classNum': this.dialogInfo.classNum,
-                            'buildYear': this.dialogInfo.buildYear,
-                            'schoolSystemGradeId': this.dialogInfo.schoolSystemGradeId,
-                            'status': this.dialogInfo.status
-                        };
+                let param = {
+                    schoolId: this.reUsedDialogInfo.schoolId,
+                    periodValue: val,
+                    toSchoolId: this.schoolId,
+                    toSchoolSystemGradeId: this.schoolGradeId
+                };
 
-                        schoolClassSave(params).then(res=>{
-                            this.dialogLoading = false;
+                schoolAttendanceCanUseGradeList(param).then(res => {
+                    let { errorInfo, code, data } = res;
 
-                            let { errorInfo, code, data } = res;
-
-                            if(code !== 0){
-                                this.$message({ message: errorInfo, type: 'error' });
-                            }else{
-                                this.$message({ message: '保存班级信息成功！', type: 'success' });
-                                this.dialogShow = false;
-                                this.getList();
-                            }
-                        });
-                    }else{
-                        return false;
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        this.gradeOptions = data.list;
                     }
                 }).catch(error => {
-                    this.dialogLoading = false;
-                    this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
-                });
+                    this.$message({ message: '网络异常！获取失败！', type: 'error'});
+                });                         
             },
 
-            handleBefore: function(file) {
-                let nameArr = (file.name).split('.'),
-                    type = nameArr[nameArr.length - 1];
-
-                if(type != 'xls' && type != 'xlsx') {
-                    this.$message({ message: '文件格式不正确！支持.xls、.xlsx格式！', type: 'error'});
+            // 复用课时 - 提交数据
+            reuseSubmitForm: function() {
+                if(this.reusedDialogLoading) {
                     return false;
                 }
 
-                this.uploadLoading = true;
-            },
-            handleSuccess: function(response, file, fileList) {
-                this.fileList = [];
-                this.uploadLoading = false;
-            },
-            handleError: function(err, file, fileList) {
-                this.uploadLoading = false;
-                this.fileList = [];
-                this.$message({ message: '班级上传失败，请重试！', type: 'error'});
-            },
+                if(!this.reUsedDialogInfo.schoolId) {
+                    this.$message({ message: '请选择学校', type: 'error' });
+                    return false;
+                }
+                if(!this.reUsedDialogInfo.periodId) {
+                    this.$message({ message: '请选择学段', type: 'error' });
+                    return false;
+                }
+                if(!this.reUsedDialogInfo.gradeId) {
+                    this.$message({ message: '请选择年级', type: 'error' });
+                    return false;
+                }
 
-            keyDownSubmit: function() {
-                that.getSchoolList();
+
+                this.reusedDialogLoading = true;
+
+                let params = {
+                    'fromSchoolId': this.reUsedDialogInfo.schoolId,
+                    'fromSchoolSystemGradeId': this.reUsedDialogInfo.gradeId,
+                    'toSchoolId': this.schoolId,
+                    'toSchoolSystemGradeId': this.schoolGradeId
+                };                    
+                schoolAttendanceReUsed(params).then(res=>{
+                    this.reusedDialogLoading = false;
+
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.$message({ message: '保存成功！', type: 'success' });
+                        this.reUsedDialogShow = false;
+                        this.getList();
+                    }
+                }).catch(error => {
+                    this.reusedDialogLoading = false;
+                    this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                });                
             }
         },
         mounted() {
             that = this;
 
-            this.setBuildYear();
+            this.setTimeOptions();
             this.getSchoolList();
-            this.copyBind();
         }
     }
 </script>
@@ -659,6 +689,15 @@
                 display: none !important;
             }
         }
+
+
+        .attendance-dialog{
+            height: auto;
+
+            .el-dialog{
+                height: auto !important;
+            }
+        }
     }
 </style>
 
@@ -702,37 +741,6 @@
             .button-separate{
                 margin-right: 10px;
                 color: #999;
-            }
-        }
-
-        .cCodeCopyInput{
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            overflow: hidden;
-            opacity: 0;
-        }
-
-        .cCodeCopyBtn{
-            display: inline-block;
-            white-space: nowrap;
-            cursor: pointer;
-            border: 1px solid #c4c4c4;
-            box-sizing: border-box;
-            min-width: 76px;
-            padding: 0 14px;
-            line-height: 38px;
-            border-radius: 2px;
-            font-size: 12px;
-            color: #fff;
-            background-color: #18c79c;
-            border-color: #18c79c;
-            text-align: center;
-
-            &:hover{
-                background: rgb(70, 210, 176);
-                border-color: rgb(70, 210, 176);
-                color: #fff;
             }
         }
     }

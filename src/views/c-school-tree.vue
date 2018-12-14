@@ -48,14 +48,15 @@
                         <section class="table">
                             <el-table :data="classTeacherTableData" stripe style="width: 100%" v-loading="classTeacherTableloading">
                                 <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.name }}</p></template>
+                                    <template scope="scope"><p>{{ scope.row.name }}<span class="icon-headTeacher" v-if="scope.row.headTeacher == 1">班</span></p></template>
                                 </el-table-column>
-                                <el-table-column width="130">
+                                <el-table-column>
                                     <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
                                 </el-table-column>
-                                <el-table-column width="70">
+                                <el-table-column>
                                     <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleClassTeacherDelete(scope.$index, scope.row)">删除</el-button>
+                                        <el-button size="small" class="button-link" @click="handleClassTeacherEdit(scope.$index, scope.row)">编辑</el-button>
+                                        <el-button size="small" class="button-link" @click="handleClassTeacherDelete(scope.$index, scope.row)" style="margin-right: 0;">删除</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -75,6 +76,9 @@
                                             </el-table-column>
                                             <el-table-column label="">
                                                 <template scope="scope">{{ scope.row.mobile }}</template>
+                                            </el-table-column>
+                                            <el-table-column label="">
+                                                <template scope="scope">{{ scope.row.schoolAccount }}</template>
                                             </el-table-column>
                                         </el-table>
 
@@ -99,6 +103,12 @@
                                             <el-table-column>
                                                 <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
                                             </el-table-column>
+                                            <el-table-column>
+                                                <template scope="scope">
+                                                    <el-switch v-model="scope.row.headTeacher" on-color="#13ce66" on-value="1" off-value="0" on-text="是" off-text="否" style="vertical-align: top;"></el-switch>
+                                                    <span style="line-height: 22px;">班主任</span>
+                                                </template>
+                                            </el-table-column>
                                             <el-table-column width="100">
                                                 <template scope="scope">
                                                     <el-button size="small" class="button-link" @click="handleClassTeacherDialogSelectedDelete(scope.$index, scope.row)">删除</el-button>
@@ -112,6 +122,58 @@
                                 <el-button type="primary" :loading="classTeacherDialog.submitLoading" @click.native="classTeacherDialogSubmit">保存</el-button>
                             </span>
                         </el-dialog>
+
+                        <el-dialog title="编辑班级中的教师" :visible.sync="editTeacherDialogShow" :modal-append-to-body="false" class="auto-height">
+                            <section class="formation">
+                               
+                                <el-form label-position="right" label-width="180px" :model="editTeacherInfo">
+                                    <el-form-item label="教师姓名">
+                                        <el-input v-model="editTeacherInfo.name" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="手机账号">
+                                        <el-input v-model="editTeacherInfo.mobile" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="学校账号">
+                                        <el-input v-model="editTeacherInfo.schoolAccount" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="该班级班主任">
+                                        <el-switch v-model="editTeacherInfo.headTeacher" on-color="#13ce66" on-value="1" off-value="0" on-text="是" off-text="否" style="margin-top: 9px;"></el-switch>
+                                    </el-form-item>
+                                    <el-form-item label="标签">
+                                        <div class="tag-list">
+                                            <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in editTeacherInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
+                                            <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
+                                        </div>
+                                    </el-form-item> 
+                                </el-form>
+
+                            </section>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button type="primary" :loading="editTeacherDialogLoading" @click.native="editTeacherSubmitForm">保存</el-button>
+                            </span>
+                        </el-dialog>
+
+                        <el-dialog title="添加标签" :visible.sync="tagsDialogInfo.show" :modal-append-to-body="false" class="auto-height">
+                            <section class="formation">
+                               
+                                <el-form label-position="right" :rules="tagsRules" ref="ruleFormTags" label-width="180px" :model="tagsDialogInfo">
+                                    <el-form-item label="标签分类" prop="typeId">
+                                        <el-select v-model="tagsDialogInfo.typeId" placeholder="请选择" @change="handleTagsClassifyChange">
+                                            <el-option v-for="item in tagsClassifyOptions" :label="item.label" :value="item.value"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="标签" prop="id">
+                                        <el-select v-model="tagsDialogInfo.id" placeholder="请选择">
+                                            <el-option v-for="item in tagsOptions" :label="item.label" :value="item.value"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+
+                            </section>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button type="primary" @click.native="handleSaveTags('ruleFormTags')">保存</el-button>
+                            </span>
+                        </el-dialog>                        
                     </div>
                 </div>
             </section>
@@ -273,7 +335,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolList, schoolClassTeacherList, schoolClassStudentList, memberList, smartCardList, schoolTeacherAdd, schoolTeacherDelete, schoolStudentAdd, schoolStudentShift, schoolStudentDelete, schoolStaffList } from '../api/api';
+    import { uploadPath, schoolList, schoolClassTeacherList, schoolClassStudentList, memberList, smartCardList, schoolTeacherAdd, schoolTeacherDelete, schoolTeacherEdit, schoolStudentAdd, schoolStudentShift, schoolStudentDelete, schoolStaffList, tagsClassifyList, tagsList } from '../api/api';
 
     let that;
 
@@ -320,6 +382,44 @@
                     submitLoading: false
                 },
                 classTeacherDialogShow: false,
+                // 班级教师编辑
+                editTeacherDialogShow: false,
+                editTeacherDialogLoading: false,
+                editTeacherInfo: {
+                    id: '',
+                    memberId: '',
+                    index: '',
+                    name: '',
+                    mobile: '',
+                    schoolAccount: '',
+                    headTeacher: '',
+                    tagList: []
+                },
+                tagsClassifyOptions:[
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ],
+                tagsOptions: [
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ],
+                tagsDialogInfo: {
+                    typeId: '',
+                    id: '',
+                    show: false
+                },
+                tagsRules: {
+                    typeId: [
+                        { required: true, message: '*请选择标签分类', trigger: 'change' }
+                    ],
+                    id: [
+                        { required: true, message: '*请选择标签', trigger: 'change' }
+                    ]
+                },            
 
                 // 班级学生
                 classStudentSearchForm: {
@@ -530,6 +630,175 @@
             keyDownClassTeacher: function() {
                 this.getClassTeacherList();
             },
+            // 编辑班级教师
+            handleClassTeacherEdit: function(index, row) {
+                this.editTeacherDialogShow = true;
+
+                setTimeout(function() {
+                    that.editTeacherInfo.id = row.id;
+                    that.editTeacherInfo.memberId = row.memberId;
+                    that.editTeacherInfo.index = index;
+                    that.editTeacherInfo.name = row.name;
+                    that.editTeacherInfo.mobile = row.mobile;
+                    that.editTeacherInfo.schoolAccount = row.schoolAccount;
+                    that.editTeacherInfo.headTeacher = '' + row.headTeacher;
+                    that.editTeacherInfo.tagList = row.tagVoList || [];
+                }, 1);                
+            },
+            // 获取标签分类列表
+            getClassifyList: function() {
+                let param = {
+                    'name': '',
+                    'pageNo': 1,
+                    'pageSize': 1000
+                };
+
+                tagsClassifyList(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        for(let i = 0; i < data.list.length; i++ ) {
+                            this.tagsClassifyOptions.push({
+                                value: '' + data.list[i].id,
+                                label: data.list[i].name
+                            })
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取标签分类列表失败！', type: 'error'});
+                });                
+            },
+
+            // 添加标签弹窗
+            handleTagsDialogShow: function() {
+                that.tagsDialogInfo.show = true;
+
+                setTimeout(() => {
+                    that.tagsDialogInfo.typeId = '';
+                    that.tagsDialogInfo.id = '';
+                    that.tagsOptions = [
+                        {
+                            value:'',
+                            label:'请选择'
+                        }
+                    ]                     
+                }, 1);
+            },
+
+            // 标签分类变化
+            handleTagsClassifyChange: function(typeId) {
+                that.tagsDialogInfo.id = '';
+                this.tagsOptions = [
+                    {
+                        value:'',
+                        label:'请选择'
+                    }
+                ]
+
+                let tagIds = [];
+                if(that.editTeacherInfo.tagList.length > 0) {
+                    for(let i = 0; i < that.editTeacherInfo.tagList.length; i++) {
+                        tagIds.push(that.editTeacherInfo.tagList[i].id);
+                    }
+                }
+
+                let param = {
+                    'name': '',
+                    'typeId': typeId,
+                    'notContainIds': tagIds.join(','),
+                    'pageNo': 1,
+                    'pageSize': 1000
+                };
+
+                tagsList(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        if(data.list.length) {
+                            for(let i = 0; i < data.list.length; i++ ) {
+                                this.tagsOptions.push({
+                                    value: '' + data.list[i].id,
+                                    label: data.list[i].name
+                                })
+                            }
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取标签列表失败！', type: 'error'});
+                });                
+            },   
+            // 保存标签
+            handleSaveTags(formName) {
+                this.$refs[formName].validate((valid)=>{
+                     if(valid){
+                        let id = that.tagsDialogInfo.id,
+                            name = '';
+
+                        for(let i = 0; i < that.tagsOptions.length; i++) {
+                            if(id == that.tagsOptions[i].value) {
+                                name = that.tagsOptions[i].label;
+                                break;
+                            }
+                        }
+
+                        that.editTeacherInfo.tagList.push({
+                            id: id,
+                            name: name
+                        })
+
+                        that.tagsDialogInfo.show = false;
+                     }else{
+                         return false;
+                     }
+                });
+            },
+
+            // 移除标签
+            handleTagDetele: function(index, item) {
+                that.editTeacherInfo.tagList.splice(index, 1);
+            },                   
+            // 保存编辑教师
+            editTeacherSubmitForm() {
+                if(this.editTeacherDialogLoading) {
+                    return false;
+                }
+
+                this.editTeacherDialogLoading = true;
+
+                let tagIds = [];
+                if(this.editTeacherInfo.tagList.length > 0) {
+                    for(let i = 0; i < this.editTeacherInfo.tagList.length; i++) {
+                        tagIds.push(this.editTeacherInfo.tagList[i].id);
+                    }
+                }                        
+
+                let params = {
+                    'id': this.editTeacherInfo.id,
+                    'headTeacher': this.editTeacherInfo.headTeacher,
+                    'tagIds': tagIds.join(',')
+                };
+
+                schoolTeacherEdit(params).then(res=>{
+                    this.editTeacherDialogLoading = false;
+
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.$message({ message: '保存成功！', type: 'success' });
+                        this.editTeacherDialogShow = false;
+                        this.getClassTeacherList();
+                    }
+                }).catch(error => {
+                    this.editTeacherDialogLoading = false;
+                    this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                });
+            },
             // 删除班级教师
             handleClassTeacherDelete: function(index, row) {
                 let param = {
@@ -583,7 +852,11 @@
                             return false;
                         }
 
+                        for(let i = 0; i < data.list.length; i++) {
+                            data.list[i].headTeacher = 0;
+                        }
                         this.classTeacherDialog.tableData = data.list;
+
                         if(data.total % this.classTeacherDialog.pagi.pageSize == 0) {
                             this.classTeacherDialog.pagi.pageTotal = data.total/this.classTeacherDialog.pagi.pageSize;
                         } else {
@@ -617,6 +890,10 @@
             },
             // 添加班级教师保存
             classTeacherDialogSubmit: function() {
+                if(this.classTeacherDialog.submitLoading) {
+                    return false;
+                }
+
                 if(this.classTeacherDialog.selectedData.length == 0) {
                     this.$message({ message: '请选择需要添加的教师', type: 'error'});
                     return false;
@@ -624,14 +901,17 @@
 
                 this.classTeacherDialog.submitLoading = true;
 
-                let ids = [];
+                let classTeacher = [];
                 for(let i = 0; i < this.classTeacherDialog.selectedData.length; i++) {
-                    ids.push(this.classTeacherDialog.selectedData[i].memberId);
+                    classTeacher.push({
+                        'memberId': this.classTeacherDialog.selectedData[i].memberId,
+                        'headTeacher': this.classTeacherDialog.selectedData[i].headTeacher
+                    });
                 }
 
                 let param = {
                     'schoolClassId': this.schoolClassId,
-                    'memberIds': ids.join(',')
+                    'classTeacherJson': JSON.stringify(classTeacher)
                 };
 
                 schoolTeacherAdd(param).then(res => {
@@ -790,6 +1070,10 @@
             },
             // 添加班级学生保存
             classStudentDialogSubmit: function() {
+                if(this.classStudentDialog.submitLoading) {
+                    return false;
+                }
+
                 if(this.classStudentDialog.selectedData.length == 0) {
                     this.$message({ message: '请选择需要添加的学生', type: 'error'});
                     return false;
@@ -939,6 +1223,10 @@
             },
             // 学生转移保存
             classStudentShiftDialogSubmit: function() {
+                if(this.classStudentShiftDialog.submitLoading) {
+                    return false;
+                }
+                
                 if(this.classStudentShiftDialog.selectedData.length == 0) {
                     this.$message({ message: '请选择需要转移的学生', type: 'error'});
                     return false;
@@ -983,6 +1271,8 @@
             that = this;
 
             this.getSchoolList();
+
+            this.getClassifyList();
         }
     }
 </script>
@@ -1247,6 +1537,16 @@
                         }
                     }
                 }
+
+                &.auto-height{
+                    .el-dialog{
+                        height: auto !important;
+
+                        .el-dialog__body{
+                            height: auto !important;
+                        }
+                    }
+                }
             }
 
             .el-pagination{
@@ -1297,13 +1597,13 @@
             .table-left{
                 float: left;
                 height: 100%;
-                width: 350px;
+                width: 40%;
             }
 
             .table-right{
                 float: right;
                 height: 100%;
-                width: calc(100% - 360px);
+                width: calc(60% - 10px);
             }
 
             .light-overscroll{
@@ -1315,6 +1615,35 @@
                 color: #999;
             }
         }
+
+        .icon-headTeacher{
+            display: inline-block;
+            background: orange;
+            vertical-align: top;
+            border-radius: 4px;
+            width: 18px;
+            height: 18px;
+            text-align: center;
+            margin-left: 5px;
+            color: #FFFFFF;
+        }
+        .tag-list{
+            .tag-item{
+                background: #fff;
+                color: #18c79c;
+                line-height: 30px !important;
+                border-radius: 15px;
+
+                &:hover,
+                &:active{
+                    opacity: .8;
+                }
+            }
+
+            .tag-add{
+                line-height: 30px !important;
+            }
+        } 
     }
 </style>
 

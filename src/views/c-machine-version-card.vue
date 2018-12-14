@@ -1,5 +1,5 @@
 <template>
-    <div class="main-wrapper light-overscroll luoym">
+    <div class="main-wrapper light-overscroll luoym machine-version">
         <section class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>智慧卡及手环版本</el-breadcrumb-item>
@@ -9,7 +9,7 @@
         <section class="search clearfix">
             <el-form :inline="true" :model="searchForm" class="demo-form-inline">
                 <el-form-item label="版本号">
-                    <el-input v-model="searchForm.account" size="small" placeholder="请输入账号"></el-input>
+                    <el-input v-model="searchForm.version" size="small" placeholder="请输入账号"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -18,20 +18,20 @@
             </el-form>
 
 
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="">新增版本</el-button>
+            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleEdit(0)">新增版本</el-button>
         </section>
 
         <section class="table">
             <el-table :data="tableData" stripe style="width: 100%" v-loading="tableloading">
                 <el-table-column label="版本号">
-                    <template scope="scope"><p>{{ scope.row.mobile }}</p></template>
+                    <template scope="scope"><p>{{ scope.row.version }}</p></template>
                 </el-table-column>
                 <el-table-column label="版本说明">
-                    <template scope="scope"><p>{{ scope.row.schoolNumber }}</p></template>
+                    <template scope="scope"><p>{{ scope.row.description }}</p></template>
                 </el-table-column>
                 <el-table-column label="操作">
                     <template scope="scope">
-                        <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="small" class="button-link" @click="handleEdit(1, scope.$index, scope.row)">编辑</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -47,12 +47,29 @@
         </section>
 
         
-        <el-dialog title="编辑用户" :visible.sync="editDialogShow" :modal-append-to-body="false">
+        <el-dialog :title="editInfo.id ? '编辑智慧卡及手环版本' : '新增智慧卡及手环版本'" :visible.sync="editDialogShow" :modal-append-to-body="false">
             <section class="formation">
                
                 <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
-                    <el-form-item label="版本号" prop="account">
-                        <el-input v-model="editInfo.account" :disabled="true"></el-input>
+                    <el-form-item label="版本号" prop="version">
+                        <el-input v-model="editInfo.version"></el-input>
+                    </el-form-item>
+                    <el-form-item label="视图">
+                        <el-upload
+                            class="upload-demo"
+                            :action="uploadUrl"
+                            :before-upload="handleBefore"
+                            :on-remove="handleRemove"
+                            :on-success="handleSuccess"
+                            :on-error="handleError"
+                            :file-list="editInfo.viewUrl"
+                            list-type="picture">
+                            <el-button size="small" type="primary" :disabled="editInfo.viewUrl.length != 0">点击上传</el-button>
+                            <div slot="tip" class="el-upload__tip">上传尺寸300像素 X 300像素，支持jpg、jpeg、png</div>
+                        </el-upload>                                
+                    </el-form-item>
+                    <el-form-item label="版本说明" prop="description">
+                        <el-input type="textarea" v-model="editInfo.description"></el-input>
                     </el-form-item>
                 </el-form>
 
@@ -66,7 +83,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, memberList, memberEdit, markSix, tagsClassifyList, tagsList, } from '../api/api';
+    import { uploadPath, smartVersionList, smartVersionSave } from '../api/api';
 
     let that;
 
@@ -74,10 +91,7 @@
         data() {
             return {
                 searchForm: {
-                    account: '',
-                    classify: '',
-                    status: '',
-                    character: ''
+                    version: ''
                 },
                 tableData: [],
                 tableloading: true,
@@ -88,38 +102,23 @@
                     pageTotal: '',
                     total: ''
                 },
+
+
                 editInfo:{
                     id: '',
                     index: '',
-                    account: '',
-                    school: '',
-                    name: '',
-                    classify: '',
-                    memberRoleList: [],
-                    tagList: []
+                    version: '',
+                    description: '',
+                    viewUrl: []
                 },
+                uploadUrl: uploadPath + '/ajax/smartDeviceVersion/view/upload',
                 editDialogShow: false,
                 dialogLoading: false,
                 rules: {
-                    name: [
-                        { required: true, message: '*请输入姓名', trigger: 'blur' }
-                    ],
-                    classify: [
-                        { required: true, message: '*请选择分类', trigger: 'change' }
+                    version: [
+                        { required: true, message: '*请输入版本号', trigger: 'blur' }
                     ]
-                },
-
-                uploadShow: false,
-                uploadLoading: false,
-                uploadUrl: uploadPath + '/ajax/member/excel/importUsers',
-                uploadInfo: {
-                    
-                },
-                fileList: [],
-                fileChange: new Array(),
-                rulesUpload: {
-                    
-                }                    
+                }
             };
         },
         methods: {
@@ -138,16 +137,14 @@
             getList() {
                 this.tableloading = true;
 
-                let memberListParam = {
-                    'mobile': this.searchForm.account,
-                    'type': this.searchForm.classify,
-                    'activeStatus': this.searchForm.status,
-                    'roleType': this.searchForm.character,
+                let param = {
+                    'version': this.searchForm.version,
+                    'type': 1,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };
 
-                memberList(memberListParam).then(res => {
+                smartVersionList(param).then(res => {
                     this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
@@ -172,71 +169,76 @@
                     }
                 }).catch(error => {
                     this.tableloading = false;
-                    this.$message({ message: '网络异常！获取用户列表失败！', type: 'error'});
+                    this.$message({ message: '网络异常！获取列表失败！', type: 'error'});
                 });
             },
             // 编辑按钮
-            handleEdit(index, row) {
+            handleEdit(type, index, row) {
                 this.editDialogShow = true;
 
-                setTimeout(function() {
-                    that.$refs['ruleForm'].resetFields();
+                if(type == 0) {
+                    // 新增
+                    setTimeout(function() {
+                        that.$refs['ruleForm'].resetFields();
 
-                    that.editInfo.id = row.id;
-                    that.editInfo.index = index;
-                    that.editInfo.account = row.mobile;
-                    that.editInfo.school = row.schoolNumber;
-                    that.editInfo.name = row.name;
-                    that.editInfo.classify = ''+ row.type;
-                    that.editInfo.memberRoleList = [];
-                    that.editInfo.tagList = row.tagVoList;
+                        that.editInfo.id = '';
+                        that.editInfo.index = '';
+                        that.editInfo.version = '';
+                        that.editInfo.description = '';
+                        that.editInfo.viewUrl = [];
+                    }, 1);
+                } else {
+                    // 编辑
+                    setTimeout(function() {
+                        that.$refs['ruleForm'].resetFields();
 
-                    if(row.memberRoleList.length > 0) {
-                        for(let i = 0; i < row.memberRoleList.length; i++) {
-                            that.editInfo.memberRoleList.push({
-                                schoolCode: row.memberRoleList[i].schoolCode,
-                                type: '' + row.memberRoleList[i].type
-                            })
-                        }
-                    }
-                    
-                }, 1);
+                        that.editInfo.id = row.id;
+                        that.editInfo.index = index;
+                        that.editInfo.version = row.version;
+                        that.editInfo.description = row.description;
+
+                        if(row.viewUrl) {
+                            that.editInfo.viewUrl = [
+                                {
+                                    'name': row.viewUrl,
+                                    'url': row.viewUrl,
+                                    'response': {
+                                        'code': 0,
+                                        'data': {
+                                            'viewUrl': row.viewUrl,
+                                            'viewPath': row.view
+                                        },
+                                        'errorInfo': ''
+                                    }
+                                }
+                            ];
+                        } else {
+                            that.editInfo.viewUrl = [];
+                        }                     
+                    }, 1);
+                }
+                
             },               
             // 保存编辑
             submitForm(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+                
                 this.$refs[formName].validate((valid)=>{
                      if(valid){
                         this.dialogLoading = true;
 
-                        let roleJson = [];
-                        if(this.editInfo.memberRoleList.length > 0) {
-                            for(let i = 0; i < this.editInfo.memberRoleList.length; i++) {
-                                if(this.editInfo.memberRoleList[i].schoolCode) {
-                                    roleJson.push({
-                                        shoolCode: this.editInfo.memberRoleList[i].schoolCode,
-                                        roleType: this.editInfo.memberRoleList[i].type,
-                                        memberId: this.editInfo.id
-                                    })
-                                }
-                            }
-                        }
-
-                        let tagIds = [];
-                        if(this.editDialogInfo.tagList.length > 0) {
-                            for(let i = 0; i < this.editDialogInfo.tagList.length; i++) {
-                                tagIds.push(this.editDialogInfo.tagList[i].id);
-                            }
-                        }                        
 
                         let params = {
                             'id': this.editInfo.id,
-                            'name': this.editInfo.name,
-                            'type': this.editInfo.classify,
-                            'roleJsonStr': JSON.stringify(roleJson),
-                            'tagIds': tagIds.join(',')
+                            'version': this.editInfo.version,
+                            'description': this.editInfo.description,
+                            'view': this.editInfo.viewUrl.length > 0 ? this.editInfo.viewUrl[0].response.data.viewPath : '',
+                            'type': 1
                         };
 
-                        memberEdit(params).then(res=>{
+                        smartVersionSave(params).then(res=>{
                             this.dialogLoading = false;
 
                             let { errorInfo, code, data } = res;
@@ -244,25 +246,41 @@
                             if(code !== 0){
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
-                                this.$message({ message: '保存用户信息成功！', type: 'success' });
+                                this.$message({ message: '保存成功！', type: 'success' });
                                 this.editDialogShow = false;
-                                this.getUserList();
+                                this.getList();
                             }
                         }).catch(error => {
                             this.dialogLoading = false;
-                            this.$message({ message: '网络异常！保存用户信息失败！', type: 'error'});
+                            this.$message({ message: '网络异常！保存失败！', type: 'error'});
                         });
                      }else{
                          return false;
                      }
                 });
-            }         
+            },
+
+            handleBefore: function(file) {
+                if(!/image\/\w+/.test(file.type)) {
+                    this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
+                    return false;
+                }
+            },
+            handleSuccess: function(response, file, fileList) {
+                this.editInfo.viewUrl = fileList;
+            },
+            handleError: function(err, file, fileList) {
+                this.editInfo.viewUrl = [];
+                this.$message({ message: '图片上传失败，请重试！', type: 'error'});
+            },
+            handleRemove: function(file, fileList) {
+                this.editInfo.viewUrl = fileList;
+            },        
         },
         mounted() {
             that = this;
 
-            this.getUserList();
-            this.getClassifyList();
+            this.getList();
         }
     }
 </script>
@@ -279,6 +297,10 @@
             line-height: 30px !important;
         }
     }
+
+    .luoym.machine-version .formation .el-form .el-form-item .el-form-item__content .el-textarea{
+        width: 300px;
+    }    
 </style>
 
 <style lang="scss" scoped>
