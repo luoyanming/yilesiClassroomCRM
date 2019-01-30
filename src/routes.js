@@ -42,6 +42,8 @@ import schoolKexun from './views/c-school-kexun.vue'
 import settingFunction from './views/c-setting-function.vue'
 import settingTrace from './views/c-setting-trace.vue'
 
+import optionClassRelation from './views/c-option-class-relation.vue'
+
 
 
 
@@ -335,6 +337,15 @@ let routes = [{
         name: "微课排行榜",
         meta: {
             nav: "videoWxlistRank",
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/optionClassRelation",
+        component: optionClassRelation,
+        name: "排班走班",
+        meta: {
+            nav: "optionClassRelation",
             requiresAuth: true
         }
     }

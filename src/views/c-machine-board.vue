@@ -35,10 +35,12 @@
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                 </el-form-item>
             </el-form>
-        
-            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">导入新班牌</el-button>
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication" style="margin-right: 10px;">导入应用信息</el-button>
-            <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport">导出</el-button>
+            
+            <div class="button-blank clearfix">
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">导入新班牌</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication" style="margin-right: 10px;">导入应用信息</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport" style="margin-left: 0;">导出</el-button>
+            </div>
         </section>
 
         <section class="table">
@@ -185,6 +187,9 @@
                         <div class="flex-a-i">
                             <div style="font-size: 14px; line-height: 2; color: #333; padding: 10px 0 20px 0;">智慧班牌应用信息</div>
                             <div class="">
+                                <el-form-item label="班牌设备名">
+                                    <el-input v-model="editDialogInfo.deviceName"></el-input>
+                                </el-form-item>   
                                 <el-form-item label="所在学校编号">
                                     <el-input v-model="editDialogInfo.schoolCode"></el-input>
                                 </el-form-item>                            
@@ -449,6 +454,7 @@
                     saleType: '',
                     batch: '',
                     status: '',
+                    deviceName: '',
                     schoolCode: '',
                     classCode: '',
                     regionCode: ''
@@ -680,9 +686,11 @@
                     that.editDialogInfo.saleType = ''+ row.saleType;
                     that.editDialogInfo.batch = row.batch;
                     that.editDialogInfo.status = ''+ row.status;
+                    that.editDialogInfo.deviceName = row.deviceName;
                     that.editDialogInfo.schoolCode = row.schoolCode;
                     that.editDialogInfo.classCode = row.classCode;
                     that.editDialogInfo.regionCode = row.regionCode;
+                    that.editDialogLoading = false;
                 }, 1);
             },
             // 提交编辑内容
@@ -704,17 +712,18 @@
                             'versionId': this.editDialogInfo.version,
                             'price': this.editDialogInfo.price,
                             'batch': this.editDialogInfo.batch,
+                            'deviceName': this.editDialogInfo.deviceName,
                             'schoolCode': this.editDialogInfo.schoolCode,
                             'classCode': this.editDialogInfo.classCode,
                             'regionCode': this.editDialogInfo.regionCode
                         };
 
                         smartClassBrandSave(params).then(res=>{
-                            this.editDialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.editDialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });

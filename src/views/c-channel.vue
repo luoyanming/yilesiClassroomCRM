@@ -198,12 +198,14 @@
                         that.dialogInfo.index = '';
                         that.dialogInfo.name = '';
                         that.dialogInfo.status = '1';
+                        that.dialogLoading = false;
                     } else {
                         // edit
                         that.dialogInfo.id = row.id;
                         that.dialogInfo.index = index;
                         that.dialogInfo.name = row.name;
                         that.dialogInfo.status = ''+ row.status +'';
+                        that.dialogLoading = false;
                     }
                 }, 1);
             },
@@ -224,11 +226,10 @@
                         };
 
                         channelSave(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存渠道信息成功！', type: 'success' });

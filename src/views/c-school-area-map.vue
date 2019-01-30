@@ -673,12 +673,12 @@
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
+                        that.dialog.loading = false;
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         that.$message({ message: '保存成功', type: 'success', duration: '2000' });
                         
                         that.dialog.show = false;
-                        that.dialog.loading = false;
                         that.areaList = mapAllData;
 
                         setTimeout(function() {

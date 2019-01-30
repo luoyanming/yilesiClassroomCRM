@@ -221,12 +221,14 @@
                         that.dialogInfo.name = row.name;
                         that.dialogInfo.typeId = '' + row.typeId;
                         that.dialogInfo.describe = row.describe;
+                        that.dialogInfo.loading = false;
                     } else {
                         that.dialogInfo.id = '';
                         that.dialogInfo.index = '';
                         that.dialogInfo.name = '';
                         that.dialogInfo.typeId = '';
-                        that.dialogInfo.describe = '';                        
+                        that.dialogInfo.describe = '';   
+                        that.dialogInfo.loading = false;                     
                     }
                 }, 1);
             },
@@ -276,11 +278,11 @@
                         };
 
                         tagsSave(param).then(res=>{
-                            this.dialogInfo.loading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogInfo.loading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存标签成功！', type: 'success' });

@@ -599,6 +599,20 @@ html {
             }
             &:nth-of-type(32) {
                 .navitem {
+                    background-image: url('/static/icon-setting@2x.png');
+                    background-repeat: no-repeat;
+                    background-position: 22px center;
+                    background-size: 24px 24px;
+                    &.current {
+                        background-image: url('/static/icon-setting-white@2x.png');
+                        background-repeat: no-repeat;
+                        background-position: 22px center;
+                        background-size: 24px 24px;
+                    }
+                }
+            }
+            &:nth-of-type(34) {
+                .navitem {
                     background-image: url('/static/icon-log@2x.png');
                     background-repeat: no-repeat;
                     background-position: 22px center;
@@ -754,7 +768,9 @@ html {
             margin-left: 0;
             margin-right: 20px;
         }
-    } // ================================
+    }
+
+    // ================================
     // table
     // ================================
     .table {
@@ -1273,3 +1289,44 @@ html {
         }
     }
 }
+
+
+
+// button-blank
+.button-blank{
+    height: 32px;
+    float: right;
+}
+@media screen and (max-width: 1620px) {  
+     .button-blank{
+        float: left;
+        margin-top: 20px;
+     }
+}
+
+
+.el-message{
+    max-width: 800px;
+    overflow: auto;
+
+    .el-message__group{
+        height:auto;
+
+        p{
+            white-space: normal;
+            height:auto;
+            word-break: break-all;
+        }
+    }
+}
+
+
+.w800{
+    width: 800px;
+}  
+
+.w850{
+    width: 850px;
+}  
+
+

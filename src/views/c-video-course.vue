@@ -260,6 +260,7 @@
                 setTimeout(function() {
                     that.editDialogInfo.info = row;
                     that.editDialogInfo.tagList = row.tagVoList;
+                    that.editDialogLoading = false;
                 }, 1);
             },
 
@@ -284,11 +285,11 @@
                 };
 
                 courseRecordTagUpdate(params).then(res=>{
-                    this.editDialogLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0){
+                        this.editDialogLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error' });
                     }else{
                         this.$message({ message: '保存成功！', type: 'success' });

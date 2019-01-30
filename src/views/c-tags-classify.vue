@@ -134,10 +134,12 @@
                         that.dialogInfo.id = row.id;
                         that.dialogInfo.index = index;
                         that.dialogInfo.classify = row.name;
+                        that.dialogInfo.loading = false;
                     } else {
                         that.dialogInfo.id = '';
                         that.dialogInfo.index = '';
-                        that.dialogInfo.classify = '';                        
+                        that.dialogInfo.classify = '';
+                        that.dialogInfo.loading = false;              
                     }
                 }, 1);
             },
@@ -187,11 +189,11 @@
                         };
 
                         tagsClassifySave(param).then(res=>{
-                            this.dialogInfo.loading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogInfo.loading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存标签分类成功！', type: 'success' });

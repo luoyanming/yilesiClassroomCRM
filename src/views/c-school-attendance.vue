@@ -74,7 +74,7 @@
                     </el-pagination>
                 </section>
 
-                <el-dialog :title="dialogInfo.type == 0 ? '新增课时' : '编辑课时'" :visible.sync="dialogShow" :modal-append-to-body="false" class="attendance-dialog">
+                <el-dialog :title="dialogInfo.type == 0 ? '新增课时' : '编辑课时'" :visible.sync="dialogShow" :modal-append-to-body="false" class="attendance-dialog" custom-class="w850">
                     <section class="formation"> 
                        
                         <el-form label-position="right" label-width="180px" :model="dialogInfo">
@@ -90,7 +90,12 @@
                                 <el-select v-model="dialogInfo.startMinute" placeholder="请选择">
                                     <el-option v-for="item in minuteOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
-                                </el-select>                                
+                                </el-select>
+                                :
+                                <el-select v-model="dialogInfo.startSecond" placeholder="请选择">
+                                    <el-option v-for="item in secondOptions" :key="item.id" :label="item.name" :value="item.id">
+                                    </el-option>
+                                </el-select>
                             </el-form-item>
                             <el-form-item label="课时结束时间">
                                 <el-select v-model="dialogInfo.endHour" placeholder="请选择">
@@ -100,6 +105,11 @@
                                 :
                                 <el-select v-model="dialogInfo.endMinute" placeholder="请选择">
                                     <el-option v-for="item in minuteOptions" :key="item.id" :label="item.name" :value="item.id">
+                                    </el-option>
+                                </el-select> 
+                                :
+                                <el-select v-model="dialogInfo.endSecond" placeholder="请选择">
+                                    <el-option v-for="item in secondOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>                                
                             </el-form-item>
@@ -194,6 +204,12 @@
                         'id': '',
                         'name': '请选择'
                     }
+                ],
+                secondOptions: [
+                    {
+                        'id': '',
+                        'name': '请选择'
+                    }
                 ],                
 
                 dialogInfo: {
@@ -202,8 +218,10 @@
                     name: '',
                     startHour: '',
                     startMinute: '',
+                    startSecond: '',
                     endHour: '',
-                    endMinute: ''
+                    endMinute: '',
+                    endSecond: ''
                 },
                 dialogShow: false,
                 dialogLoading: false,
@@ -223,17 +241,21 @@
         methods: {
             // 设置事件选择列表
             setTimeOptions: function() {
-                for(let i = 1; i < 25; i++) {
+                for(let i = 0; i < 24; i++) {
                     this.hourOptions.push({
                         'id': i < 10 ? '0' + i : '' + i,
                         'name': i < 10 ? '0' + i : '' + i
                     })
                 }
-                for(let i = 1; i < 61; i++) {
+                for(let i = 0; i < 60; i++) {
                     this.minuteOptions.push({
                         'id': i < 10 ? '0' + i : '' + i,
                         'name': i < 10 ? '0' + i : '' + i
                     })
+                    this.secondOptions.push({
+                        'id': i < 10 ? '0' + i : '' + i,
+                        'name': i < 10 ? '0' + i : '' + i
+                    })                    
                 }                
             },
             // 获取学校列表
@@ -383,9 +405,12 @@
                             name: '',
                             startHour: '',
                             startMinute: '',
+                            startSecond: '',
                             endHour: '',
-                            endMinute: ''
+                            endMinute: '',
+                            endSecond: ''
                         };
+                        that.dialogLoading = false;
                     } else if(type == 1) {
                         // edit
                         let startTimeArr = row.startTime.split(':'),
@@ -395,11 +420,14 @@
                             index: index,
                             id: row.id,
                             name: row.name,
-                            startHour: startTimeArr[0],
-                            startMinute: startTimeArr[1],
-                            endHour: endTimeArr[0],
-                            endMinute: endTimeArr[1]
+                            startHour: startTimeArr[0] || '00',
+                            startMinute: startTimeArr[1] || '00',
+                            startSecond: startTimeArr[2] || '00',
+                            endHour: endTimeArr[0] || '00',
+                            endMinute: endTimeArr[1] || '00',
+                            endSecond: endTimeArr[2] || '00'
                         };
+                        that.dialogLoading = false;
                     }
                 }, 1);
             },
@@ -414,11 +442,11 @@
                     this.$message({ message: '请输入课时名称', type: 'error' });
                     return false;
                 }                
-                if(!this.dialogInfo.startHour || !this.dialogInfo.startMinute) {
+                if(!this.dialogInfo.startHour || !this.dialogInfo.startMinute || !this.dialogInfo.startSecond) {
                     this.$message({ message: '请选择课时开始时间', type: 'error' });
                     return false;
                 }
-                if(!this.dialogInfo.endHour || !this.dialogInfo.endMinute) {
+                if(!this.dialogInfo.endHour || !this.dialogInfo.endMinute || !this.dialogInfo.endSecond) {
                     this.$message({ message: '请选择课时结束时间', type: 'error' });
                     return false;
                 }
@@ -433,15 +461,15 @@
                         'schoolId': this.schoolId,
                         'schoolSystemGradeId': this.schoolGradeId,
                         'name': this.dialogInfo.name,
-                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute,
-                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute
+                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute + ':' + this.dialogInfo.startSecond,
+                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute + ':' + this.dialogInfo.endSecond
                     };                    
                     schoolAttendanceAdd(params).then(res=>{
-                        this.dialogLoading = false;
-
                         let { errorInfo, code, data } = res;
 
                         if(code !== 0){
+                            this.dialogLoading = false;
+
                             this.$message({ message: errorInfo, type: 'error' });
                         }else{
                             this.$message({ message: '保存成功！', type: 'success' });
@@ -457,15 +485,15 @@
                     let params = {
                         'id': this.dialogInfo.id,
                         'name': this.dialogInfo.name,
-                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute,
-                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute
+                        'startTime': this.dialogInfo.startHour + ':' + this.dialogInfo.startMinute + ':' + this.dialogInfo.startSecond,
+                        'endTime': this.dialogInfo.endHour + ':' + this.dialogInfo.endMinute + ':' + this.dialogInfo.endSecond
                     };                    
                     schoolAttendanceEdit(params).then(res=>{
-                        this.dialogLoading = false;
-
                         let { errorInfo, code, data } = res;
 
                         if(code !== 0){
+                            this.dialogLoading = false;
+
                             this.$message({ message: errorInfo, type: 'error' });
                         }else{
                             this.$message({ message: '保存成功！', type: 'success' });
@@ -485,8 +513,6 @@
                     'id': row.id,
                 };                    
                 schoolAttendanceDelete(params).then(res=>{
-                    this.dialogLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0){
@@ -496,7 +522,6 @@
                         this.getList();
                     }
                 }).catch(error => {
-                    this.dialogLoading = false;
                     this.$message({ message: '网络异常！操作失败！', type: 'error'});
                 });                 
             },
@@ -511,6 +536,7 @@
                     periodId: '',
                     gradeId: ''
                 }
+                this.reusedDialogLoading = false;
 
                 if(this.schoolId) {
                     this.handleReusedSchoolChange(this.schoolId);
@@ -594,11 +620,11 @@
                     'toSchoolSystemGradeId': this.schoolGradeId
                 };                    
                 schoolAttendanceReUsed(params).then(res=>{
-                    this.reusedDialogLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0){
+                        this.reusedDialogLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error' });
                     }else{
                         this.$message({ message: '保存成功！', type: 'success' });

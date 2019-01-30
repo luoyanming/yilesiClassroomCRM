@@ -434,7 +434,9 @@
                         college: 0,
                         collegeGrade: [],
                         collegeDisabled: false
-                    }                    
+                    }    
+
+                    that.dialogLoading = false;                
 
                     // 编辑赋值
                     if(type == 1) {
@@ -549,11 +551,11 @@
                         };
 
                         schoolSystemSave(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存学制信息成功！', type: 'success' });

@@ -1,5 +1,5 @@
 <template>
-    <div class="main-wrapper light-overscroll luoym clearfix">
+    <div class="main-wrapper light-overscroll luoym clearfix school-tree">
         <section class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>校组织结构树</el-breadcrumb-item>
@@ -481,7 +481,7 @@
                             this.schoolOptions = data.list;
 
                             if(this.$route.query.school) {
-                                that.schoolId = parseInt(this.$route.query.school);
+                                that.schoolId = parseInt(that.$route.query.school);
                             }
                         }
                     }
@@ -643,6 +643,7 @@
                     that.editTeacherInfo.schoolAccount = row.schoolAccount;
                     that.editTeacherInfo.headTeacher = '' + row.headTeacher;
                     that.editTeacherInfo.tagList = row.tagVoList || [];
+                    that.editTeacherDialogLoading = false;
                 }, 1);                
             },
             // 获取标签分类列表
@@ -783,11 +784,11 @@
                 };
 
                 schoolTeacherEdit(params).then(res=>{
-                    this.editTeacherDialogLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0){
+                        this.editTeacherDialogLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error' });
                     }else{
                         this.$message({ message: '保存成功！', type: 'success' });
@@ -823,6 +824,7 @@
                 this.classTeacherDialog.searchParam = '';
                 this.classTeacherDialog.selectedData = [];
                 this.classTeacherDialogShow = true;
+                this.classTeacherDialog.submitLoading = false;
 
                 this.getClassTeacherDialogList();
             },
@@ -915,11 +917,11 @@
                 };
 
                 schoolTeacherAdd(param).then(res => {
-                    this.classTeacherDialog.submitLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
+                        this.classTeacherDialog.submitLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         this.$message({ message: '成功添加教师', type: 'success'});
@@ -973,6 +975,7 @@
             handleClassStudentShift: function(index, row) {
                 this.classStudentShiftDialog.searchParam = '';
                 this.classStudentShiftDialogShow = true;
+                this.classStudentShiftDialog.submitLoading = false;
 
                 this.classStudentShiftDialog.schoolOptions = this.schoolOptions;
                 this.classStudentShiftDialog.treeOptions = this.treeOptions;
@@ -1007,6 +1010,7 @@
                 this.classStudentDialog.searchParam = '';
                 this.classStudentDialog.selectedData = [];
                 this.classStudentDialogShow = true;
+                this.classStudentDialog.submitLoading = false;
 
                 this.getClassStudentDialogList();
             },
@@ -1092,11 +1096,11 @@
                 };
 
                 schoolStudentAdd(param).then(res => {
-                    this.classStudentDialog.submitLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
+                        this.classStudentDialog.submitLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         this.$message({ message: '成功添加学生', type: 'success'});
@@ -1250,11 +1254,11 @@
                 };
 
                 schoolStudentShift(param).then(res => {
-                    this.classStudentShiftDialog.submitLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
+                        this.classStudentShiftDialog.submitLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         this.$message({ message: '成功转移学生', type: 'success'});
@@ -1278,6 +1282,7 @@
 </script>
 
 <style lang="scss">
+.school-tree{
     .el-message-box{
         height: auto !important;
     }
@@ -1559,6 +1564,7 @@
             margin-left: 5%;
         }
     }
+}
 </style>
 
 <style lang="scss" scoped>

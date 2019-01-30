@@ -78,7 +78,7 @@
         </section>
 
         
-        <el-dialog title="编辑用户" :visible.sync="editDialogShow" :modal-append-to-body="false">
+        <el-dialog title="编辑用户" :visible.sync="editDialogShow" :modal-append-to-body="false" custom-class="w800">
             <section class="formation">
                
                 <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
@@ -91,6 +91,12 @@
                     <el-form-item label="姓名" prop="name">
                         <el-input v-model="editInfo.name"></el-input>
                     </el-form-item>
+                    <el-form-item label="教师证">
+                        <el-input v-model="editInfo.teacherCard"></el-input>
+                    </el-form-item>
+                    <el-form-item label="身份证">
+                        <el-input v-model="editInfo.idCard"></el-input>
+                    </el-form-item>
                     <el-form-item label="用户分类" prop="classify">
                         <el-select v-model="editInfo.classify" placeholder="请选择">
                             <el-option v-for="item in classifyOptions" :label="item.label" :value="item.value"></el-option>
@@ -102,6 +108,7 @@
                             <el-select placeholder="请选择" v-model="roleItem.type">
                                 <el-option v-for="item in eidtCharacterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
+                            <el-input v-model="roleItem.workCard" placeholder="工号/工作证号"></el-input>
                             <el-button type="primary" size="small" class="button-remove" icon="minus" @click="handleRemoveOption(index)"></el-button>
                         </div>
                         <div class="character-item clearfix">
@@ -266,6 +273,8 @@
                     account: '',
                     school: '',
                     name: '',
+                    teacherCard: '',
+                    idCard: '',
                     classify: '',
                     memberRoleList: [],
                     tagList: []
@@ -385,6 +394,8 @@
                     that.editInfo.account = row.mobile;
                     that.editInfo.school = row.schoolNumber;
                     that.editInfo.name = row.name;
+                    that.editInfo.teacherCard = row.teacherCard;
+                    that.editInfo.idCard = row.idCard;
                     that.editInfo.classify = ''+ row.type;
                     that.editInfo.memberRoleList = [];
                     that.editInfo.tagList = row.tagVoList || [];
@@ -393,10 +404,13 @@
                         for(let i = 0; i < row.memberRoleList.length; i++) {
                             that.editInfo.memberRoleList.push({
                                 schoolCode: row.memberRoleList[i].schoolCode,
-                                type: '' + row.memberRoleList[i].type
+                                type: '' + row.memberRoleList[i].type,
+                                workCard: '' + row.memberRoleList[i].workCard
                             })
                         }
                     }
+
+                    that.dialogLoading = false;
                     
                 }, 1);
             },
@@ -408,7 +422,8 @@
             handleAddOption: function() {
                 this.editInfo.memberRoleList.push({
                     schoolCode: '',
-                    type: '0'
+                    type: '0',
+                    workCard: ''
                 })
             },
             // 获取标签分类列表
@@ -544,6 +559,7 @@
                                     roleJson.push({
                                         shoolCode: this.editInfo.memberRoleList[i].schoolCode,
                                         roleType: this.editInfo.memberRoleList[i].type,
+                                        workCard: this.editInfo.memberRoleList[i].workCard,
                                         memberId: this.editInfo.id
                                     })
                                 }
@@ -560,17 +576,19 @@
                         let params = {
                             'id': this.editInfo.id,
                             'name': this.editInfo.name,
+                            'teacherCard': this.editInfo.teacherCard,
+                            'idCard': this.editInfo.idCard,
                             'type': this.editInfo.classify,
                             'roleJsonStr': JSON.stringify(roleJson),
                             'tagIds': tagIds.join(',')
                         };
 
                         memberEdit(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存用户信息成功！', type: 'success' });
@@ -644,7 +662,7 @@
         .button-add{
             line-height: 30px !important;
         }
-    }
+    }  
 </style>
 
 <style lang="scss" scoped>

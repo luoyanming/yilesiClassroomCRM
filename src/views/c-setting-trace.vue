@@ -303,7 +303,7 @@
     }
 </style>
 
-<style lang="scss">
+<!-- <style lang="scss">
     .el-message-box{
         height: auto !important;
     }
@@ -586,7 +586,7 @@
             margin-left: 5%;
         }
     }
-</style>
+</style> -->
 
 <style lang="scss" scoped>
     .luoym{

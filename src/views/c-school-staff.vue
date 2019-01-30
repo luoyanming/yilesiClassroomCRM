@@ -1,5 +1,5 @@
 <template>
-    <div class="main-wrapper light-overscroll luoym clearfix">
+    <div class="main-wrapper light-overscroll luoym clearfix school-staff">
         <section class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>学校教职工管理</el-breadcrumb-item>
@@ -335,6 +335,7 @@
                 this.staffDialog.searchParam = '';
                 this.staffDialog.selectedData = [];
                 this.staffDialogShow = true;
+                this.staffDialog.submitLoading = false;
 
                 this.getStaffDialogList();                
             },
@@ -425,11 +426,11 @@
                 };
 
                 schoolStaffAdd(param).then(res => {
-                    this.staffDialog.submitLoading = false;
-
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
+                        this.staffDialog.submitLoading = false;
+
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         this.$message({ message: '保存成功', type: 'success'});
@@ -618,6 +619,7 @@
 </style>
 
 <style lang="scss">
+.school-staff{
     .el-message-box{
         height: auto !important;
     }
@@ -900,6 +902,7 @@
             margin-left: 5%;
         }
     }
+}
 </style>
 
 <style lang="scss" scoped>

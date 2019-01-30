@@ -591,11 +591,10 @@
                         };
 
                         transferCard(params).then(res=>{
-                            this.transferDialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.transferDialogLoading = false;
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存智慧卡信息成功！', type: 'success' });
@@ -639,11 +638,11 @@
                         };
 
                         smartCardSave(params).then(res=>{
-                            this.editDialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.editDialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存智慧卡信息成功！', type: 'success' });

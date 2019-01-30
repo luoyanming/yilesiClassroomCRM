@@ -97,37 +97,51 @@
                         <el-table :data="tableData" style="width: 100%" class="teacher-statistics-table" v-if="tabNav == 2">
                             <el-table-column label="周一">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[0]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[0].className">{{ scope.row[0].className }}</p>
+                                    <p v-if="scope.row[0].createDateStr">{{ scope.row[0].createDateStr }}</p>
+                                    <p v-for="item in scope.row[0].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周二">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[1]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[1].className">{{ scope.row[1].className }}</p>
+                                    <p v-if="scope.row[1].createDateStr">{{ scope.row[1].createDateStr }}</p>
+                                    <p v-for="item in scope.row[1].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周三">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[2]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[2].className">{{ scope.row[2].className }}</p>
+                                    <p v-if="scope.row[2].createDateStr">{{ scope.row[2].createDateStr }}</p>
+                                    <p v-for="item in scope.row[2].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周四">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[3]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[3].className">{{ scope.row[3].className }}</p>
+                                    <p v-if="scope.row[3].createDateStr">{{ scope.row[3].createDateStr }}</p>
+                                    <p v-for="item in scope.row[3].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周五">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[4]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[4].className">{{ scope.row[4].className }}</p>
+                                    <p v-if="scope.row[4].createDateStr">{{ scope.row[4].createDateStr }}</p>
+                                    <p v-for="item in scope.row[4].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周六">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[5]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[5].className">{{ scope.row[5].className }}</p>
+                                    <p v-if="scope.row[5].createDateStr">{{ scope.row[5].createDateStr }}</p>
+                                    <p v-for="item in scope.row[5].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="周日">
                                 <template scope="scope">
-                                    <p v-for="item in scope.row[6]" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
+                                    <p v-if="scope.row[6].className">{{ scope.row[6].className }}</p>
+                                    <p v-if="scope.row[6].createDateStr">{{ scope.row[6].createDateStr }}</p>
+                                    <p v-for="item in scope.row[6].list" key="item"><i class="el-icon-star-on" v-if="item.regionWork"></i> {{ item.regionName }}={{ item.score }}</p>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -486,19 +500,22 @@
                     classItem.push('第'+ classSort +'课时');
 
                     for(let j = 0; j < data.length; j++) { //周几长度
-                        let dataItem = data[j],
-                            listItem = [];
+                        let dataItem = data[j];
 
                         if(dataItem.list.length > 0) { //某周几课时数据
                             for(let k = 0; k < dataItem.list.length; k++) {
+                                console.log(dataItem.list[k].numberOfClass, j, i)
                                 if(dataItem.list[k].numberOfClass == i + 1) {
                                     classItem.push(dataItem.list[k].infoList);
                                     break;
+                                } else if(k == dataItem.list.length - 1) {
+                                    classItem.push('');
                                 }
                             }
                         } else {
                             classItem.push('');
                         }
+                        console.log(classItem)
                     }
 
                     packageData.push(classItem)
@@ -546,28 +563,51 @@
                     let classItem = [];
 
                     for(let j = 0; j < data.length; j++) { //周几长度
-                        let dataItem = data[j],
-                            listItem = [];
+                        let dataItem = data[j];
 
                         if(dataItem.list.length > 0) { //某周几课时数据
                             if(dataItem.list.length > listLength) {
                                 listLength = dataItem.list.length;
                             }
+
                             for(let k = 0; k < dataItem.list.length; k++) {
                                 if(i == k) {
-                                    classItem.push(dataItem.list[k].list);
+                                    let className = dataItem.list[k].className;
+
+                                    if(dataItem.list[k].classType == 1) {
+                                        className = '班级：' + className;
+                                    } else if(dataItem.list[k].classType == 2) {
+                                        className = '小组：' + className;
+                                    }
+
+                                    classItem.push({
+                                        'className': className,
+                                        'createDateStr': '时间：' + dataItem.list[k].createDateStr,
+                                        'list': dataItem.list[k].list
+                                    });
+
                                     break;
+                                } else if(k == dataItem.list.length - 1) {
+                                    classItem.push({
+                                        'className': '',
+                                        'createDateStr': '',
+                                        'list': []                           
+                                    });                                    
                                 }
                             }
                         } else {
-                            classItem.push('');
+                            classItem.push({
+                                'className': '',
+                                'createDateStr': '',
+                                'list': []
+                            });
                         }
                     }
 
                     packageData.push(classItem)
-
-                    packageData = packageData.splice(0, listLength);
                 }
+
+                packageData = packageData.splice(0, listLength);
 
                 this.tableData = packageData;                
             },

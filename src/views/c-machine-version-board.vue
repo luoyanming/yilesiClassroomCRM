@@ -186,6 +186,7 @@
                         that.editInfo.version = '';
                         that.editInfo.description = '';
                         that.editInfo.viewUrl = [];
+                        that.dialogLoading = false;
                     }, 1);
                 } else {
                     // 编辑
@@ -196,6 +197,7 @@
                         that.editInfo.index = index;
                         that.editInfo.version = row.version;
                         that.editInfo.description = row.description;
+                        that.dialogLoading = false;
 
                         if(row.viewUrl) {
                             that.editInfo.viewUrl = [
@@ -229,7 +231,6 @@
                      if(valid){
                         this.dialogLoading = true;
 
-
                         let params = {
                             'id': this.editInfo.id,
                             'version': this.editInfo.version,
@@ -239,11 +240,11 @@
                         };
 
                         smartVersionSave(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });

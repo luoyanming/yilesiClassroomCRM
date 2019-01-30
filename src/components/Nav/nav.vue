@@ -242,6 +242,20 @@
                         'show': true
                     },
                     {
+                        'name': '对接设置',
+                        'title': '对接设置',
+                        'url': '',
+                        'leftnav': 'optionClass',
+                        'show': true
+                    },
+                    {
+                        'name': '排班走班',
+                        'title': '排班走班',
+                        'url': '/optionClassRelation',
+                        'leftnav': 'optionClassRelation',
+                        'show': true
+                    },
+                    {
                         'name': '系统日志',
                         'title': '系统日志',
                         'url': '/log',

@@ -2,7 +2,7 @@
     <div class="main-wrapper light-overscroll luoym clearfix">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>功能设置</el-breadcrumb-item>
+                <el-breadcrumb-item>排班走班</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
 
@@ -22,32 +22,44 @@
             </div>
         </div>
         <div class="pull-right">
-            <div class="light-overscroll" v-if="showData">
+            <div class="light-overscroll" v-if="showTable">
                 
-                <div class="setting-list">
+                <div class="relation-list" v-loading="tableloading">
+                    <div style="margin-bottom: 20px;">
+                        <label style="margin-right: 10px;">排班走班品牌</label>
+                        <el-select placeholder="请选择" v-model="detail.type">
+                            <el-option v-for="item in classTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>                        
+                    </div>
+
                     <el-card class="box-card">
-                        <div class="item flex-h">
-                            <div class="label flex-a-i">考勤</div>
-                            <div class="switch">
-                                <el-switch v-model="detailData.attendance" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(1)"></el-switch>
-                            </div>
+                        <div slot="header">
+                            <div class="title">对接的对方系统的学校编号</div>
+                        </div>
+                        <div class="card-content">
+                            <el-input v-model="detail.oppositeSchoolCode" placeholder="请输入对方系统的学校编号"></el-input>
                         </div>
                     </el-card>
 
                     <el-card class="box-card">
-                        <div class="item flex-h">
-                            <div class="label flex-a-i">危险区域通知推送</div>
-                            <div class="switch">
-                                <el-switch v-model="detailData.dangerAreaPush" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(2)"></el-switch>
-                            </div>
+                        <div slot="header">
+                            <div class="title">教师对接唯一信息</div>
                         </div>
-                        <!-- <div class="item flex-h">
-                            <div class="label flex-a-i">限制区域通知推送</div>
-                            <div class="switch">
-                                <el-switch v-model="detailData.restrictAreaPush" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(3)"></el-switch>
-                            </div>
-                        </div> -->
+                        <div class="card-content">
+                            <el-radio class="radio" v-for="item in teacherKeyOptions" :key="item.value" :label="item.value" v-model="detail.teacherRelationKey">{{ item.label }}</el-radio>
+                        </div>
                     </el-card>
+
+                    <el-card class="box-card">
+                        <div slot="header">
+                            <div class="title">学生对接唯一信息</div>
+                        </div>
+                        <div class="card-content">
+                            <el-radio class="radio" v-for="item in studentKeyOptions" :key="item.value" :label="item.value" v-model="detail.studentRelationKey">{{ item.label }}</el-radio>
+                        </div>
+                    </el-card>
+
+                    <el-button type="primary" :loading="submitLoading" @click.native="submitRelation">保存</el-button>
                 </div>
 
             </div>
@@ -56,18 +68,15 @@
 </template>
 
 <script>
-    import { Message, Loading } from 'element-ui';
-    import { schoolList, schoolPersonalFunctionSet, schoolPersonalFunctionSetUpdate } from '../api/api';
+    import { Message } from 'element-ui';
+    import { schoolList, optionClassRelationSave, optionClassRelationDetail } from '../api/api';
 
     let that;
 
     export default {
         data() {
             return {
-                showData: false,
-
-                switchYes: 1,
-                switchNo: 0,
+                showTable: false,
 
                 // 左侧学校列表
                 schoolOptions: [],
@@ -78,14 +87,71 @@
                 schoolname: '',
                 schoolSearchLoading: false,
 
-                searchForm: {
+                tableloading: false,
+                detail: {
                     schoolId: '',
-                    schoolCode: ''
+                    schoolCode: '',
+                    type: '',
+                    oppositeSchoolCode: '',
+                    teacherRelationKey: '',
+                    studentRelationKey: ''
                 },
+                submitLoading: false,
 
-                detailData: []             
-
-                                
+                classTypeOptions: [
+                    {
+                        value:'',
+                        label:'请选择'
+                    },
+                    {
+                        value:'1',
+                        label:'教享智慧走班'
+                    },
+                    {
+                        value:'2',
+                        label:'北京博校走班'
+                    },
+                    {
+                        value:'3',
+                        label:'科大讯飞走班'
+                    }
+                ],
+                teacherKeyOptions: [
+                    {
+                        value:'1',
+                        label:'手机号'
+                    },
+                    {
+                        value:'2',
+                        label:'学校账号'
+                    },
+                    {
+                        value:'3',
+                        label:'教师证'
+                    },
+                    {
+                        value:'4',
+                        label:'身份证'
+                    },
+                    {
+                        value:'5',
+                        label:'工号/工作证号'
+                    }                    
+                ],
+                studentKeyOptions: [
+                    {
+                        value:'1',
+                        label:'学籍号'
+                    },
+                    {
+                        value:'2',
+                        label:'学号'
+                    },
+                    {
+                        value:'3',
+                        label:'身份证'
+                    }                  
+                ]                
             };
         },
         methods: {
@@ -125,67 +191,84 @@
                     this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 });
             },
+            // 搜索学校
+            keyDownSubmit: function() {
+                this.getSchoolList();
+            },
             // 选择节点触发的事件
             handleNodeClick(data) {
-                this.searchForm.schoolId = data.id;
-                this.searchForm.schoolCode = data.code;
+                this.detail.schoolId = data.id;
+                this.detail.schoolCode = data.code;
 
-                this.showData = true;
+                this.showTable = true;
 
-                this.getData();
+                this.getDetail();
             },
-            // 获取数据
-            getData: function() {
-                let fullPageLoading = Loading.service({ fullscreen: true });
+            // 获取排班走班信息
+            getDetail: function() {
+                this.tableloading = true;
 
                 let param = {
-                    schoolId: this.searchForm.schoolId
+                    'schoolId': this.detail.schoolId
                 };
 
-                schoolPersonalFunctionSet(param).then(res => {
-                    fullPageLoading.close();
+                optionClassRelationDetail(param).then(res => {
+                    this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
 
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        this.detailData = data.schoolFuncSet;
+                        if(data.optionClassRelation) {
+                            this.detail.type = '' + data.optionClassRelation.type || '';                       
+                            this.detail.oppositeSchoolCode = '' + data.optionClassRelation.oppositeSchoolCode || '';                       
+                            this.detail.teacherRelationKey = '' + data.optionClassRelation.teacherRelationKey || '';                       
+                            this.detail.studentRelationKey = '' + data.optionClassRelation.studentRelationKey || '';
+                        } else {
+                            this.detail.type = '';
+                            this.detail.oppositeSchoolCode = '';
+                            this.detail.teacherRelationKey = '';
+                            this.detail.studentRelationKey = '';
+                        }                  
                     }
                 }).catch(error => {
-                    fullPageLoading.close();
-                    this.$message({ message: '网络异常！获取数据失败！', type: 'error'});
+                    this.tableloading = false;
+                    this.$message({ message: '网络异常！获取排班走班信息失败！', type: 'error'});
                 });
             },
+            // 保存排班走班信息
+            submitRelation: function() {
+                if(!this.detail.type) {
+                    this.$message({ message: '请选择排班走班品牌', type: 'error'});
+                    return false;
+                }
+                if(!this.detail.oppositeSchoolCode) {
+                    this.$message({ message: '请输入对方系统的学校编号', type: 'error'});
+                    return false;
+                }
+                if(!this.detail.teacherRelationKey) {
+                    this.$message({ message: '请选择教师对接唯一信息', type: 'error'});
+                    return false;
+                }
+                if(!this.detail.studentRelationKey) {
+                    this.$message({ message: '请选择学生对接唯一信息', type: 'error'});
+                    return false;
+                }
 
-            // 搜索学校
-            keyDownSubmit: function() {
-                that.getSchoolList();
-            },
-
-            // 保存修改
-            handleSwitchChange: function(type) {
-                let fullPageLoading = Loading.service({ fullscreen: true });
-
-                let detailData = this.detailData;
-                    status = '';
-
-                if(type == 1) {
-                    status = this.detailData.attendance;
-                } else if(type == 2) {
-                    status = this.detailData.dangerAreaPush;
-                } else if(type == 3) {
-                    status = this.detailData.restrictAreaPush;
-                }                
+                this.submitLoading = true;
 
                 let param = {
-                    'schoolId': this.searchForm.schoolId,
-                    'type': type,
-                    'status': status
-                };
+                    'schoolId': this.detail.schoolId,
+                    'schoolCode': this.detail.schoolCode,
+                    'type': this.detail.type,
+                    'oppositeSchoolCode': this.detail.oppositeSchoolCode,
+                    'teacherRelationKey': this.detail.teacherRelationKey,
+                    'studentRelationKey': this.detail.studentRelationKey,
+                }
 
-                schoolPersonalFunctionSetUpdate(param).then(res => {
-                    fullPageLoading.close();
+                optionClassRelationSave(param).then(res => {
+                    this.submitLoading = false;
 
                     let { errorInfo, code, data } = res;
 
@@ -193,11 +276,12 @@
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         this.$message({ message: '保存成功', type: 'success'});
+                        this.getDetail();
                     }
                 }).catch(error => {
-                    fullPageLoading.close();
+                    this.submitLoading = false;
                     this.$message({ message: '网络异常！保存失败！', type: 'error'});
-                });
+                });                
             }
         },
         mounted() {
@@ -209,6 +293,25 @@
 </script>
 
 <style lang="scss">
+    .el-message-box{
+        height: auto !important;
+    }
+    .el-dialog .formation .el-form .el-form-item .el-form-item__content{
+        padding-left: 0 !important;
+    }
+    .pickerMonth{
+        .el-date-picker__header{
+            > button{
+                display: none !important;
+            }
+
+            > span{
+                &:nth-of-type(1) {
+                    display: none !important;
+                }
+            }
+        }
+    }
     .pull-left{
         .search-box{
             .el-input{
@@ -238,6 +341,24 @@
                 .el-input__icon{
                     cursor: pointer;
                 }
+            }
+        }
+    }
+    .pull-right{
+        .el-checkbox{
+            margin-left: 10px;
+
+            .el-checkbox__label{
+                font-size: 12px;
+                color: #333;
+            }
+        }
+
+        .upload-demo{
+            float: right;
+
+            .el-upload-list{
+                display: none !important;
             }
         }
     }
@@ -283,6 +404,36 @@
             .button-separate{
                 margin-right: 10px;
                 color: #999;
+            }
+        }
+
+        .cCodeCopyInput{
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .cCodeCopyBtn{
+            display: inline-block;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #c4c4c4;
+            box-sizing: border-box;
+            min-width: 76px;
+            padding: 0 14px;
+            line-height: 38px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #18c79c;
+            border-color: #18c79c;
+
+            &:hover{
+                background: rgb(70, 210, 176);
+                border-color: rgb(70, 210, 176);
+                color: #fff;
             }
         }
     }
@@ -631,7 +782,7 @@
 </style>
 
 <style lang="scss">
-    .setting-list{
+    .relation-list{
         margin-top: 15px;
 
         .box-card{
@@ -650,21 +801,42 @@
 
             .el-card__body{
                 padding: 10px 15px;
+            }
 
-                .item{
-                    padding: 10px 0;
-                    border-top: 1px solid #eee;
+            .card-content{
+                padding: 10px 15px;
 
-                    &:first-child{
-                        border-top: none;
-                    }
+                .el-input {
+                    width: 180px;
 
-                    .label{
+                    .el-input__inner {
+                        height: 40px;
+                        font-size: 12px;
                         color: #333;
+                        background: #FFFFFF;
+                        border: 1px solid #E5E5E5;
+                        border-radius: 2px;
+                        &:hover {
+                            border-color: rgb(131, 165, 162);
+                        }
+                        &:focus {
+                            outline: 0;
+                            border-color: #18c79c;
+                        }
+                        &::placeholder,
+                        &::-webkit-input-placeholder {
+                            color: rgba(51, 51, 51, .3);
+                        }
                     }
+                }
+
+                .el-radio{
+                    color: #333;
                 }
             }
         }
     }
 </style>
+
+
 

@@ -543,6 +543,7 @@
                         endClassTime: '',
                         channel: ''
                     }
+                    that.dialogLoading = false;
                     that.$refs['ruleForm'].resetFields();
 
                     if(type == 1) {
@@ -595,6 +596,8 @@
                         that.dialogInfo.startClassTime = COMMON.formatTimeUTC(row.startClassTime);
                         that.dialogInfo.endClassTime = COMMON.formatTimeUTC(row.endClassTime);
                         that.dialogInfo.channel = '' + row.channelId;
+
+                        // console.log(that.dialogInfo.startYear, that.dialogInfo.endYear)
                     } else {
                         // add
                         // 获取学校编号
@@ -610,6 +613,7 @@
                             that.$message({ message: '网络异常！获取学校编号失败！', type: 'error'});
                         });
                     }
+
                 }, 1);
             },
 
@@ -643,11 +647,11 @@
                         };
 
                         schoolSave(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存学校信息成功！', type: 'success' });

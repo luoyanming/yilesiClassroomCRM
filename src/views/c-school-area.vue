@@ -613,8 +613,9 @@
                 }
                 
                 this.$refs[formName].validate((valid)=>{
+                    this.dialogInfo.dialogLoading = true;
+
                     if(valid){
-                        this.dialogInfo.dialogLoading = true;
 
                         let tagIds = [];
                         if(this.dialogInfo.tagList.length > 0) {
@@ -639,11 +640,10 @@
                         };
 
                         areaSave(params).then(res=>{
-                            this.dialogInfo.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogInfo.dialogLoading = false;
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });

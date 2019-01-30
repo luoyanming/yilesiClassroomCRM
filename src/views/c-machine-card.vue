@@ -33,11 +33,13 @@
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                 </el-form-item>
             </el-form>
-        
-            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">激活新设备</el-button>
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication" style="margin-right: 10px;">导入应用信息</el-button>
-            <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport">导出</el-button>
-            <el-button type="primary" size="small" class="btn-add" icon="edit" @click.native="handleExchange">批量更换</el-button>
+            
+            <div class="button-blank clearfix">
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">激活新设备</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication" style="margin-right: 10px;">导入应用信息</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport">导出</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="edit" @click.native="handleExchange" style="margin-left: 0;">批量更换</el-button>
+            </div>
         </section>
 
         <section class="table">
@@ -808,7 +810,8 @@
                     that.transferDialogInfo.cardNo = row.code;
                     that.transferDialogInfo.nfcCode = row.nfcCode;
                     that.transferDialogInfo.newCardNo = '';
-                    that.transferDialogInfo.newNfcCode = '';                 
+                    that.transferDialogInfo.newNfcCode = '';
+                    that.transferDialogLoading = false;
                 }, 1);             
             },
             // 单卡转移 提交
@@ -834,11 +837,11 @@
                         };
 
                         transferCard(params).then(res=>{
-                            this.transferDialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.transferDialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });
@@ -883,6 +886,7 @@
                     that.editDialogInfo.schoolNo = row.schoolNo;
                     that.editDialogInfo.gender = ''+ row.gender;
                     that.editDialogInfo.idCard = row.idCard;
+                    that.editDialogLoading = false;
                 }, 1);
             },
             // 提交编辑内容
@@ -916,11 +920,11 @@
                         };
 
                         smartCardSave(params).then(res=>{
-                            this.editDialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.editDialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });

@@ -4,10 +4,10 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-let base = 'http://classroomcrm.yls.com/privateapi';
-export const uploadPath = '/privateapi';
-// let base = 'http://crmctest.yilesi.cn';
-// export const uploadPath = '';
+// let base = 'http://classroomcrm.yls.com/privateapi';
+// export const uploadPath = '/privateapi';
+let base = 'http://crmctest.yilesi.cn';
+export const uploadPath = '';
 // let base = 'http://crmc.yilesi.cn';
 // export const uploadPath = '';
 
@@ -679,6 +679,18 @@ export const smartClassBrandSave = params => {
 
 
 
+// 排班走班 - 修改
+export const optionClassRelationSave = params => {
+    return axios.post(`${base}/ajax/optionClass/relation/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 排班走班 - 详情
+export const optionClassRelationDetail = params => {
+    return axios.post(`${base}/ajax/optionClass/relation`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
 
 
 

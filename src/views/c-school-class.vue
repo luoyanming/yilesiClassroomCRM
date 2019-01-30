@@ -439,6 +439,7 @@
                             classNum: '',
                             status: '0'
                         };
+                        that.dialogLoading = false;
                         
                         that.getCode();
                     } else if(type == 1) {
@@ -454,13 +455,14 @@
                         that.dialogInfo.name = row.name;
                         that.dialogInfo.classNum = row.classNum;
                         that.dialogInfo.status = '' + row.status;
+                        that.dialogLoading = false;
                     }
                 }, 1);
             },
 
             // 查看成员
             handleDetail: function(row) {
-                this.$router.push({path : "schoolTree" , query : { 'school' : this.searchForm.schoolId, 'period': this.searchForm.period, 'grade': row.schoolSystemGradeId, 'class': row.id }});
+                this.$router.push({path : "schoolTree", name: "学校结构树", meta: { nav: "schoolTree", requiresAuth: true }, query : { 'school' : this.searchForm.schoolId, 'period': row.period, 'grade': row.schoolSystemGradeId, 'class': row.id }});
             },
 
             // 获取班级编号
@@ -538,11 +540,11 @@
                         };
 
                         schoolClassSave(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
+
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存班级信息成功！', type: 'success' });

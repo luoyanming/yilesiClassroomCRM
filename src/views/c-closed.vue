@@ -260,12 +260,14 @@
                         that.dialogInfo.index = '';
                         that.dialogInfo.mobile = '';
                         that.dialogInfo.name = '';
+                        that.dialogLoading = false;
                     } else {
                         // edit
                         that.dialogInfo.id = row.id;
                         that.dialogInfo.index = index;
                         that.dialogInfo.mobile = row.mobile;
                         that.dialogInfo.name = row.name;
+                        that.dialogLoading = false;
                     }
                 }, 1);
             },
@@ -288,11 +290,10 @@
                         };
 
                         saveClosed(params).then(res=>{
-                            this.dialogLoading = false;
-
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
+                                this.dialogLoading = false;
                                 this.$message({ message: errorInfo, type: 'error' });
                             }else{
                                 this.$message({ message: '保存用户信息成功！', type: 'success' });
