@@ -8,20 +8,23 @@
         
         <section class="search clearfix">
             <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                <el-form-item label="内容">
-                    <el-input v-model="searchForm.code" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
+                <el-form-item label="">
+                    <el-select v-model="searchForm.type" placeholder="请选择">
+                        <el-option v-for="item in searchFormTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                    <el-input v-model="searchForm.typeValue" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
                 </el-form-item>
-                <el-form-item label="班牌版本">
+                <el-form-item label="版本">
                     <el-select v-model="searchForm.version" placeholder="请选择">
                         <el-option v-for="item in versionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="售出渠道">
+                <el-form-item label="售出渠道" v-if="role == 2">
                     <el-select v-model="searchForm.saleChannel" placeholder="请选择">
                         <el-option v-for="item in saleChannelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="售出方式">
+                <el-form-item label="售出方式" v-if="role == 2">
                     <el-select v-model="searchForm.saleType" placeholder="请选择">
                         <el-option v-for="item in saleTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
@@ -36,10 +39,10 @@
                 </el-form-item>
             </el-form>
             
-            <div class="button-blank clearfix">
-                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">导入新班牌</el-button>
-                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication" style="margin-right: 10px;">导入应用信息</el-button>
-                <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport" style="margin-left: 0;">导出</el-button>
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport">导出</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication">导入应用信息</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd" v-if="role == 2">导入新班牌</el-button>
             </div>
         </section>
 
@@ -47,8 +50,11 @@
             <!-- <el-table ref="multipleTable" :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading" @selection-change="handleSelectionChange"> -->
             <el-table :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading">
                 <!-- <el-table-column type="selection" width="55"></el-table-column> -->
-                <el-table-column label="设备号">
+                <el-table-column label="班牌设备号">
                     <template scope="scope">{{ scope.row.code }}</template>
+                </el-table-column>
+                <el-table-column label="班牌设备名">
+                    <template scope="scope">{{ scope.row.deviceName }}</template>
                 </el-table-column>
                 <el-table-column label="所在学校编号">
                     <template scope="scope">{{ scope.row.schoolCode }}</template>
@@ -62,14 +68,17 @@
                 <el-table-column label="班牌版本">
                     <template scope="scope">{{ scope.row.version }}</template>
                 </el-table-column>
-                <el-table-column label="售出渠道">
+                <el-table-column label="售出渠道" v-if="role == 2">
                     <template scope="scope">{{ scope.row.channelName }}</template>
                 </el-table-column>
-                <el-table-column label="售出方式">
+                <el-table-column label="售出方式" v-if="role == 2">
                     <template scope="scope">{{ scope.row.saleTypeStr }}</template>
                 </el-table-column>
-                <el-table-column label="售出价格">
+                <el-table-column label="售出价格" v-if="role == 2">
                     <template scope="scope">{{ scope.row.price }}</template>
+                </el-table-column>
+                <el-table-column label="设备状态" v-if="role == 0 || role == 1">
+                    <template scope="scope">{{ scope.row.statusStr }}</template>
                 </el-table-column>
                 <el-table-column label="操作">
                     <template scope="scope">
@@ -156,28 +165,28 @@
                                     <el-input v-model="editDialogInfo.code" :disabled="true"></el-input>
                                 </el-form-item>
                                 <el-form-item label="班牌版本" prop="version">
-                                    <el-select v-model="editDialogInfo.version" placeholder="请选择">
+                                    <el-select v-model="editDialogInfo.version" placeholder="请选择" :disabled="role != 2">
                                         <el-option v-for="item in versionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select> 
                                 </el-form-item>
-                                <el-form-item label="售出渠道" prop="saleChannel">
+                                <el-form-item label="售出渠道" prop="saleChannel" v-if="role == 2">
                                     <el-select v-model="editDialogInfo.saleChannel" placeholder="请选择">
                                         <el-option v-for="item in saleChannelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="售出方式" prop="saleType">
+                                <el-form-item label="售出方式" prop="saleType" v-if="role == 2">
                                     <el-select v-model="editDialogInfo.saleType" placeholder="请选择">
                                         <el-option v-for="item in saleTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="售出价格" prop="price">
+                                <el-form-item label="售出价格" prop="price" v-if="role == 2">
                                     <el-input v-model="editDialogInfo.price"></el-input>
                                 </el-form-item>
-                                <el-form-item label="批次" prop="batch">
+                                <el-form-item label="批次" prop="batch" v-if="role == 2">
                                     <el-input v-model="editDialogInfo.batch"></el-input>
                                 </el-form-item>
                                 <el-form-item label="设备状态" prop="status">
-                                    <el-select v-model="editDialogInfo.status" placeholder="请选择">
+                                    <el-select v-model="editDialogInfo.status" placeholder="请选择" :disabled="role != 2">
                                         <el-option v-for="item in cardStatusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -189,20 +198,34 @@
                             <div class="">
                                 <el-form-item label="班牌设备名">
                                     <el-input v-model="editDialogInfo.deviceName"></el-input>
-                                </el-form-item>   
-                                <el-form-item label="所在学校编号">
+                                </el-form-item>
+                                <el-form-item label="所在学校编号" v-if="role == 2">
                                     <el-input v-model="editDialogInfo.schoolCode"></el-input>
-                                </el-form-item>                            
-                                <el-form-item label="所在班级编号">
+                                </el-form-item>
+                                <el-form-item label="所在学校编号" v-if="role == 0 || role == 1">
+                                    <el-select v-model="editDialogInfo.schoolCode" placeholder="请选择" :disabled="role == 0" @change="handleEditDialogSchoolCodeChange">
+                                        <el-option v-for="item in editDialogSchoolOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select> 
+                                </el-form-item>
+                                <el-form-item label="所在班级编号" v-if="role == 2">
                                     <el-input v-model="editDialogInfo.classCode"></el-input>
                                 </el-form-item>
-                                <el-form-item label="所在区域编号">
+                                <el-form-item label="所在班级编号" v-if="role == 0 || role == 1">
+                                    <el-select v-model="editDialogInfo.classCode" placeholder="请选择">
+                                        <el-option v-for="item in editDialogClassOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select> 
+                                </el-form-item>
+                                <el-form-item label="所在区域编号" v-if="role == 2">
                                     <el-input v-model="editDialogInfo.regionCode"></el-input>
+                                </el-form-item>
+                                <el-form-item label="所在区域编号" v-if="role == 0 || role == 1">
+                                    <el-select v-model="editDialogInfo.regionCode" placeholder="请选择">
+                                        <el-option v-for="item in editDialogRegionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select> 
                                 </el-form-item>
                             </div>
                         </div>
                     </div>
-                    
                 </el-form>
 
             </section>
@@ -229,7 +252,7 @@
                             <el-button slot="trigger" size="small" type="primary" :disabled="applicationFileChange.length > 0">导入excel</el-button>
                         </el-upload>
 
-                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadApplication" style="position: absolute; z-index: 3; top: 0; right: 0;">下载录入模板</el-button>
+                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadApplication" style="position: absolute; z-index: 3; top: 0; right: 0;">下载模板</el-button>
                     </el-form-item>
                 </el-form>
             </section>
@@ -241,7 +264,7 @@
         <el-dialog title="导出信息" :visible.sync="exportDialogShow" :modal-append-to-body="false" class="export-dialog">
             <section class="formation">
 
-                <div class="checkbox-wrap">
+                <div class="checkbox-wrap" v-if="role == 2">
                     <div class="checkbox-item flex-h">
                         <div class="item-label">导出内容</div>
                         <div class="item-list flex-a-i">
@@ -263,7 +286,7 @@
                             </el-checkbox-group>
                         </div>
                     </div>
-                    <div class="checkbox-item flex-h">
+                    <div class="checkbox-item flex-h" v-if="role == 2">
                         <div class="item-label">选择渠道</div>
                         <div class="item-list flex-a-i">
                             <el-checkbox v-model="exportInfo.saleChannelAll" @change="handleSaleChannelCheckAllChange">全部</el-checkbox>
@@ -272,7 +295,7 @@
                             </el-checkbox-group>
                         </div>
                     </div>
-                    <div class="checkbox-item flex-h">
+                    <div class="checkbox-item flex-h" v-if="role == 2">
                         <div class="item-label">售出方式</div>
                         <div class="item-list flex-a-i">
                             <el-checkbox v-model="exportInfo.saleTypeAll" @change="handleSaleTypeCheckAllChange">全部</el-checkbox>
@@ -292,7 +315,7 @@
                     </div>
                 </div>
 
-                <div class="checkbox-wrap" v-show="schoolOptions.length > 0">
+                <div class="checkbox-wrap" v-if="(role == 1 || role == 2) && schoolOptions.length > 0">
                     <div class="checkbox-item flex-h">
                         <div class="item-label">学校</div>
                         <div class="item-list flex-a-i">
@@ -315,7 +338,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, channelList, getAllSmartDeviceVersion, smartCardList, smartCardSave, transferCard, smartCardExport, smartCardImport, getSchoolListByChannel, smartClassBrandList, smartClassBrandSave } from '../api/api';
+    import { uploadPath, channelList, getAllSmartDeviceVersion, getSchoolListByChannel, smartClassBrandList, smartClassBrandSave, getClassListBySchool, getRegionListBySchool } from '../api/api';
     import { COMMON } from '../common/js/common';
 
     let that;
@@ -323,8 +346,11 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 searchForm: {
-                    code: '',
+                    type: '1',
+                    typeValue: '',
                     version: '',
                     saleChannel: '',
                     saleType: '',
@@ -333,15 +359,11 @@
                 searchFormTypeOptions: [
                     {
                         value: '1',
-                        label: '卡号'
+                        label: '设备号'
                     },
                     {
                         value: '2',
-                        label: '持卡人'
-                    },
-                    {
-                        value: '3',
-                        label: '学籍号'
+                        label: '设备名'
                     }
                 ],
 
@@ -482,6 +504,9 @@
                         { required: true, message: '*请选择设备状态', trigger: 'change' }
                     ],
                 },
+                editDialogSchoolOptions: [],
+                editDialogClassOptions: [],
+                editDialogRegionOptions: [],
 
                 // 激活新设备
                 uploadLoading: false,
@@ -589,6 +614,12 @@
                     } else {
                         this.schoolOptions = [];
 
+                        this.editDialogSchoolOptions.push({
+                            'id': '',
+                            'value': '',
+                            'label': '请选择'
+                        });
+
                         if(data.schoolList.length == 0) {
                             return false;
                         }
@@ -598,12 +629,112 @@
                                 'value': ''+ data.schoolList[i].id,
                                 'label': data.schoolList[i].fullName
                             });
+
+                            this.editDialogSchoolOptions.push({
+                                'id': data.schoolList[i].id,
+                                'value': data.schoolList[i].code,
+                                'label': data.schoolList[i].code + ' (' + data.schoolList[i].fullName + ')'
+                            });
                         }
                     }
                 }).catch(error => {
                     this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
                 }); 
             },
+            // 监听学校编号变化，获取对应班级编号列表、区域编号列表
+            handleEditDialogSchoolCodeChange: function() {
+                let schoolId = '';
+
+                if(!this.editDialogInfo.schoolCode || this.editDialogSchoolOptions.length == 0) {
+                    this.editDialogInfo.classCode = '';
+                    this.editDialogInfo.regionCode = '';
+                    this.editDialogClassOptions = [{
+                        'id': '',
+                        'value': '',
+                        'label': '请选择'
+                    }];
+                    this.editDialogRegionOptions = [{
+                        'id': '',
+                        'value': '',
+                        'label': '请选择'
+                    }];
+                    return false;
+                }
+
+                for(let i = 0; i < this.editDialogSchoolOptions.length; i++) {
+                    if(this.editDialogSchoolOptions[i].value == this.editDialogInfo.schoolCode) {
+                        schoolId = this.editDialogSchoolOptions[i].id;
+                    }
+                }
+
+                if(this.editDialogClassOptions.length > 0) {
+                    this.editDialogInfo.classCode = '';
+                }
+                if(this.editDialogRegionOptions.length > 0) {
+                    this.editDialogInfo.regionCode = '';
+                }
+
+                let param = {
+                    'schoolId': schoolId
+                };
+
+                getClassListBySchool(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        this.editDialogClassOptions = [{
+                            'id': '',
+                            'value': '',
+                            'label': '请选择'
+                        }];
+
+                        if(data.list.length == 0) {
+                            return false;
+                        }
+
+                        for(let i = 0; i < data.list.length; i++) {
+                            this.editDialogClassOptions.push({
+                                'id': data.list[i].id,
+                                'value': data.list[i].code,
+                                'label': data.list[i].code + ' (' + data.list[i].name + ')'
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取班级列表失败！', type: 'error'});
+                });
+
+                getRegionListBySchool(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        this.editDialogRegionOptions = [{
+                            'id': '',
+                            'value': '',
+                            'label': '请选择'
+                        }];
+
+                        if(data.list.length == 0) {
+                            return false;
+                        }
+
+                        for(let i = 0; i < data.list.length; i++) {
+                            this.editDialogRegionOptions.push({
+                                'id': data.list[i].id,
+                                'value': data.list[i].code,
+                                'label': data.list[i].code + ' (' + data.list[i].name + ')'
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！获取班级列表失败！', type: 'error'});
+                });
+            },
+            // 搜索
             onSearchSubmit: function() {
                 this.pagi.currentPage = 1;
 
@@ -617,7 +748,8 @@
                 this.tableloading = true;
 
                 let param = {
-                    'code': this.searchForm.code,
+                    'code': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'deviceName': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
                     'versionId': this.searchForm.version,
                     'channelId': this.searchForm.saleChannel,
                     'saleType': this.searchForm.saleType,
@@ -691,6 +823,10 @@
                     that.editDialogInfo.classCode = row.classCode;
                     that.editDialogInfo.regionCode = row.regionCode;
                     that.editDialogLoading = false;
+
+                    that.editDialogClassOptions = [];
+                    that.editDialogRegionOptions = [];
+                    that.handleEditDialogSchoolCodeChange();
                 }, 1);
             },
             // 提交编辑内容

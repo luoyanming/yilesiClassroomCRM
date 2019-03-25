@@ -6,7 +6,7 @@
             </el-breadcrumb>
         </section>
 
-        <div class="pull-left">
+        <div class="pull-left" v-if="role == 1 || role == 2">
             <div class="search-box">
                 <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
             </div>
@@ -21,13 +21,17 @@
                 </el-tree>
             </div>
         </div>
-        <div class="pull-right">
+
+        <div :class="role == 0 ? '' : 'pull-right'">
             <div class="light-overscroll" v-if="showTable">
                 
                 <section class="search clearfix">
                     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="教职工账号">
-                            <el-input v-model="searchForm.account" size="small" placeholder="请输入账号"></el-input>
+                        <el-form-item label="">
+                            <el-select v-model="searchForm.type" placeholder="请选择">
+                                <el-option v-for="item in searchFormTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <el-input v-model="searchForm.typeValue" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
                         </el-form-item>
                         <el-form-item label="用户角色">
                             <el-select v-model="searchForm.character" placeholder="请选择">
@@ -39,8 +43,10 @@
                             <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                         </el-form-item>
                     </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleSchoolStaffAdd()" v-if="searchForm.schoolId">添加教职工</el-button>
+                    
+                    <div class="button-blank">
+                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleSchoolStaffAdd()" v-if="searchForm.schoolId && role == 2">添加教职工</el-button>
+                    </div>
                 </section>
 
                 <section class="table" style="height: auto">
@@ -62,7 +68,8 @@
                         </el-table-column>
                         <el-table-column label="操作">
                             <template scope="scope">
-                                <el-button size="small" class="button-link" @click="handleSchoolStaffDelete(scope.$index, scope.row)">从该校去除</el-button>
+                                <el-button size="small" class="button-link" @click="handleSchoolStaffDelete(scope.$index, scope.row)" v-if="role == 2">从该校去除</el-button>
+                                <el-button size="small" class="button-link" @click="handleSchoolStaffEdit(scope.$index, scope.row)" v-else>编辑</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -141,7 +148,43 @@
                     <span slot="footer" class="dialog-footer">
                         <el-button type="primary" :loading="staffDialog.submitLoading" @click.native="staffDialogSubmit">保存</el-button>
                     </span>
-                </el-dialog>                        
+                </el-dialog>
+
+                <el-dialog title="编辑教职工" :visible.sync="editDialogShow" :modal-append-to-body="false" custom-class="w800">
+                    <section class="formation">
+                       
+                        <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
+                            <el-form-item label="手机账号" prop="account">
+                                <el-input v-model="editInfo.account" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item label="学校账号" prop="school">
+                                <el-input v-model="editInfo.school" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item label="姓名" prop="name">
+                                <el-input v-model="editInfo.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="教师证">
+                                <el-input v-model="editInfo.teacherCard"></el-input>
+                            </el-form-item>
+                            <el-form-item label="身份证">
+                                <el-input v-model="editInfo.idCard"></el-input>
+                            </el-form-item>
+                            <el-form-item label="用户角色" prop="character">
+                                <div class="character-item clearfix" v-for="(roleItem, index) in editInfo.memberRoleList" >
+                                    <el-input v-model="roleItem.schoolCode" :disabled="true"></el-input>
+                                    <el-select placeholder="请选择" v-model="roleItem.type">
+                                        <el-option v-for="item in eidtCharacterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select>
+                                    <el-input v-model="roleItem.workCard" placeholder="工号/工作证号"></el-input>
+                                </div>
+                            </el-form-item>
+                        </el-form>
+
+                    </section>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" :loading="dialogLoading" @click.native="submitForm('ruleForm')">保存</el-button>
+                    </span>
+                </el-dialog>
             </div>
         </div>
     </div>
@@ -149,13 +192,15 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, schoolList, schoolStaffAdd, schoolStaffDelete, schoolStaffList, notContainsSchoolStaffList } from '../api/api';
+    import { uploadPath, schoolList, schoolStaffAdd, schoolStaffDelete, schoolStaffList, notContainsSchoolStaffList, schoolStaffUpdate } from '../api/api';
 
     let that;
 
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 showTable: false,
 
                 // 左侧学校列表
@@ -170,9 +215,24 @@
                 searchForm: {
                     schoolId: '',
                     schoolCode: '',
-                    account: '',
+                    type: '1',
+                    typeValue: '',
                     character: ''
                 },
+                searchFormTypeOptions: [
+                    {
+                        value: '1',
+                        label: '手机账号'
+                    },
+                    {
+                        value: '2',
+                        label: '学校账号'
+                    },
+                    {
+                        value: '3',
+                        label: '姓名'
+                    }
+                ],
                 tableData: [],
                 tableloading: true,
 
@@ -225,7 +285,39 @@
                         value:'1',
                         label:'校领导'
                     }
-                ]                
+                ],
+
+
+
+                eidtCharacterOptions: [
+                    {
+                        value:'0',
+                        label:'教师'
+                    },
+                    {
+                        value:'1',
+                        label:'校领导'
+                    }
+                ],
+                editInfo:{
+                    id: '',
+                    index: '',
+                    account: '',
+                    school: '',
+                    name: '',
+                    teacherCard: '',
+                    idCard: '',
+                    classify: '',
+                    memberRoleList: [],
+                    tagList: []
+                },
+                editDialogShow: false,
+                dialogLoading: false,
+                rules: {
+                    name: [
+                        { required: true, message: '*请输入姓名', trigger: 'blur' }
+                    ]
+                },
             };
         },
         methods: {
@@ -259,6 +351,11 @@
                                 });
                             }
                         }
+
+                        if(this.role == 0) {
+                            this.searchForm.schoolId = this.schoolOptions[0].id;
+                            this.getList();
+                        }
                     }
                 }).catch(error => {
                     this.schoolSearchLoading = false;
@@ -270,8 +367,7 @@
                 this.searchForm.schoolId = data.id;
                 this.searchForm.schoolCode = data.code;
 
-                this.showTable = true;
-
+                this.pagi.currentPage = 1;
                 this.getList();
             },
             // 搜索按钮
@@ -286,11 +382,14 @@
             },
             // 获取教职工列表
             getList: function() {
+                this.showTable = true;
                 this.tableloading = true;
 
                 let param = {
                     'schoolId': this.searchForm.schoolId,
-                    'account': this.searchForm.account,
+                    'mobile': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'schoolAccount': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
+                    'name': this.searchForm.type == 3 ? this.searchForm.typeValue : '',
                     'type': this.searchForm.character,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
@@ -441,7 +540,7 @@
                     this.staffDialog.submitLoading = false;
                     this.$message({ message: '网络异常！保存失败！', type: 'error'});
                 });
-            },            
+            },
 
             // 从该校去除
             handleSchoolStaffDelete: function(index, row) {
@@ -461,7 +560,80 @@
                 }).catch(error => {
                     this.$message({ message: '网络异常！移除失败！', type: 'error'});
                 });                
-            }
+            },
+
+            // 编辑
+            handleSchoolStaffEdit: function(index, row) {
+                this.editDialogShow = true;
+
+                setTimeout(function() {
+                    that.$refs['ruleForm'].resetFields();
+
+                    that.editInfo.id = row.id;
+                    that.editInfo.index = index;
+                    that.editInfo.account = row.mobile;
+                    that.editInfo.school = row.schoolAccount;
+                    that.editInfo.name = row.name;
+                    that.editInfo.teacherCard = row.teacherCard;
+                    that.editInfo.idCard = row.idCard;
+                    that.editInfo.classify = ''+ row.type;
+                    that.editInfo.memberRoleList = [];
+                    that.editInfo.tagList = row.tagVoList || [];
+
+                    that.editInfo.memberRoleList.push({
+                        schoolCode: row.schoolCode,
+                        type: '' + row.type,
+                        workCard: '' + row.workCard
+                    })
+
+                    that.dialogLoading = false;
+                    
+                }, 1);
+            },
+            // 保存编辑
+            submitForm(formName) {
+                if(this.dialogLoading) {
+                    return false;
+                }
+                
+                this.$refs[formName].validate((valid)=>{
+                     if(valid){
+                        this.dialogLoading = true;                       
+
+                        let roleJson = {
+                            'id': this.editInfo.id,
+                            'name': this.editInfo.name,
+                            'teacherCard': this.editInfo.teacherCard,
+                            'idCard': this.editInfo.idCard,
+                            'type': this.editInfo.memberRoleList[0].type,
+                            'workCard': this.editInfo.memberRoleList[0].workCard
+                        };
+
+                        let params = {
+                            jsonStr: JSON.stringify(roleJson)
+                        }
+
+                        schoolStaffUpdate(params).then(res=>{
+                            let { errorInfo, code, data } = res;
+
+                            if(code !== 0){
+                                this.dialogLoading = false;
+
+                                this.$message({ message: errorInfo, type: 'error' });
+                            }else{
+                                this.$message({ message: '保存教职工信息成功！', type: 'success' });
+                                this.editDialogShow = false;
+                                this.getList();
+                            }
+                        }).catch(error => {
+                            this.dialogLoading = false;
+                            this.$message({ message: '网络异常！保存教职工信息失败！', type: 'error'});
+                        });
+                     }else{
+                         return false;
+                     }
+                });
+            },
         },
         mounted() {
             that = this;

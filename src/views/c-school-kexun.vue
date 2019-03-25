@@ -47,8 +47,10 @@
                             <el-date-picker v-model="week" type="week" format="yyyy-MM-dd" placeholder="请选择时间范围" :picker-options="pickerOptions" @change="handleWeekChange" class="week-picker-picker"></el-date-picker>
                         </el-form-item>
                     </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport" v-if="showSystemStatisticsData">导出</el-button>
+                    
+                    <div class="button-blank">
+                        <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport" v-if="showSystemStatisticsData">导出</el-button>
+                    </div>
                 </section>
 
                 <div class="" style="height: calc(100% - 68px);" v-loading.body="systemStatisticsLoading" v-if="showSystemStatisticsData">

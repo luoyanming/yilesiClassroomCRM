@@ -2,7 +2,7 @@
     <div class="main-wrapper light-overscroll luoym">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>智慧卡及手环</el-breadcrumb-item>
+                <el-breadcrumb-item>智慧文教柜</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
         
@@ -14,12 +14,17 @@
                     </el-select>
                     <el-input v-model="searchForm.typeValue" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
                 </el-form-item>
-                <el-form-item label="售出渠道" v-if="role == 2">
+                <el-form-item label="版本">
+                    <el-select v-model="searchForm.version" placeholder="请选择">
+                        <el-option v-for="item in versionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="售出渠道">
                     <el-select v-model="searchForm.saleChannel" placeholder="请选择">
                         <el-option v-for="item in saleChannelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="售出方式" v-if="role == 2">
+                <el-form-item label="售出方式">
                     <el-select v-model="searchForm.saleType" placeholder="请选择">
                         <el-option v-for="item in saleTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
@@ -35,11 +40,9 @@
             </el-form>
             
             <div class="button-blank">
-                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleZip">上传人脸识别照片包</el-button>
-                <el-button type="primary" size="small" class="btn-add" icon="edit" @click.native="handleExchange" v-if="role == 2">批量更换</el-button>
                 <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleExport">导出</el-button>
                 <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleApplication">导入应用信息</el-button>
-                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd" v-if="role == 2">激活新设备</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd">导入新文教柜</el-button>
             </div>
         </section>
 
@@ -47,40 +50,33 @@
             <!-- <el-table ref="multipleTable" :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading" @selection-change="handleSelectionChange"> -->
             <el-table :data="tableData" stripe tooltip-effect="dark" style="width: 100%" v-loading="tableloading">
                 <!-- <el-table-column type="selection" width="55"></el-table-column> -->
-                <el-table-column label="设备MAC号">
+                <el-table-column label="文教柜设备号">
                     <template scope="scope">{{ scope.row.code }}</template>
                 </el-table-column>
-                <el-table-column label="NFC号">
-                    <template scope="scope">{{ scope.row.nfcCode }}</template>
+                <el-table-column label="文教柜编号">
+                    <template scope="scope">{{ scope.row.deviceName }}</template>
                 </el-table-column>
-                <el-table-column label="持有人">
-                    <template scope="scope">{{ scope.row.holder }}</template>
-                </el-table-column>
-                <el-table-column label="设备版本">
-                    <template scope="scope">{{ scope.row.version }}</template>
-                </el-table-column>
-                <el-table-column label="售出渠道" v-if="role == 2">
-                    <template scope="scope">{{ scope.row.channelName }}</template>
-                </el-table-column>
-                <el-table-column label="售出方式" v-if="role == 2">
-                    <template scope="scope">{{ scope.row.saleTypeStr }}</template>
-                </el-table-column>
-                <el-table-column label="售出价格" v-if="role == 2">
-                    <template scope="scope">{{ scope.row.price }}</template>
-                </el-table-column>
-                <el-table-column label="学校编号" v-if="role == 0 || role == 1">
+                <el-table-column label="所在学校编号">
                     <template scope="scope">{{ scope.row.schoolCode }}</template>
                 </el-table-column>
-                <el-table-column label="班级编号" v-if="role == 0 || role == 1">
-                    <template scope="scope">{{ scope.row.classCode }}</template>
+                <el-table-column label="所在区域编号">
+                    <template scope="scope">{{ scope.row.regionCode }}</template>
                 </el-table-column>
-                <el-table-column label="设备状态">
-                    <template scope="scope">{{ scope.row.statusStr }}</template>
+                <el-table-column label="文教柜版本">
+                    <template scope="scope">{{ scope.row.version }}</template>
+                </el-table-column>
+                <el-table-column label="售出渠道">
+                    <template scope="scope">{{ scope.row.channelName }}</template>
+                </el-table-column>
+                <el-table-column label="售出方式">
+                    <template scope="scope">{{ scope.row.saleTypeStr }}</template>
+                </el-table-column>
+                <el-table-column label="售出价格">
+                    <template scope="scope">{{ scope.row.price }}</template>
                 </el-table-column>
                 <el-table-column label="操作">
                     <template scope="scope">
                         <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button size="small" class="button-link" @click="handleCardChange(scope.$index, scope.row)" v-if="scope.row.status == 0 || scope.row.status == 1">更换</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -95,7 +91,7 @@
             </el-pagination>
         </section>
 
-        <el-dialog title="激活新卡及手环" :visible.sync="addDialogShow" :modal-append-to-body="false" custom-class="w700">
+        <el-dialog title="导入新文教柜" :visible.sync="addDialogShow" :modal-append-to-body="false">
             <section class="formation">
                
                 <el-form label-position="right" :rules="addRules" ref="addRuleForm" label-width="180px" :model="addDialogInfo">
@@ -114,9 +110,9 @@
                             <el-button slot="trigger" size="small" type="primary">导入excel</el-button>
                         </el-upload>
 
-                        <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleDownloadActivate" style="position: absolute; z-index: 3; top: 0; right: 0;">下载激活模板</el-button>
+                        <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleDownloadActivate" style="position: absolute; z-index: 3; top: 0; right: 0;">下载导入模板</el-button>
                     </el-form-item>
-                    <el-form-item label="设备版本" prop="version">
+                    <el-form-item label="文教柜版本" prop="version">
                         <el-select v-model="addDialogInfo.version" placeholder="请选择">
                             <el-option v-for="item in versionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>                        
@@ -151,43 +147,40 @@
             </span>
         </el-dialog>
 
-        <el-dialog title="编辑卡" :visible.sync="editDialogShow" :modal-append-to-body="false" class="editDialog-wrapper">
+        <el-dialog title="编辑文教柜信息" :visible.sync="editDialogShow" :modal-append-to-body="false" class="editDialog-wrapper">
             <section class="formation">
                
                 <el-form label-position="right" :rules="editRules" ref="editRuleForm" label-width="180px" :model="editDialogInfo">
                     <div class="flex-h">
                         <div style="width: 300px">
-                            <div style="font-size: 14px; line-height: 2; color: #333; padding: 10px 0 20px 0;">智慧卡基本信息</div>
+                            <div style="font-size: 14px; line-height: 2; color: #333; padding: 10px 0 20px 0;">智慧文教柜基本信息</div>
                             <div class="">
-                                <el-form-item label="设备MAC号">
-                                    <el-input v-model="editDialogInfo.cardNo" :disabled="true"></el-input>
+                                <el-form-item label="文教柜设备号">
+                                    <el-input v-model="editDialogInfo.code" :disabled="true"></el-input>
                                 </el-form-item>
-                                <el-form-item label="NFC号">
-                                    <el-input v-model="editDialogInfo.nfcCode" :disabled="role != 2"></el-input>
-                                </el-form-item>
-                                <el-form-item label="设备版本" prop="version">
-                                    <el-select v-model="editDialogInfo.version" placeholder="请选择" :disabled="role != 2">
+                                <el-form-item label="文教柜版本" prop="version">
+                                    <el-select v-model="editDialogInfo.version" placeholder="请选择">
                                         <el-option v-for="item in versionOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select> 
                                 </el-form-item>
-                                <el-form-item label="售出渠道" prop="saleChannel" v-if="role == 2">
+                                <el-form-item label="售出渠道" prop="saleChannel">
                                     <el-select v-model="editDialogInfo.saleChannel" placeholder="请选择">
                                         <el-option v-for="item in saleChannelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="售出方式" prop="saleType" v-if="role == 2">
+                                <el-form-item label="售出方式" prop="saleType">
                                     <el-select v-model="editDialogInfo.saleType" placeholder="请选择">
                                         <el-option v-for="item in saleTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="售出价格" prop="price" v-if="role == 2">
+                                <el-form-item label="售出价格" prop="price">
                                     <el-input v-model="editDialogInfo.price"></el-input>
                                 </el-form-item>
-                                <el-form-item label="批次" prop="batch" v-if="role == 2">
+                                <el-form-item label="批次" prop="batch">
                                     <el-input v-model="editDialogInfo.batch"></el-input>
                                 </el-form-item>
-                                <el-form-item label="设备状态" prop="cardStatus">
-                                    <el-select v-model="editDialogInfo.cardStatus" placeholder="请选择" :disabled="role != 2">
+                                <el-form-item label="设备状态" prop="status">
+                                    <el-select v-model="editDialogInfo.status" placeholder="请选择">
                                         <el-option v-for="item in cardStatusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -195,65 +188,33 @@
                         </div>
 
                         <div class="flex-a-i">
-                            <div style="font-size: 14px; line-height: 2; color: #333; padding: 10px 0 20px 0;">智慧卡应用信息</div>
+                            <div style="font-size: 14px; line-height: 2; color: #333; padding: 10px 0 20px 0;">智慧文教柜应用信息</div>
                             <div class="">
-                                <el-form-item label="持有人" prop="holder">
-                                    <el-input v-model="editDialogInfo.holder"></el-input>
+                                <el-form-item label="文教柜编号">
+                                    <el-input v-model="editDialogInfo.deviceName"></el-input>
                                 </el-form-item>
-                                <el-form-item label="持有人信息" prop="holderInfo">
-                                    <input type="text" v-model="holderInfoStr" class="dateInput">
-                                    <el-date-picker
-                                        v-model="editDialogInfo.holderInfo"
-                                        size="small"
-                                        type="date"
-                                        format="yyyyMMdd"
-                                        @change="dateChange"
-                                        placeholder="请选择">
-                                    </el-date-picker>
-                                </el-form-item>
-                                <el-form-item label="学校编号" v-if="role == 2">
+                                <el-form-item label="所在学校编号">
                                     <el-input v-model="editDialogInfo.schoolCode"></el-input>
                                 </el-form-item>
-                                <el-form-item label="学校编号" v-if="role == 0 || role == 1">
-                                    <el-select v-model="editDialogInfo.schoolCode" placeholder="请选择" :disabled="role == 0" @change="handleEditDialogSchoolCodeChange">
-                                        <el-option v-for="(item, index) in editDialogSchoolOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-                                    </el-select> 
+                                <el-form-item label="所在区域编号">
+                                    <el-input v-model="editDialogInfo.regionCode"></el-input>
                                 </el-form-item>
-                                <el-form-item label="OU班级编号" prop="classCode" v-if="role == 2">
-                                    <el-input v-model="editDialogInfo.classCode"></el-input>
+                                <el-form-item label="具体位置">
+                                    <el-input type="textarea" v-model="editDialogInfo.position" resize="none"></el-input>
                                 </el-form-item>
-                                <el-form-item label="OU班级编号" prop="classCode" v-if="role == 0 || role == 1">
-                                    <el-select v-model="editDialogInfo.classCode" placeholder="请选择">
-                                        <el-option v-for="(item, index) in editDialogClassOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-                                    </el-select> 
-                                </el-form-item>
-                                <el-form-item label="学籍号">
-                                    <el-input v-model="editDialogInfo.schoolRollNo"></el-input>
-                                </el-form-item>
-                                <el-form-item label="学号">
-                                    <el-input v-model="editDialogInfo.schoolNo"></el-input>
-                                </el-form-item>
-                                <el-form-item label="性别">
-                                    <el-select v-model="editDialogInfo.gender" placeholder="请选择">
-                                        <el-option v-for="item in genderOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                                    </el-select> 
-                                </el-form-item>
-                                <el-form-item label="身份证">
-                                    <el-input v-model="editDialogInfo.idCard"></el-input>
-                                </el-form-item>
-                                <el-form-item label="人脸识别照片">
+                                <el-form-item label="视图">
                                     <el-upload
                                         class="upload-demo"
-                                        :action="uploadFaceUrl"
-                                        :data="{ 'macNo': editDialogInfo.cardNo }"
-                                        :before-upload="handleFaceUploadBefore"
-                                        :on-remove="handleFaceUploadRemove"
-                                        :on-success="handleFaceUploadSuccess"
-                                        :on-error="handleFaceUploadError"
-                                        :file-list="editDialogInfo.faceUrl"
+                                        :action="uploadViewUrl"
+                                        :data="{ 'code': editDialogInfo.code }"
+                                        :before-upload="handleViewUploadBefore"
+                                        :on-remove="handleViewUploadRemove"
+                                        :on-success="handleViewUploadSuccess"
+                                        :on-error="handleViewUploadError"
+                                        :file-list="editDialogInfo.viewUrl"
                                         list-type="picture">
-                                        <el-button size="small" type="primary" :disabled="editDialogInfo.faceUrl.length != 0">点击上传</el-button>
-                                        <div slot="tip" class="el-upload__tip" style="display: inline-block; width: 200px; vertical-align: middle; line-height: 1.2;">上传尺寸不得小于300像素 X 300像素，支持jpg、jpeg、png</div>
+                                        <el-button size="small" type="primary" :disabled="editDialogInfo.viewUrl.length != 0">点击上传</el-button>
+                                        <div slot="tip" class="el-upload__tip" style="display: inline-block; width: 200px; vertical-align: middle; line-height: 1.2;">上传尺寸不得小于1024像素 X 768像素，支持jpg、jpeg、png</div>
                                     </el-upload>
                                 </el-form-item>
                             </div>
@@ -268,7 +229,7 @@
             </span>
         </el-dialog>
 
-        <el-dialog title="导入卡及手环应用信息" :visible.sync="applicationDialogShow" :modal-append-to-body="false" custom-class="w700">
+        <el-dialog title="导入文教柜应用信息" :visible.sync="applicationDialogShow" :modal-append-to-body="false">
             <section class="formation">
                
                 <el-form label-position="right" :rules="applicationRules" ref="applicationRuleForm" label-width="180px" :model="applicationDialogInfo" style="padding: 40px 0;">
@@ -286,7 +247,7 @@
                             <el-button slot="trigger" size="small" type="primary" :disabled="applicationFileChange.length > 0">导入excel</el-button>
                         </el-upload>
 
-                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadApplication" style="position: absolute; z-index: 3; top: 0; right: 0;">下载录入模板</el-button>
+                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadApplication" style="position: absolute; z-index: 3; top: 0; right: 0;">下载模板</el-button>
                     </el-form-item>
                 </el-form>
             </section>
@@ -295,75 +256,10 @@
             </span>
         </el-dialog>
 
-        <el-dialog title="智慧设备批量更换（信息转移）" :visible.sync="exchangeDialogShow" :modal-append-to-body="false" custom-class="w700">
-            <section class="formation">
-               
-                <el-form label-position="right" :rules="exchangeRules" ref="exchangeRuleForm" label-width="180px" :model="exchangeDialogInfo" style="padding: 40px 0;">
-                    <el-form-item label="导入Excel" prop="excel">
-                        <el-upload
-                            class="upload-demo"
-                            ref="uploadExchange"
-                            :on-change="uploadExchangeChange"
-                            :action="uploadExchangeUrl"
-                            :on-success="uploadExchangeSucc"
-                            :on-error="uploadExchangeError"
-                            :file-list="exchangeFileList"
-                            :auto-upload="false"
-                            style="float: left;">
-                            <el-button slot="trigger" size="small" type="primary" :disabled="exchangeFileChange.length > 0">导入excel</el-button>
-                        </el-upload>
-
-                        <el-button type="primary" size="small" class="btn-add button-add" icon="upload2" @click.native="handleDownloadExchange" style="position: absolute; z-index: 3; top: 0; right: 0;">下载批量更换模板</el-button>
-                    </el-form-item>
-                </el-form>
-
-                <div class="tips" style="color: #888; font-size: 12px;">
-                    注意：智慧设备更换后原设备的所有信息，包括持有人应用信息（持有人姓名、生日、所在班级等）、课程记录、答题记录都将转移至新设备上。
-                </div>
-            </section>
-            <span slot="footer" class="dialog-footer">
-                <el-button type="primary" :loading="exchangeDialogLoading" @click.native="submitExchangeUpload('exchangeRuleForm')">确定</el-button>
-            </span>
-        </el-dialog>
-
-        <el-dialog title="智慧设备更换（信息转移）" :visible.sync="transferDialogShow" :modal-append-to-body="false" class="transfer-dialog">
+        <el-dialog title="导出信息" :visible.sync="exportDialogShow" :modal-append-to-body="false" class="export-dialog">
             <section class="formation">
 
-                <el-form label-position="right" :rules="transferRules" ref="transferRuleForm" label-width="180px" :model="transferDialogInfo">
-                    <div class="flex-h">
-                        <div class="flex-a-i">
-                            <el-form-item label="原设备MAC号">
-                                <el-input v-model="transferDialogInfo.cardNo" disabled></el-input>
-                            </el-form-item>
-                            <el-form-item label="原设备NFC号" v-if="role == 2">
-                                <el-input v-model="transferDialogInfo.nfcCode" disabled></el-input>
-                            </el-form-item>                             
-                        </div>
-                        <div class="seprate" :style="role != 2 ? 'line-height: 40px;' : ''">换成</div>
-                        <div class="flex-a-i">
-                            <el-form-item label="新设备MAC号">
-                                <el-input v-model="transferDialogInfo.newCardNo"></el-input>
-                            </el-form-item>
-                            <el-form-item label="新设备NFC号" v-if="role == 2">
-                                <el-input v-model="transferDialogInfo.newNfcCode"></el-input>
-                            </el-form-item>
-                        </div>
-                    </div>
-                </el-form>
-
-                <div class="tips" style="color: #888;">
-                    注意：智慧设备更换后原设备的所有信息，包括持有人应用信息（持有人姓名、生日、所在班级等）、课程记录、答题记录都将转移至新设备上。
-                </div>
-            </section>
-            <span slot="footer" class="dialog-footer">
-                <el-button type="primary" :loading="transferDialogLoading" @click.native="submitTransfer('transferRuleForm')">保存</el-button>
-            </span>
-        </el-dialog>
-
-        <el-dialog title="导出信息" :visible.sync="exportDialogShow" :modal-append-to-body="false" class="export-dialog" custom-class="w700">
-            <section class="formation">
-
-                <div class="checkbox-wrap" v-if="role == 2">
+                <div class="checkbox-wrap">
                     <div class="checkbox-item flex-h">
                         <div class="item-label">导出内容</div>
                         <div class="item-list flex-a-i">
@@ -385,7 +281,7 @@
                             </el-checkbox-group>
                         </div>
                     </div>
-                    <div class="checkbox-item flex-h" v-if="role == 2">
+                    <div class="checkbox-item flex-h">
                         <div class="item-label">选择渠道</div>
                         <div class="item-list flex-a-i">
                             <el-checkbox v-model="exportInfo.saleChannelAll" @change="handleSaleChannelCheckAllChange">全部</el-checkbox>
@@ -394,7 +290,7 @@
                             </el-checkbox-group>
                         </div>
                     </div>
-                    <div class="checkbox-item flex-h" v-if="role == 2">
+                    <div class="checkbox-item flex-h">
                         <div class="item-label">售出方式</div>
                         <div class="item-list flex-a-i">
                             <el-checkbox v-model="exportInfo.saleTypeAll" @change="handleSaleTypeCheckAllChange">全部</el-checkbox>
@@ -414,7 +310,7 @@
                     </div>
                 </div>
 
-                <div class="checkbox-wrap" v-if="(role == 1 || role == 2) && schoolOptions.length > 0">
+                <div class="checkbox-wrap" v-show="schoolOptions.length > 0">
                     <div class="checkbox-item flex-h">
                         <div class="item-label">学校</div>
                         <div class="item-list flex-a-i">
@@ -432,41 +328,12 @@
                 <el-button type="primary" :loading="exportDialogLoading" @click.native="handleExportSubmit">保存</el-button>
             </span>
         </el-dialog>
-
-        <el-dialog title="上传人脸识别照片包" :visible.sync="zipDialogShow" :modal-append-to-body="false" custom-class="w700">
-            <section class="formation">
-               
-                <el-form label-position="right" :rules="zipRules" ref="zipRuleForm" label-width="180px" :model="zipDialogInfo" style="padding: 40px 0;">
-                    <el-form-item label="上传ZIP包" prop="zip">
-                        <el-upload
-                            class="upload-demo"
-                            ref="uploadZip"
-                            :on-change="uploadZipChange"
-                            :action="uploadZipUrl"
-                            :on-success="uploadZipSucc"
-                            :on-error="uploadZipError"
-                            :file-list="zipFileList"
-                            :auto-upload="false"
-                            style="float: left;">
-                            <el-button slot="trigger" size="small" type="primary" :disabled="zipFileChange.length > 0">上传ZIP包</el-button>
-                        </el-upload>
-                    </el-form-item>
-                </el-form>
-
-                <div class="tips" style="color: #888; font-size: 12px;">
-                    注意：上传的人脸识别照片包必须是后缀为.zip格式的压缩包，不能是.rar格式的压缩包。
-                </div>
-            </section>
-            <span slot="footer" class="dialog-footer">
-                <el-button type="primary" :loading="exchangeDialogLoading" @click.native="submitZipUpload('zipRuleForm')">确定</el-button>
-            </span>
-        </el-dialog>
     </div>
 </template>
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, channelList, getAllSmartDeviceVersion, smartCardList, smartCardSave, transferCard, smartCardExport, smartCardImport, getSchoolListByChannel, getClassListBySchool, getRegionListBySchool } from '../api/api';
+    import { uploadPath, channelList, getAllSmartDeviceVersion, getSchoolListByChannel, smartCounterList, smartCounterSave } from '../api/api';
     import { COMMON } from '../common/js/common';
 
     let that;
@@ -474,11 +341,10 @@
     export default {
         data() {
             return {
-                role: localStorage.getItem('role'),
-
                 searchForm: {
                     type: '1',
-                    typeValue: this.$route.query.code || '',
+                    typeValue: '',
+                    version: '',
                     saleChannel: '',
                     saleType: '',
                     cardStatus: ''
@@ -486,19 +352,11 @@
                 searchFormTypeOptions: [
                     {
                         value: '1',
-                        label: '卡号'
+                        label: '设备号'
                     },
                     {
                         value: '2',
-                        label: '持卡人'
-                    },
-                    {
-                        value: '3',
-                        label: '学籍号'
-                    },
-                    {
-                        value: '4',
-                        label: 'NFC号'
+                        label: '设备编号'
                     }
                 ],
 
@@ -549,10 +407,6 @@
                 ],
                 genderOptions: [
                     {
-                        value:'',
-                        label:'请选择'
-                    },
-                    {
                         value:'0',
                         label:'男'
                     },
@@ -597,9 +451,9 @@
                     price: [
                         { required: true, message: '*请输入售出价格', trigger: 'blur' }
                     ],
-                    // batch: [
-                    //     { required: true, message: '*请输入批次', trigger: 'blur' }
-                    // ],
+                    batch: [
+                        { required: true, message: '*请输入批次', trigger: 'blur' }
+                    ],
                     cardStatus: [
                         { required: true, message: '*请选择设备状态', trigger: 'change' }
                     ],
@@ -608,25 +462,21 @@
                 editDialogInfo: {
                     id: '',
                     index: '',
-                    cardNo: '',
-                    nfcCode: '',
-                    schoolRollNo: '',
-                    schoolCode: '',
-                    classCode: '',
+                    code: '',
                     version: '',
-                    holder: '',
-                    holderInfo: '',
                     price: '',
                     saleChannel: '',
                     saleType: '',
-                    cardStatus: '',
                     batch: '',
-                    schoolNo: '',
-                    gender: '',
-                    idCard: '',
-                    faceUrl: []
+                    status: '',
+                    deviceName: '',
+                    schoolCode: '',
+                    classCode: '',
+                    regionCode: '',
+                    position: '',
+                    viewUrl: []
                 },
-                uploadFaceUrl: uploadPath + '/ajax/uploadFace',
+                uploadViewUrl: uploadPath + '/ajax/counter/upload/view',
                 holderInfoStr: '',
                 editDialogShow: false,
                 editDialogLoading: false,
@@ -643,38 +493,19 @@
                     price: [
                         { required: true, message: '*请输入售出价格', trigger: 'blur' }
                     ],
-                    cardStatus: [
+                    batch: [
+                        { required: true, message: '*请输入批次', trigger: 'blur' }
+                    ],
+                    status: [
                         { required: true, message: '*请选择设备状态', trigger: 'change' }
                     ],
                 },
-                editDialogSchoolOptions: [],
-                editDialogClassOptions: [],
 
                 // 激活新设备
                 uploadLoading: false,
-                uploadUrl: uploadPath + '/ajax/smartCard/excel/import/activate',
+                uploadUrl: uploadPath + '/ajax/counter/import/activate',
                 fileList: [],
                 fileChange: new Array(),
-
-                // 批量更换
-                exchangeDialogShow: false,
-                exchangeDialogLoading: false,
-                exchangeDialogInfo: {},
-                exchangeRules: {},
-                uploadExchangeLoading: false,
-                uploadExchangeUrl: uploadPath + '/ajax/smartCard/batch/change',
-                exchangeFileList: [],
-                exchangeFileChange: new Array(),
-
-                // 上传人脸识别zip包
-                zipDialogShow: false,
-                zipDialogLoading: false,
-                zipDialogInfo: {},
-                zipRules: {},
-                uploadZipLoading: false,
-                uploadZipUrl: uploadPath + '/ajax/uploadFaceZip',
-                zipFileList: [],
-                zipFileChange: new Array(),
 
                 // 应用信息导入
                 applicationDialogShow: false,
@@ -682,20 +513,9 @@
                 applicationDialogInfo: {},
                 applicationRules: {},
                 uploadApplicationLoading: false,
-                uploadApplicationUrl: uploadPath + '/ajax/smartCard/excel/import/applicationInfo',
+                uploadApplicationUrl: uploadPath + '/ajax/counter/import/applicationInfo',
                 applicationFileList: [],
                 applicationFileChange: new Array(),                
-
-                // 单卡更换
-                transferDialogShow: false,
-                transferDialogLoading: false,
-                transferDialogInfo: {
-                    cardNo: '',
-                    nfcCode: '',
-                    newCardNo: '',
-                    newNfcCode: ''
-                },
-                transferRules: {},
 
                 // 导出信息
                 exportDialogShow: false,
@@ -749,7 +569,7 @@
             // 获取设备版本列表
             getAllSmartCardVersion: function() {
                 let param = {
-                    'type': 1
+                    'type': 5
                 };
 
                 getAllSmartDeviceVersion(param).then(res => {
@@ -787,12 +607,6 @@
                     } else {
                         this.schoolOptions = [];
 
-                        this.editDialogSchoolOptions.push({
-                            'id': '',
-                            'value': '',
-                            'label': '请选择'
-                        });
-
                         if(data.schoolList.length == 0) {
                             return false;
                         }
@@ -802,92 +616,28 @@
                                 'value': ''+ data.schoolList[i].id,
                                 'label': data.schoolList[i].fullName
                             });
-
-                            this.editDialogSchoolOptions.push({
-                                'id': data.schoolList[i].id,
-                                'value': data.schoolList[i].code,
-                                'label': data.schoolList[i].code + ' (' + data.schoolList[i].fullName + ')'
-                            });
                         }
                     }
                 }).catch(error => {
                     this.$message({ message: '网络异常！获取学校列表失败！', type: 'error'});
-                });
+                }); 
             },
-            // 监听学校编号变化，获取对应班级编号列表
-            handleEditDialogSchoolCodeChange: function(val) {
-                let schoolId = '';
-
-                if(!this.editDialogInfo.schoolCode || this.editDialogSchoolOptions.length == 0) {
-                    this.editDialogInfo.classCode = '';
-                    this.editDialogClassOptions = [{
-                        'id': '',
-                        'value': '',
-                        'label': '请选择'
-                    }];
-                    return false;
-                }
-
-                for(let i = 0; i < this.editDialogSchoolOptions.length; i++) {
-                    if(this.editDialogSchoolOptions[i].value == this.editDialogInfo.schoolCode) {
-                        schoolId = this.editDialogSchoolOptions[i].id;
-                    }
-                }
-
-                if(this.editDialogClassOptions.length > 0) {
-                    this.editDialogInfo.classCode = '';
-                }
-
-                let param = {
-                    'schoolId': schoolId
-                };
-
-                getClassListBySchool(param).then(res => {
-                    let { errorInfo, code, data } = res;
-
-                    if(code !== 0) {
-                        this.$message({ message: errorInfo, type: 'error'});
-                    } else {
-                        this.editDialogClassOptions = [{
-                            'id': '',
-                            'value': '',
-                            'label': '请选择'
-                        }];
-
-                        if(data.list.length == 0) {
-                            return false;
-                        }
-
-                        for(let i = 0; i < data.list.length; i++) {
-                            this.editDialogClassOptions.push({
-                                'id': data.list[i].id,
-                                'value': data.list[i].code,
-                                'label': data.list[i].code + ' (' + data.list[i].name + ')'
-                            });
-                        }
-                    }
-                }).catch(error => {
-                    this.$message({ message: '网络异常！获取班级列表失败！', type: 'error'});
-                });
-            },
-            // 搜索
             onSearchSubmit: function() {
                 this.pagi.currentPage = 1;
 
-                this.getCardList();
+                this.getList();
             },
             handleCurrentChange(val) {
                 this.pagi.currentPage = parseInt(val);
-                this.getCardList();
+                this.getList();
             },
-            getCardList: function() {
+            getList: function() {
                 this.tableloading = true;
 
                 let param = {
-                    'code': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
-                    'name': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
-                    'schoolRollNo': this.searchForm.type == 3 ? this.searchForm.typeValue : '',
-                    'nfcCode': this.searchForm.type == 4 ? this.searchForm.typeValue : '',
+                    'code': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
+                    'deviceName': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'versionId': this.searchForm.version,
                     'channelId': this.searchForm.saleChannel,
                     'saleType': this.searchForm.saleType,
                     'status': this.searchForm.cardStatus,
@@ -895,7 +645,7 @@
                     'pageSize': this.pagi.pageSize
                 };
 
-                smartCardList(param).then(res => {
+                smartCounterList(param).then(res => {
                     this.tableloading = false;
 
                     let { errorInfo, code, data } = res;
@@ -923,22 +673,6 @@
                     this.$message({ message: '网络异常！获取设备列表失败！', type: 'error'});
                 });
             },
-            // 批量更换
-            handleExchange: function() {
-                this.exchangeDialogShow = true;
-
-                setTimeout(function() {
-                    that.$refs['exchangeRuleForm'].resetFields();
-                }, 1);                
-            },
-            // zip包
-            handleZip: function() {
-                this.zipDialogShow = true;
-
-                setTimeout(function() {
-                    that.$refs['zipRuleForm'].resetFields();
-                }, 1);                
-            },
             // 激活新设备
             handleAdd: function() {
                 this.addDialogShow = true;
@@ -955,63 +689,6 @@
                     that.$refs['applicationRuleForm'].resetFields();
                 }, 1);                
             },
-            // 单卡转移
-            handleCardChange: function(index, row) {
-                this.transferDialogShow = true;
-
-                setTimeout(function() {
-                    that.$refs['transferRuleForm'].resetFields();
-
-                    that.transferDialogInfo.cardNo = row.code;
-                    that.transferDialogInfo.nfcCode = row.nfcCode;
-                    that.transferDialogInfo.newCardNo = '';
-                    that.transferDialogInfo.newNfcCode = '';
-                    that.transferDialogLoading = false;
-                }, 1);             
-            },
-            // 单卡转移 提交
-            submitTransfer: function(formName) {
-                if(this.transferDialogLoading) {
-                    return false;
-                }
-
-                this.$refs[formName].validate((valid)=>{
-                    if(valid){
-                        if(!this.transferDialogInfo.newCardNo) {
-                            this.$message({ message: '请输入新设备MAC号', type: 'error'});
-                            return false;
-                        }
-
-                        this.transferDialogLoading = true;
-
-                        let params = {
-                            'code': this.transferDialogInfo.cardNo,
-                            'nfcCode': this.transferDialogInfo.nfcCode,
-                            'nwCode': this.transferDialogInfo.newCardNo,
-                            'nwNfcCode': this.transferDialogInfo.newNfcCode
-                        };
-
-                        transferCard(params).then(res=>{
-                            let { errorInfo, code, data } = res;
-
-                            if(code !== 0){
-                                this.transferDialogLoading = false;
-
-                                this.$message({ message: errorInfo, type: 'error' });
-                            }else{
-                                this.$message({ message: '保存成功！', type: 'success' });
-                                this.transferDialogShow = false;
-                                this.getCardList();
-                            }
-                        }).catch(error => {
-                            this.transferDialogLoading = false;
-                            this.$message({ message: '网络异常！保存失败！', type: 'error'});
-                        });
-                    }else{
-                        return false;
-                    }
-                });                
-            },
             // 编辑设备
             handleEdit: function(index, row) {
                 this.editDialogShow = true;
@@ -1021,38 +698,29 @@
 
                     that.editDialogInfo.id = row.id;
                     that.editDialogInfo.index = index;
-                    that.editDialogInfo.cardNo = row.code;
-                    that.editDialogInfo.nfcCode = row.nfcCode;
-                    that.editDialogInfo.schoolRollNo = row.schoolRollNo;
-                    that.editDialogInfo.schoolCode = row.schoolCode;
+                    that.editDialogInfo.code = row.code;
                     that.editDialogInfo.version = '' + row.versionId;
-                    that.editDialogInfo.holder = row.holder;
-                    that.editDialogInfo.classCode = row.classCode;
-                    if(row.holderInfo) {
-                        that.editDialogInfo.holderInfo = row.holderInfo.substring(0, 4) + '-' + row.holderInfo.substring(4, 6) + '-' + row.holderInfo.substring(6, 8);
-                    } else {
-                        that.editDialogInfo.holderInfo = row.holderInfo;
-                    }
                     that.editDialogInfo.price = ''+ row.price;
                     that.editDialogInfo.saleChannel = ''+ (row.channelId == 0 ? '' : row.channelId);
                     that.editDialogInfo.saleType = ''+ row.saleType;
-                    that.editDialogInfo.cardStatus = ''+ row.status;
                     that.editDialogInfo.batch = row.batch;
-                    that.editDialogInfo.schoolNo = row.schoolNo;
-                    that.editDialogInfo.gender = ''+ row.gender;
-                    that.editDialogInfo.idCard = row.idCard;
-                    that.editDialogLoading = false;
+                    that.editDialogInfo.status = ''+ row.status;
+                    that.editDialogInfo.deviceName = row.deviceName;
+                    that.editDialogInfo.schoolCode = row.schoolCode;
+                    that.editDialogInfo.classCode = row.classCode;
+                    that.editDialogInfo.regionCode = row.regionCode;
+                    that.editDialogInfo.position = row.position;
 
-                    if(row.faceUrl) {
-                        that.editDialogInfo.faceUrl = [
+                    if(row.view) {
+                        that.editDialogInfo.viewUrl = [
                             {
-                                'name': row.faceUrl,
-                                'url': row.faceUrlShow,
+                                'name': row.view,
+                                'url': row.viewUrl,
                                 'response': {
                                     'code': 0,
                                     'data': {
-                                        'faceUrl': row.faceUrl,
-                                        'linkUrl': row.faceUrlShow
+                                        'path': row.view,
+                                        'url': row.viewUrl
                                     },
                                     'errorInfo': ''
                                 }
@@ -1062,8 +730,7 @@
                         that.editDialogInfo.faceUrl = [];
                     }
 
-                    that.editDialogClassOptions = [];
-                    that.handleEditDialogSchoolCodeChange();
+                    that.editDialogLoading = false;
                 }, 1);
             },
             // 提交编辑内容
@@ -1078,26 +745,22 @@
 
                         let params = {
                             'id': this.editDialogInfo.id,
-                            'code': this.editDialogInfo.cardNo,
-                            'nfcCode': this.editDialogInfo.nfcCode,
-                            'schoolRollNo': this.editDialogInfo.schoolRollNo,
-                            'schoolCode': this.editDialogInfo.schoolCode,
+                            'code': this.editDialogInfo.code,
                             'channelId': this.editDialogInfo.saleChannel,
                             'saleType': this.editDialogInfo.saleType,
-                            'status': this.editDialogInfo.cardStatus,
+                            'status': this.editDialogInfo.status,
                             'versionId': this.editDialogInfo.version,
-                            'holder': this.editDialogInfo.holder,
-                            'classCode': this.editDialogInfo.classCode,
-                            'holderInfo': this.editDialogInfo.holderInfo == '' ? '' : COMMON.formatDate(this.editDialogInfo.holderInfo, ''),
                             'price': this.editDialogInfo.price,
                             'batch': this.editDialogInfo.batch,
-                            'schoolNo': this.editDialogInfo.schoolNo,
-                            'gender': this.editDialogInfo.gender,
-                            'idCard': this.editDialogInfo.idCard,
-                            'faceUrl': this.editDialogInfo.faceUrl.length > 0 ? this.editDialogInfo.faceUrl[0].response.data.faceUrl : '',
+                            'deviceName': this.editDialogInfo.deviceName,
+                            'schoolCode': this.editDialogInfo.schoolCode,
+                            'classCode': this.editDialogInfo.classCode,
+                            'regionCode': this.editDialogInfo.regionCode,
+                            'position': this.editDialogInfo.position,
+                            'view': this.editDialogInfo.viewUrl.length > 0 ? this.editDialogInfo.viewUrl[0].response.data.path : '',
                         };
 
-                        smartCardSave(params).then(res=>{
+                        smartCounterSave(params).then(res=>{
                             let { errorInfo, code, data } = res;
 
                             if(code !== 0){
@@ -1107,7 +770,7 @@
                             }else{
                                 this.$message({ message: '保存成功！', type: 'success' });
                                 this.editDialogShow = false;
-                                this.getCardList();
+                                this.getList();
                             }
                         }).catch(error => {
                             this.editDialogLoading = false;
@@ -1118,21 +781,21 @@
                     }
                 });
             },
-            handleFaceUploadBefore: function(file) {
+            handleViewUploadBefore: function(file) {
                 if(!/image\/\w+/.test(file.type)) {
                     this.$message({ message: '图片格式不正确！请重试！', type: 'error'});
                     return false;
                 }
             },
-            handleFaceUploadSuccess: function(response, file, fileList) {
-                this.editDialogInfo.faceUrl = fileList;
+            handleViewUploadSuccess: function(response, file, fileList) {
+                this.editDialogInfo.viewUrl = fileList;
             },
-            handleFaceUploadError: function(err, file, fileList) {
-                this.editDialogInfo.faceUrl = [];
+            handleViewUploadError: function(err, file, fileList) {
+                this.editDialogInfo.viewUrl = [];
                 this.$message({ message: '图片上传失败，请重试！', type: 'error'});
             },
-            handleFaceUploadRemove: function(file, fileList) {
-                this.editDialogInfo.faceUrl = fileList;
+            handleViewUploadRemove: function(file, fileList) {
+                this.editDialogInfo.viewUrl = fileList;
             }, 
             // 日期格式更改
             dateChange: function(val) {
@@ -1165,7 +828,7 @@
                     this.addDialogInfo.saleChannel = '';
                     this.addDialogInfo.saleType = '';
                     this.addDialogInfo.cardStatus = '';
-                    this.getCardList();
+                    this.getList();
                 }
             },
             uploadChange: function(file, fileList) {
@@ -1182,96 +845,6 @@
                     if(valid){
                         this.uploadLoading = true;
                         this.$refs.upload.submit();
-                    }else{
-                        return false;
-                    }
-                });
-            },
-
-
-            // 批量换卡上传组件
-            uploadExchangeError(response, file, fileList) {
-                this.$message({ message: '导入excel失败！请重试！', type: 'error' });
-                this.uploadExchangeLoading = false;
-                this.exchangeFileList = [];
-                this.exchangeFileChange = [];
-            },
-            uploadExchangeSucc(response, file, fileList) {
-                setTimeout(function() {
-
-                    if(response.code != 0) {
-                        that.$message({ message: response.errorInfo, type: 'error' });
-                        that.uploadExchangeLoading = false;
-                        that.exchangeFileList = [];
-                        that.exchangeFileChange = [];
-                    } else {
-                        that.$message({ message: '导入excel成功！', type: 'success' });
-                        that.uploadExchangeLoading = false;
-                        that.exchangeDialogShow = false;
-                        that.exchangeFileList = [];
-                        that.exchangeFileChange = [];
-                        that.getCardList();
-                    }
-
-                }, 1);
-            },
-            uploadExchangeChange: function(file, fileList) {
-                this.exchangeFileChange = fileList;
-            },
-            submitExchangeUpload: function(formName) {
-                if(this.exchangeFileChange.length == 0) {
-                    this.$message({ message: '请上传excel文件！', type: 'error' });
-                    return false;
-                }
-
-                this.$refs[formName].validate((valid)=>{
-                    if(valid){
-                        this.uploadExchangeLoading = true;
-                        this.$refs.uploadExchange.submit();
-                    }else{
-                        return false;
-                    }
-                });
-            },
-
-            // 人脸识别zip包
-            uploadZipError(response, file, fileList) {
-                this.$message({ message: '导入zip包失败！请重试！', type: 'error' });
-                this.uploadZipLoading = false;
-                this.zipFileList = [];
-                this.zipFileChange = [];
-            },
-            uploadZipSucc(response, file, fileList) {
-                setTimeout(function() {
-
-                    if(response.code != 0) {
-                        that.$message({ message: response.errorInfo, type: 'error' });
-                        that.uploadZipLoading = false;
-                        that.zipFileList = [];
-                        that.zipFileChange = [];
-                    } else {
-                        that.$message({ message: '导入zip包成功！', type: 'success' });
-                        that.uploadZipLoading = false;
-                        that.zipDialogShow = false;
-                        that.zipFileList = [];
-                        that.zipFileChange = [];
-                    }
-
-                }, 1);
-            },
-            uploadZipChange: function(file, fileList) {
-                this.zipFileChange = fileList;
-            },
-            submitZipUpload: function(formName) {
-                if(this.zipFileChange.length == 0) {
-                    this.$message({ message: '请上传zip包！', type: 'error' });
-                    return false;
-                }
-
-                this.$refs[formName].validate((valid)=>{
-                    if(valid){
-                        this.uploadZipLoading = true;
-                        this.$refs.uploadZip.submit();
                     }else{
                         return false;
                     }
@@ -1299,7 +872,7 @@
                         that.applicationDialogShow = false;
                         that.applicationFileList = [];
                         that.applicationFileChange = [];
-                        that.getCardList();
+                        that.getList();
                     }
 
                 }, 1);
@@ -1325,16 +898,12 @@
 
             // 下载激活模板
             handleDownloadActivate: function() {
-                location.href = uploadPath + '/ajax/smartCard/excel/import/template?template=activate';
+                location.href = uploadPath + '/ajax/counter/import/template?type=1';
             },   
             // 下载录入模板
             handleDownloadApplication: function() {
-                location.href = uploadPath + '/ajax/smartCard/excel/import/template?template=applicate';
-            },   
-            // 下载批量更换模板
-            handleDownloadExchange: function() {
-                location.href = uploadPath + '/template/download?fileName=card-update.xlsx';
-            },    
+                location.href = uploadPath + '/ajax/counter/import/template?type=2';
+            },
 
             // 导出信息
             handleExport: function() {
@@ -1467,9 +1036,7 @@
                     status = this.exportInfo.cardStatusAll ? '' : this.exportInfo.cardStatus.join(','),
                     schoolIds = this.exportInfo.schoolAll ? '' : this.exportInfo.school.join(',');
 
-                location.href = uploadPath + '/ajax/smartCard/export?exportContent=' + exportContent + '&versionIds=' + versionIds + '&channelIds=' + channelIds + '&saleType=' + saleType + '&status=' + status + '&schoolIds=' + schoolIds;
-
-                // this.exportDialogShow = false;
+                location.href = uploadPath + '/ajax/counter/export?exportContent=' + exportContent + '&versionIds=' + versionIds + '&channelIds=' + channelIds + '&saleType=' + saleType + '&status=' + status + '&schoolIds=' + schoolIds;
             }
         },
         mounted() {
@@ -1477,7 +1044,7 @@
             this.getChannelList();
             this.getAllSmartCardVersion();
             this.getSchoolListByChannel();
-            this.getCardList();
+            this.getList();
         }
     }
 </script>
@@ -1526,20 +1093,18 @@
         }
     }
 
-    .luoym .editDialog-wrapper{
-        .formation .el-form .el-form-item{
-            .el-form-item__label{
-                width: 120px !important;
-            }
-
-            .el-form-item__content{
-                margin-left: 120px !important;
-
-                .upload-demo .el-upload-list__item{
-                    width: 320px !important;
-                }
-            }        
+    .luoym .editDialog-wrapper .formation .el-form .el-form-item{
+        .el-form-item__label{
+            width: 120px !important;
         }
+
+        .el-form-item__content{
+            margin-left: 120px !important;
+        }
+
+        .el-textarea{
+            width: 180px !important;
+        }       
     }
 
     .export-dialog .checkbox-wrap{

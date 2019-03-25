@@ -7,23 +7,70 @@
         </section>
 
         <section class="card-list clearfix" v-loading.body="loading">
+            <!--  -->
             <article class="list-item">
                 <h4>智慧卡及手环</h4>
-                <router-link to="/machineCard"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <router-link to="/machine/card"><el-button size="small" class="button-link">查看详情></el-button></router-link>
                 <p>{{ data.cardSaleCount }}<span>张</span></p>
             </article>
             <article class="list-item">
                 <h4>盈利</h4>
                 <p>{{ data.cardTotalProfit }}<span>元</span></p>
             </article>
+
+            <!--  -->
             <article class="list-item">
                 <h4>智慧班牌</h4>
-                <router-link to="/machineBoard"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <router-link to="/machine/board"><el-button size="small" class="button-link">查看详情></el-button></router-link>
                 <p>{{ data.brandSaleCount }}<span>个</span></p>
             </article>
             <article class="list-item">
                 <h4>盈利</h4>
                 <p>{{ data.brandTotalProfit }}<span>元</span></p>
+            </article>
+            
+            <!--  -->
+            <article class="list-item">
+                <h4>智慧书架</h4>
+                <router-link to="/machine/bookrack"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <p>{{ data.bookshelfSaleCount }}<span>个</span></p>
+            </article>
+            <article class="list-item">
+                <h4>盈利</h4>
+                <p>{{ data.bookshelfTotalProfit }}<span>元</span></p>
+            </article>
+            
+            <!--  -->
+            <article class="list-item">
+                <h4>智慧文教柜</h4>
+                <router-link to="/machine/cabinet"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <p>{{ data.counterSaleCount }}<span>个</span></p>
+            </article>
+            <article class="list-item">
+                <h4>盈利</h4>
+                <p>{{ data.counterTotalProfit }}<span>元</span></p>
+            </article>
+
+            <!--  -->
+            <article class="list-item">
+                <h4>智慧接收器</h4>
+                <router-link to="/machine/acceptor"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <p>{{ data.acceptorSaleCount }}<span>个</span></p>
+            </article>
+            <article class="list-item">
+                <h4>盈利</h4>
+                <p>{{ data.acceptorTotalProfit }}<span>元</span></p>
+            </article>
+
+            <!--  -->
+            <article class="list-item">
+                <h4>智慧摄像头</h4>
+                <router-link to="/machine/camera"><el-button size="small" class="button-link">查看详情></el-button></router-link>
+                <p>{{ data.cameraSaleCount }}<span>个</span></p>
+            </article>
+            <article class="list-item">
+                <h4>盈利</h4>
+                <p>{{ data.cameraTotalProfit }}<span>元</span></p>
             </article>
         </section>
     </div>

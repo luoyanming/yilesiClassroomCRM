@@ -9,7 +9,7 @@
         <section class="search clearfix">
             <el-form :inline="true" :model="searchForm" class="demo-form-inline">
                 <el-form-item label="版本号">
-                    <el-input v-model="searchForm.version" size="small" placeholder="请输入账号"></el-input>
+                    <el-input v-model="searchForm.version" size="small" placeholder="请输入版本号"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -17,8 +17,9 @@
                 </el-form-item>
             </el-form>
 
-
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleEdit(0)">新增版本</el-button>
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="handleEdit(0)">新增版本</el-button>
+            </div>
         </section>
 
         <section class="table">
@@ -47,7 +48,7 @@
         </section>
 
         
-        <el-dialog :title="editInfo.id ? '编辑智慧卡及手环版本' : '新增智慧卡及手环版本'" :visible.sync="editDialogShow" :modal-append-to-body="false">
+        <el-dialog :title="editInfo.id ? '编辑智慧卡及手环版本' : '新增智慧卡及手环版本'" :visible.sync="editDialogShow" :modal-append-to-body="false" custom-class="w700">
             <section class="formation">
                
                 <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
@@ -66,7 +67,7 @@
                             list-type="picture">
                             <el-button size="small" type="primary" :disabled="editInfo.viewUrl.length != 0">点击上传</el-button>
                             <div slot="tip" class="el-upload__tip">上传尺寸300像素 X 300像素，支持jpg、jpeg、png</div>
-                        </el-upload>                                
+                        </el-upload>
                     </el-form-item>
                     <el-form-item label="版本说明" prop="description">
                         <el-input type="textarea" v-model="editInfo.description"></el-input>

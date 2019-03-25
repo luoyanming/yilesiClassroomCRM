@@ -18,9 +18,11 @@
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                 </el-form-item>
             </el-form>
-        
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">批量导入</el-button>
-            <el-button type="primary" size="small" class="btn-add button-add" icon="plus" @click.native="handleAdd(0)">添加</el-button>
+            
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add button-add" icon="plus" @click.native="handleAdd(0)">添加</el-button>
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">批量导入</el-button>
+            </div>
         </section>
 
         <section class="table">
@@ -359,12 +361,6 @@
     }
     .el-dialog .formation .el-form .el-form-item .el-form-item__content{
         padding-left: 0 !important;
-    }
-</style>
-
-<style lang="scss" scoped="">
-    .button-add{
-        margin-right: 15px;
     }
 </style>
 

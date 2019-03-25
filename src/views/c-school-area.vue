@@ -26,23 +26,27 @@
                 
                 <section class="search clearfix">
                     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="区域名称">
-                            <el-input v-model="searchForm.name" size="small" placeholder="请输入"></el-input>
+                        <el-form-item label="">
+                            <el-select v-model="searchForm.type" placeholder="请选择">
+                                <el-option v-for="item in searchFormTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <el-input v-model="searchForm.typeValue" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
                         </el-form-item>
                         <el-form-item label="区域类型">
-                            <el-select v-model="searchForm.type" placeholder="请选择">
-                                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
-                            </el-option>
-                        </el-select>
-                        </el-form-item>                                
+                            <el-select v-model="searchForm.areaType" placeholder="请选择">
+                                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                        </el-form-item>
                         
                         <el-form-item>
                             <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                         </el-form-item>
                     </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAddArea()" v-if="searchForm.schoolId">添加区域</el-button>
-                    <el-button type="primary" size="small" class="btn-add" icon="view" @click.native="handleShowSchoolArea()" v-if="searchForm.schoolId" style="margin-right: 20px;">学校总览</el-button>
+                    
+                    <div class="button-blank">
+                        <el-button type="primary" size="small" class="btn-add" icon="view" @click.native="handleShowSchoolArea()" v-if="searchForm.schoolId && role == 2">学校总览</el-button>
+                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAddArea()" v-if="searchForm.schoolId && role == 2">添加区域</el-button>
+                    </div>
                 </section>
 
                 <section class="table" style="height: auto">
@@ -73,8 +77,8 @@
                         <el-table-column label="操作">
                             <template scope="scope">
                                 <el-button size="small" class="button-link" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                <el-button size="small" class="button-link" v-if="scope.row.type == 1" @click="handleAddChildArea(scope.$index, scope.row)">添加子区域</el-button>
-                                <el-button size="small" class="button-link" v-if="(scope.row.type == 1 && scope.row.subRegionNum == 0) || scope.row.type == 0" @click="handleDeleteArea(scope.$index, scope.row)">删除</el-button>
+                                <el-button size="small" class="button-link" v-if="scope.row.type == 1 && role == 2" @click="handleAddChildArea(scope.$index, scope.row)">添加子区域</el-button>
+                                <el-button size="small" class="button-link" v-if="((scope.row.type == 1 && scope.row.subRegionNum == 0) || scope.row.type == 0) && role == 2" @click="handleDeleteArea(scope.$index, scope.row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -102,42 +106,43 @@
                         <div class="cCodeCopyBtn" data-clipboard-action="copy" data-clipboard-target="#cCode">复制</div>
                     </el-form-item>
                     <el-form-item label="区域类型">
-                        <el-select v-model="dialogInfo.type" placeholder="请选择">
+                        <el-select v-model="dialogInfo.type" placeholder="请选择" :disabled="role == 1">
                             <el-option v-for="item in dialogTypeOptions" :key="item.value" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="所属大区域编号" v-if="dialogInfo.type == 0">
-                        <el-input v-model="dialogInfo.parentRegionCode"></el-input>
+                        <el-input v-model="dialogInfo.parentRegionCode" :disabled="role == 1"></el-input>
                     </el-form-item>
-                    <el-form-item label="区域作用" v-if="dialogInfo.type == 1">
-                        <el-radio-group v-model="dialogInfo.action">
-                            <el-radio :label="0" :disabled="!!dialogInfo.id">起定位作用</el-radio>
-                            <el-radio :label="1" :disabled="!!dialogInfo.id">起装饰作用，用来完成地图拼接</el-radio>
+                    <el-form-item label="区域作用">
+                        <el-radio-group v-model="dialogInfo.action" :disabled="role == 1">
+                            <el-radio :label="0" :disabled="dialogInfo.parentRegionAction == 1 && dialogInfo.type == 0">起定位作用</el-radio>
+                            <el-radio :label="1" :disabled="dialogInfo.parentRegionAction == 1 && dialogInfo.type == 0">起装饰作用，用来完成地图拼接</el-radio>
                         </el-radio-group>
                     </el-form-item>
 
-                    <el-form-item label="标签">
+                    <el-form-item label="标签" v-if="role == 2">
                         <div class="tag-list">
                             <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in dialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
                             <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
                         </div>
                     </el-form-item>                            
-                    <el-form-item label="是否检测进出门" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
-                        <el-select v-model="dialogInfo.checkDoorType" placeholder="请选择">
+                    <el-form-item label="是否检测进出门" v-if="dialogInfo.action == 0">
+                        <el-select v-model="dialogInfo.checkDoorType" placeholder="请选择" :disabled="role == 1">
                             <el-option v-for="item in checkDoorTypeOptions" :key="item.value" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="是否推送通知" v-if="dialogInfo.checkDoorType == 1">
-                        <el-select v-model="dialogInfo.pushStatus" placeholder="请选择">
+                    <el-form-item label="是否推送通知" v-if="dialogInfo.action == 0 && dialogInfo.checkDoorType == 1">
+                        <el-select v-model="dialogInfo.pushStatus" placeholder="请选择" :disabled="role == 1">
                             <el-option v-for="item in pushStatusOptions" :key="item.value" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>
                     </el-form-item>                            
 
-                    <el-form-item label="添加接收器" v-if="(dialogInfo.type == 1 && dialogInfo.action == 0) || dialogInfo.type == 0">
+                    <el-form-item label="添加接收器" v-if="dialogInfo.action == 0 && role == 2">
                         <el-transfer
+                            class="area-transfer"
                             v-model="dialogInfo.acceptorIds"
                             filterable
                             filter-placeholder="搜索接收器MAC号"
@@ -146,10 +151,13 @@
                             :data="acceptorOptions">
                         </el-transfer>
                     </el-form-item>
+                    <el-form-item label="已添加的接收器" v-if="role == 1">
+                        <p v-for="(item, index) in acceptorAlreadyOptions" :key="index" style="color: #666; font-size: 12px;">{{ item.label }}</p>
+                    </el-form-item>
 
-                    <el-form-item label="相关班级编号" prop="classCode">
+                    <el-form-item label="相关班级编号" prop="classCode" v-if="role == 2">
                         <el-input v-model="dialogInfo.classCode"></el-input>
-                    </el-form-item>                    
+                    </el-form-item>
                 </el-form>
 
             </section>
@@ -203,6 +211,8 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 showTable: false,
 
                 // 左侧学校列表
@@ -215,9 +225,20 @@
 
                 searchForm: {
                     schoolId: '',
-                    name: '',
-                    type: ''
+                    type: '1',
+                    typeValue: '',
+                    areaType: ''
                 },
+                searchFormTypeOptions: [
+                    {
+                        value: '1',
+                        label: '区域编号'
+                    },
+                    {
+                        value: '2',
+                        label: '区域名称'
+                    }
+                ],
                 tableData: [],
                 tableloading: true,
 
@@ -294,6 +315,8 @@
                     }                    
                 ],
 
+                acceptorAlreadyOptions: [],
+
                 dialogShow: false,
                 dialogInfo: {
                     id: '',
@@ -301,6 +324,7 @@
                     code: '',
                     type: '0',
                     parentRegionCode: '',
+                    parentRegionAction: 0,
                     action: 0,
                     tagList: [],
                     checkDoorType: '0',
@@ -395,6 +419,7 @@
                 this.searchForm.schoolCode = data.code;
                 this.showTable = true;
 
+                this.pagi.currentPage = 1;
                 this.getList();
             },
             // 搜索按钮
@@ -414,8 +439,9 @@
 
                 let param = {
                     'schoolId': this.searchForm.schoolId,
-                    'name': this.searchForm.name,
-                    'type': this.searchForm.type,
+                    'code': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'name': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
+                    'type': this.searchForm.areaType,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };
@@ -450,10 +476,10 @@
             },
 
             // 未添加的接收器列表
-            getMacList: function(regionId) {
+            getMacList: function(row) {
                 let param = {
                     'schoolId': this.searchForm.schoolId,
-                    'regionId': regionId
+                    'regionId': row.id || ''
                 };
 
                 areaMachineList(param).then(res => {
@@ -462,19 +488,36 @@
                     if(code !== 0) {
                         that.$message({ message: errorInfo, type: 'error'});
                     } else {
-                        let obj = [];
+                        this.acceptorOptions = [];
+
                         if(data.list && data.list.length > 0) {
                             for(let i = 0; i < data.list.length; i++) {
-                                obj.push({
+                                this.acceptorOptions.push({
                                     key: data.list[i].id,
                                     label: data.list[i].macNo + '('+ data.list[i].location +')'
-                                })
+                                });
+                            }
+
+                            if(row.acceptorIds) {
+                                let idsArr = row.acceptorIds.split(',');
+                                this.acceptorAlreadyOptions = [];
+                                if(idsArr.length > 0) {
+                                    for(let i = 0; i < idsArr.length; i++) {
+                                        for(let j = 0; j < data.list.length; j++) {
+                                            if(idsArr[i] == data.list[j].id) {
+                                                this.acceptorAlreadyOptions.push({
+                                                    key: data.list[j].id,
+                                                    label: data.list[j].macNo + '('+ data.list[j].location +')'
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-
-                        that.acceptorOptions = obj;
                     }
                 }).catch(error => {
+                    console.log(error)
                     that.$message({ message: '网络异常！获取接收器列表失败！', type: 'error'});
                 });                     
             },
@@ -497,6 +540,7 @@
                         code: '',
                         type: '1',
                         parentRegionCode: '',
+                        parentRegionAction: 0,
                         action: 0,
                         tagList: [],
                         checkDoorType: '0',
@@ -541,7 +585,8 @@
                         code: '',
                         type: '0',
                         parentRegionCode: row.code,
-                        action: 0,
+                        parentRegionAction: row.action,
+                        action: row.action == 0 ? 0 : 1,
                         tagList: [],
                         checkDoorType: '0',
                         pushStatus: '1',
@@ -574,7 +619,7 @@
 
             // 编辑区域
             handleEdit: function(index, row) {
-                this.getMacList(row.id);
+                this.getMacList(row);
 
                 that.dialogShow = true;
 
@@ -594,6 +639,7 @@
                         name: row.name,
                         code: row.code,
                         parentRegionCode: row.parentRegionCode,
+                        parentRegionAction: 0,
                         type: '' + row.type,
                         action: row.action,
                         tagList: tagListArr,
@@ -794,7 +840,7 @@
 
             // 学校总览
             handleShowSchoolArea: function() {
-                this.$router.push({ path: '/schoolAreaMap', query: { schoolId: this.searchForm.schoolId } });
+                this.$router.push({ path: '/school/area/map', query: { schoolId: this.searchForm.schoolId } });
             },
 
             // 删除区域

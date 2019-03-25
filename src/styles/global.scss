@@ -131,6 +131,16 @@ textarea::-webkit-input-placeholder {
     overflow-y: auto;
 }
 
+.no-overscroll{
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+    }
+}
+
 .deep-overscroll {
     overflow-x: hidden;
     overflow-y: auto;
@@ -398,7 +408,7 @@ html {
         position: absolute;
         top: 0;
         left: 0;
-        width: 180px;
+        width: 280px;
         font-size: 30px;
         color: #3FCB9A;
         line-height: 70px;
@@ -444,184 +454,184 @@ html {
     bottom: 0;
     width: 190px;
     background: #363A44;
-    
-    ul {
-        position: absolute;
-        z-index: 391;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 190px;
-        overflow-x: hidden;
-        overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    user-select: none;
 
-        li {
-            .navitem {
+    .menu{
+        
+        .menu-item{
+
+            .menu-item-header{
+                position: relative;
                 display: block;
-                padding-left: 62px;
-                font-size: 14px;
-                line-height: 50px;
-                color: rgba(255, 255, 255, .5);
-                &.current {
-                    background: #3FCB9A;
-                    color: rgba(255, 255, 255, 1);
+                height: 50px;
+                padding-left: 56px;
+
+                .icon{
+                    position: absolute;
+                    z-index: 3;
+                    top: 13px;
+                    left: 18px;
+                    width: 24px;
+                    height: 24px;
+                    background-color: #fff;
+
+                    &.icon-user{
+                        background: url('/static/icon-user@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-user-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+
+                    &.icon-channel{
+                        background: url('/static/icon-channel@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-channel-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+
+                    &.icon-version{
+                        background: url('/static/icon-version@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-version-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+
+                    &.icon-machine{
+                        background: url('/static/icon-machine@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-machine-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+
+                    &.icon-schoolSystem{
+                        background: url('/static/icon-system@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-system-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+                    &.icon-school{
+                        background: url('/static/icon-ou@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-ou-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+                    &.icon-tags{
+                        background: url('/static/icon-tag@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-tag-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+                    &.icon-video{
+                        background: url('/static/icon-video@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-video-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+                    &.icon-setting{
+                        background: url('/static/icon-setting@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-setting-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
+                    &.icon-log{
+                        background: url('/static/icon-log@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-log-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
                 }
 
-                &.navitem-nourl{
-                    cursor: default;
+                .name{
+                    font-size: 14px;
+                    line-height: 50px;
+                    color: rgba(#FFF, .6);
                 }
-            }
-            &:nth-of-type(1) {
-                .navitem {
-                    background-image: url('/static/icon-user@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-user-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
+
+                .arrow{
+                    position: absolute;
+                    z-index: 3;
+                    top: 50%;
+                    right: 10px;
+                    width: 12px;
+                    height: 12px;
+                    margin-top: -6px;
+                    color: rgba(#FFF, .6);
+                }
+
+                &:hover{
+                    cursor: pointer;
+                    background-color: rgba(#3FCB9A, .3);
+
+                    .name,
+                    .arrow{
+                        color: #FFF;
+                    }
+                }
+
+                &.current{
+                    background-color: rgba(#3FCB9A, 1);
+
+                    .name,
+                    .arrow{
+                        color: #FFF;
                     }
                 }
             }
-            &:nth-of-type(5) {
-                .navitem {
-                    background-image: url('/static/icon-channel@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-channel-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
+
+            .menu-item-body{
+
+                .sub-menu-item{
+                    height: 50px;
+                    padding-left: 56px;
+                    font-size: 14px;
+                    line-height: 50px;
+                    color: rgba(#FFF, .6);
+
+                    &:hover{
+                        cursor: pointer;
+                        color: #FFF;
+                        background-color: rgba(#3FCB9A, .3);
                     }
-                }
-            }
-            &:nth-of-type(6) {
-                .navitem {
-                    background-image: url('/static/icon-version@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-version-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }
-            &:nth-of-type(9) {
-                .navitem {
-                    background-image: url('/static/icon-machine@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-machine-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }
-            &:nth-of-type(12) {
-                .navitem {
-                    background-image: url('/static/icon-system@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-system-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }  
-            &:nth-of-type(13) {
-                .navitem {
-                    background-image: url('/static/icon-ou@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-ou-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }            
-            &:nth-of-type(22) {
-                .navitem {
-                    background-image: url('/static/icon-setting@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-setting-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }                    
-            &:nth-of-type(25) {
-                .navitem {
-                    background-image: url('/static/icon-tag@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-tag-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }
-            &:nth-of-type(28) {
-                .navitem {
-                    background-image: url('/static/icon-video@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-video-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }
-            &:nth-of-type(32) {
-                .navitem {
-                    background-image: url('/static/icon-setting@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-setting-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
-                    }
-                }
-            }
-            &:nth-of-type(34) {
-                .navitem {
-                    background-image: url('/static/icon-log@2x.png');
-                    background-repeat: no-repeat;
-                    background-position: 22px center;
-                    background-size: 24px 24px;
-                    &.current {
-                        background-image: url('/static/icon-log-white@2x.png');
-                        background-repeat: no-repeat;
-                        background-position: 22px center;
-                        background-size: 24px 24px;
+
+                    &.current{
+                        color: #FFF;
+                        background-color: rgba(#3FCB9A, 1);
+
+                        &:hover{
+                            background-color: rgba(#3FCB9A, 1);
+                        }
                     }
                 }
             }
@@ -720,11 +730,15 @@ html {
     // search
     // ================================
     .search {
-        padding: 16px 0 20px 0;
+        // padding: 16px 0 20px 0;
+        padding: 16px 0 0 0;
+
         .el-form--inline {
-            float: left;
+            // float: left;
+            margin-bottom: 10px;
+
             .el-form-item {
-                margin: 0 10px 0 0;
+                margin: 0 10px 10px 0;
                 .el-form-item__label {
                     margin-right: 8px;
                     padding: 0;
@@ -761,10 +775,10 @@ html {
             }
         }
         .btn-add {
-            float: right;
+            // float: right;
         }
         .button-default {
-            float: right;
+            // float: right;
             margin-left: 0;
             margin-right: 20px;
         }
@@ -1160,6 +1174,24 @@ html {
             }
         }
     }
+    .form-wrap{
+        .formation {
+            .el-form {
+                .el-form-item{
+                    .el-form-item__content{
+                        padding-left: 0 !important;
+                    }
+                }
+            }
+        }
+        .dialog-footer{
+            padding-left: 180px;
+
+            .el-button{
+                
+            }
+        }
+    }
     // ================================
     // dialog
     // ================================
@@ -1185,6 +1217,10 @@ html {
     }  
     
     .el-dialog {
+        &.w700{
+            width: 700px;
+        }
+
         .el-dialog__header {
             .el-dialog__title {
                 font-size: 18px;
@@ -1295,14 +1331,20 @@ html {
 // button-blank
 .button-blank{
     height: 32px;
-    float: right;
+    margin-bottom: 20px;
+    // float: right;
+    white-space: nowrap;
+
+    .el-button + .el-button{
+        margin-left: 10px;
+    }
 }
-@media screen and (max-width: 1620px) {  
-     .button-blank{
-        float: left;
-        margin-top: 20px;
-     }
-}
+// @media screen and (max-width: 1000px) {  
+//      .button-blank{
+//         float: left;
+//         margin-top: 20px;
+//      }
+// }
 
 
 .el-message{
@@ -1329,4 +1371,13 @@ html {
     width: 850px;
 }  
 
+.area-transfer{
+    .el-transfer-panel__body{
+        overflow: hidden;
+    }
+
+    .el-transfer-panel__list{
+        height: 160px;
+    }
+}
 

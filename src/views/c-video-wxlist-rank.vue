@@ -69,7 +69,7 @@
                     <el-form-item label="点赞数">
                         <p class="form-item-text">{{ editDialogInfo.info.likeNum }}</p>
                     </el-form-item>
-                    <el-form-item label="标签">
+                    <el-form-item label="标签" v-if="role == 2">
                         <div class="tag-list">
                             <el-button type="primary" size="small" disabled class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
                         </div>
@@ -125,6 +125,8 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 tableData: [],
                 tableloading: true,
 

@@ -15,8 +15,10 @@
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                 </el-form-item>
             </el-form>
-        
-            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增学制</el-button>
+            
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增学制</el-button>
+            </div>
         </section>
 
         <section class="table">

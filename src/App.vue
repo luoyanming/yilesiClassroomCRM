@@ -2,9 +2,9 @@
 	<div id="app">
         <div class="app-container">
             <div class="container-wrapper">
-                <Header></Header>
+                <HeaderComponent></HeaderComponent>
 
-                <Nav></Nav>
+                <NavComponent></NavComponent>
 
                 <div id="app-content">
                     <transition name="fade" mode="out-in">
@@ -17,10 +17,27 @@
 </template>
 
 <script>
-export default {
-	name: 'app-content',
-	components: {
-	}
-}
+    import NavComponent from './components/nav/nav.vue'
+    import HeaderComponent from './components/header/header.vue'
 
+    export default {
+        components: {
+            NavComponent,
+            HeaderComponent
+        },
+        data() {
+            return {
+
+            }
+        },
+        watch: {
+            
+        },
+        methods: {
+
+        },
+        mounted() {
+
+        }
+    }
 </script>

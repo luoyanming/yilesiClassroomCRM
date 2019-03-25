@@ -7,13 +7,13 @@
         </section>
 
         <div class="pull-left">
-            <div class="search-box">
+            <div class="search-box" v-if="role != 0">
                 <el-select v-model="schoolId" placeholder="请选择学校" @change="handleSchoolChange">
                     <el-option v-for="item in schoolOptions" :key="item.id" :label="item.fullName" :value="item.id">
                     </el-option>
                 </el-select>
             </div>
-            <div class="light-overscroll">
+            <div class="light-overscroll" :style="role == 0 ? 'margin-top: 0; height: 100%;' : ''">
                 <el-tree
                   empty-text="暂无数据"
                   :data="treeOptions"
@@ -33,18 +33,18 @@
             <section class="table-left">
                 <section class="crumbs">
                     <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>班级教师</el-breadcrumb-item>
+                        <el-breadcrumb-item>班级中的教师</el-breadcrumb-item>
                     </el-breadcrumb>
                 </section>
 
                 <div class="overflow">
                     <section class="search clearfix">
                         <el-input v-model="classTeacherSearchForm.searchParam" size="small" placeholder="搜索用户名/手机号/学校账号" :icon="classTeacherTableloading ? 'loading' : 'search'" @click="keyDownClassTeacher"></el-input>
-                    
-                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassTeacherAdd">添加教师</el-button>
+                        
+                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassTeacherAdd" style="float: right;">添加教师</el-button>
                     </section>
 
-                    <div class="light-overscroll" style="height: calc(100% - 72px);">
+                    <div class="light-overscroll" style="height: calc(100% - 72px); margin-top: 20px;">
                         <section class="table">
                             <el-table :data="classTeacherTableData" stripe style="width: 100%" v-loading="classTeacherTableloading">
                                 <el-table-column>
@@ -56,7 +56,7 @@
                                 <el-table-column>
                                     <template scope="scope">
                                         <el-button size="small" class="button-link" @click="handleClassTeacherEdit(scope.$index, scope.row)">编辑</el-button>
-                                        <el-button size="small" class="button-link" @click="handleClassTeacherDelete(scope.$index, scope.row)" style="margin-right: 0;">删除</el-button>
+                                        <el-button size="small" class="button-link" @click="handleClassTeacherDelete(scope.$index, scope.row)" style="margin-right: 0;">移除</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -139,7 +139,7 @@
                                     <el-form-item label="该班级班主任">
                                         <el-switch v-model="editTeacherInfo.headTeacher" on-color="#13ce66" on-value="1" off-value="0" on-text="是" off-text="否" style="margin-top: 9px;"></el-switch>
                                     </el-form-item>
-                                    <el-form-item label="标签">
+                                    <el-form-item label="标签" v-if="role == 2">
                                         <div class="tag-list">
                                             <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in editTeacherInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
                                             <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
@@ -181,7 +181,7 @@
             <section class="table-right">
                 <section class="crumbs">
                     <el-breadcrumb separator="/">
-                        <el-breadcrumb-item>班级学生</el-breadcrumb-item>
+                        <el-breadcrumb-item>班级中的学生手持设备</el-breadcrumb-item>
                     </el-breadcrumb>
                 </section>
 
@@ -189,26 +189,30 @@
                     <section class="search clearfix">
                         <el-input v-model="classStudentSearchForm.searchParam" size="small" placeholder="搜索姓名/mac号/nfc号" :icon="classStudentTableloading ? 'loading' : 'search'" @click="keyDownClassStudent"></el-input>
                     
-                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassStudentAdd">添加学生</el-button>
+                        <!-- <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleClassStudentAdd">添加学生</el-button> -->
                     </section>
 
-                    <div class="light-overscroll" style="height: calc(100% - 72px);">
+                    <div class="light-overscroll" style="height: calc(100% - 72px); margin-top: 20px;">
                         <section class="table">
                             <el-table :data="classStudentTableData" stripe style="width: 100%" v-loading="classStudentTableloading">
                                 <el-table-column>
                                     <template scope="scope"><p>{{ scope.row.name }}</p></template>
                                 </el-table-column>
                                 <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.nfcCode }}</p></template>
+                                    <template scope="scope"><p>{{ scope.row.code }}</p></template>
                                 </el-table-column>
                                 <el-table-column>
-                                    <template scope="scope"><p>{{ scope.row.code }}</p></template>
+                                    <template scope="scope"><p>{{ scope.row.nfcCode }}</p></template>
                                 </el-table-column>
                                 <el-table-column width="110">
                                     <template scope="scope">
-                                        <el-button size="small" class="button-link" @click="handleClassStudentShift(scope.$index, scope.row)">转移</el-button>
+                                        <!-- <el-button size="small" class="button-link" @click="handleClassStudentShift(scope.$index, scope.row)">转移</el-button> -->
+
+                                        <router-link :to="'/machine/card?code=' + scope.row.code" target="_blank">
+                                            <el-button size="small" class="button-link">查看详情</el-button>
+                                        </router-link>
                                         <span class="button-separate">|</span>
-                                        <el-button size="small" class="button-link" @click="handleClassStudentDelete(scope.$index, scope.row)">删除</el-button>
+                                        <el-button size="small" class="button-link" @click="handleClassStudentDelete(scope.$index, scope.row)">移除</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -342,6 +346,8 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 showTable: false,
 
                 // 左侧学校列表
@@ -482,6 +488,11 @@
 
                             if(this.$route.query.school) {
                                 that.schoolId = parseInt(that.$route.query.school);
+                            }
+
+                            if(this.role == 0) {
+                                this.schoolId = this.schoolOptions[0].id;
+                                this.setTreeOptions(this.schoolOptions[0]);
                             }
                         }
                     }

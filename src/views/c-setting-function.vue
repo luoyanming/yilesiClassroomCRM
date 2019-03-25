@@ -26,15 +26,15 @@
                 
                 <div class="setting-list">
                     <el-card class="box-card">
+                        <div slot="header">
+                            <div class="title">前端</div>
+                        </div>
                         <div class="item flex-h">
                             <div class="label flex-a-i">考勤</div>
                             <div class="switch">
                                 <el-switch v-model="detailData.attendance" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(1)"></el-switch>
                             </div>
                         </div>
-                    </el-card>
-
-                    <el-card class="box-card">
                         <div class="item flex-h">
                             <div class="label flex-a-i">危险区域通知推送</div>
                             <div class="switch">
@@ -47,6 +47,30 @@
                                 <el-switch v-model="detailData.restrictAreaPush" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(3)"></el-switch>
                             </div>
                         </div> -->
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">人脸识别</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.faceRecognition" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(4)"></el-switch>
+                            </div>
+                        </div>
+                    </el-card>
+
+                    <el-card class="box-card" v-if="detailData.existsAccount">
+                        <div slot="header">
+                            <div class="title">分权后台</div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">课程记录开放</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.recordOpen" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(5)"></el-switch>
+                            </div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">微课开放</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.wkRecordOpen" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(6)"></el-switch>
+                            </div>
+                        </div>
                     </el-card>
                 </div>
 
@@ -176,7 +200,13 @@
                     status = this.detailData.dangerAreaPush;
                 } else if(type == 3) {
                     status = this.detailData.restrictAreaPush;
-                }                
+                } else if(type == 4) {
+                    status = this.detailData.faceRecognition;
+                } else if(type == 5) {
+                    status = this.detailData.recordOpen;
+                } else if(type == 6) {
+                    status = this.detailData.wkRecordOpen;
+                }
 
                 let param = {
                     'schoolId': this.searchForm.schoolId,

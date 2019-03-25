@@ -1,11 +1,11 @@
 <template>
     <header class="header">
-        <p class="logo">轻课堂</p>
+        <p class="logo">易乐思IoT管理平台</p>
         
         <div class="info">
             <p class="account">{{ mobile }}</p>
-            <span class="line">|</span>
-            <el-button type="primary" size="small" class="button-link link-grey" @click.native="showDialog">修改密码</el-button>
+            <span class="line" v-if="role == 2 && admin == 1">|</span>
+            <el-button type="primary" size="small" class="button-link link-grey" @click.native="showDialog" v-if="role == 2 && admin == 1">修改密码</el-button>
             <span class="line">|</span>
             <el-button type="primary" size="small" class="button-link link-grey" @click.native="doLogout">退出</el-button>
         </div>
@@ -40,6 +40,9 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+                admin: localStorage.getItem('admin'),
+
                 mobile: localStorage.getItem('account'),
                 forgetForm: {
                     password: '',
@@ -60,6 +63,11 @@
                 dialogShow: false,
                 loading: false
             };
+        },
+        watch: {
+            '$route': function() {
+                this.mobile = localStorage.getItem('account');
+            }
         },
         methods: {
             showDialog: function() {

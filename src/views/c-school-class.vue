@@ -6,7 +6,7 @@
             </el-breadcrumb>
         </section>
 
-        <div class="pull-left">
+        <div class="pull-left" v-if="role == 1 || role == 2">
             <div class="search-box">
                 <el-input v-model="schoolname" @click="keyDownSubmit" size="small" placeholder="请输入学校名称" :icon="schoolSearchLoading ? 'loading' : 'search'"></el-input>
             </div>
@@ -21,13 +21,23 @@
                 </el-tree>
             </div>
         </div>
-        <div class="pull-right">
+
+        <div :class="role == 0 ? '' : 'pull-right'">
             <div class="light-overscroll" v-if="showTable">
                 
                 <section class="search clearfix">
                     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-                        <el-form-item label="班级编号">
-                            <el-input v-model="searchForm.code" size="small" placeholder="请输入班级编号"></el-input>
+                        <el-form-item label="">
+                            <el-select v-model="searchForm.type" placeholder="请选择">
+                                <el-option v-for="item in searchFormTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <el-input v-model="searchForm.typeValue" size="small" placeholder="请输入" style="margin-left: 10px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="学段" v-if="role == 0">
+                            <el-select v-model="searchForm.period" placeholder="请选择" @change="handleGetGradeList">
+                                <el-option v-for="item in schoolPeriodOptions" :key="item.id" :label="item.name" :value="item.id">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
                         <el-form-item label="年级">
                             <el-select v-model="searchForm.schoolSystemGradeId" placeholder="请选择">
@@ -39,8 +49,10 @@
                             <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
                         </el-form-item>
                     </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增班级</el-button>
+                    
+                    <div class="button-blank">
+                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增班级</el-button>
+                    </div>
                     <!-- <el-upload
                         class="upload-demo"
                         :action="uploadUrl"
@@ -94,7 +106,7 @@
                     </el-pagination>
                 </section>
 
-                <el-dialog :title="dialogInfo.type == 0 ? '新增班级' : '编辑班级'" :visible.sync="dialogShow" :modal-append-to-body="false">
+                <el-dialog :title="!dialogInfo.id ? '新增班级' : '编辑班级'" :visible.sync="dialogShow" :modal-append-to-body="false">
                     <section class="formation"> 
                        
                         <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
@@ -123,7 +135,7 @@
                                     <el-option v-for="item in schoolSystemGradeOptions" :key="item.id" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>
-                                <el-checkbox v-model="dialogInfo.status" true-label="1" false-label="0" v-if="dialogInfo.schoolSystemGradeId">使此班级毕业</el-checkbox>
+                                <el-checkbox v-model="dialogInfo.status" true-label="1" false-label="0" v-if="dialogInfo.schoolSystemGradeId && role == 2">使此班级毕业</el-checkbox>
                             </el-form-item>
                             <el-form-item label="班号" prop="classNum">
                                 <el-input v-model="dialogInfo.classNum"></el-input>
@@ -149,6 +161,8 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 showTable: false,
 
                 // 左侧学校列表
@@ -162,10 +176,21 @@
 
                 searchForm: {
                     schoolId: '',
-                    code: '',
+                    type: '1',
+                    typeValue: '',
                     period: '',
                     schoolSystemGradeId: ''
                 },
+                searchFormTypeOptions: [
+                    {
+                        value: '1',
+                        label: '班级名称'
+                    },
+                    {
+                        value: '2',
+                        label: '班级编号'
+                    }
+                ],
                 tableData: [],
                 tableloading: true,
 
@@ -294,6 +319,33 @@
                                     'children': childrenArr,
                                     'periodVoList': item.periodVoList
                                 });
+
+                                // 
+                                if(this.role == 0) {
+                                    this.searchForm.schoolId = this.schoolOptions[0].id;
+                                    this.searchForm.schoolSystemId = this.schoolOptions[0].schoolSystemId;
+                                    this.searchForm.period = '';
+                                    this.searchForm.schoolSystemGradeId = '';
+                                    this.schoolPeriodOptions = [{
+                                        id: '',
+                                        name: '请选择'
+                                    }];
+                                    this.schoolGradeOptions = [{
+                                        id: '',
+                                        name: '请选择'
+                                    }];
+
+                                    for(let i = 0; i < this.schoolOptions[0].periodVoList.length; i++) {
+                                        this.schoolPeriodOptions.push(
+                                            {
+                                                'id': '' + this.schoolOptions[0].periodVoList[i].periodValue,
+                                                'name': this.schoolOptions[0].periodVoList[i].periodName
+                                            }
+                                        );
+                                    }
+
+                                    this.getList();
+                                }
                             }
                         }
                     }
@@ -313,7 +365,10 @@
                     // 选中学校
                     this.searchForm.schoolId = data.id;
                     this.searchForm.period = '';
-                    this.schoolGradeOptions = [];
+                    this.schoolGradeOptions = [{
+                        id: '',
+                        name: '请选择'
+                    }];
                 }
 
                 this.searchForm.schoolSystemId = data.schoolSystemId;
@@ -334,12 +389,21 @@
                     );
                 }
 
-                this.showTable = true;
-
+                this.pagi.currentPage = 1;
                 this.getList();
             },
             // 根据学制id获取年级
             getSystemGradeList: function(period, schoolSystemId) {
+                if(!period) {
+                    this.searchForm.schoolSystemGradeId = '';
+                    this.schoolGradeOptions = [{
+                        id: '',
+                        name: '请选择'
+                    }];
+
+                    return false;
+                }
+
                 let param = {
                     'period': period,
                     'schoolSystemId': schoolSystemId
@@ -352,12 +416,10 @@
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         if(data.list && data.list.length > 0) {
-                            this.schoolGradeOptions = [
-                                {
-                                    'id': '',
-                                    'name': '请选择'
-                                }
-                            ];
+                            this.schoolGradeOptions = [{
+                                id: '',
+                                name: '请选择'
+                            }];
                             for(let i = 0; i < data.list.length; i++) {
                                 this.schoolGradeOptions.push({
                                     'id': '' + data.list[i].id,
@@ -367,6 +429,9 @@
                         }
                     }
                 });
+            },
+            handleGetGradeList: function() {
+                this.getSystemGradeList(this.searchForm.period, this.schoolOptions[0].schoolSystemId);
             },
             // 搜索按钮
             onSearchSubmit: function() {
@@ -380,11 +445,13 @@
             },
             // 获取班级列表
             getList: function() {
+                this.showTable = true;
                 this.tableloading = true;
 
                 let param = {
                     'schoolId': this.searchForm.schoolId,
-                    'code': this.searchForm.code,
+                    'name': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'code': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
                     'period': this.searchForm.period,
                     'schoolSystemGradeId': this.searchForm.schoolSystemGradeId,
                     'pageNo': this.pagi.currentPage,
@@ -462,7 +529,7 @@
 
             // 查看成员
             handleDetail: function(row) {
-                this.$router.push({path : "schoolTree", name: "学校结构树", meta: { nav: "schoolTree", requiresAuth: true }, query : { 'school' : this.searchForm.schoolId, 'period': row.period, 'grade': row.schoolSystemGradeId, 'class': row.id }});
+                this.$router.push({path : "/school/tree", query : { 'school' : this.searchForm.schoolId, 'period': row.period, 'grade': row.schoolSystemGradeId, 'class': row.id }});
             },
 
             // 获取班级编号
@@ -498,12 +565,7 @@
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
                         if(data.list && data.list.length > 0) {
-                            this.schoolSystemGradeOptions = [
-                                {
-                                    'id': '',
-                                    'name': '请选择'
-                                }
-                            ];
+                            this.schoolSystemGradeOptions = [];
                             for(let i = 0; i < data.list.length; i++) {
                                 this.schoolSystemGradeOptions.push({
                                     'id': '' + data.list[i].id,
@@ -704,11 +766,11 @@
             .light-overscroll{
                 height: 100%;
             }
+        }
 
-            .button-separate{
-                margin-right: 10px;
-                color: #999;
-            }
+        .button-separate{
+            margin-right: 10px;
+            color: #999;
         }
 
         .cCodeCopyInput{

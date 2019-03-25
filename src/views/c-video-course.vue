@@ -97,7 +97,7 @@
                     <el-form-item label="生成时间">
                         <p class="form-item-text">{{ editDialogInfo.info.createdDate }}</p>
                     </el-form-item>
-                    <el-form-item label="标签">
+                    <el-form-item label="标签" v-if="role == 2">
                         <div class="tag-list">
                             <el-button type="primary" size="small" icon="delete" class="tag-item" v-for="(tagItem, tagIndex) in editDialogInfo.tagList" @click.native="handleTagDetele(tagIndex, tagItem)">{{ tagItem.name }}</el-button>
                             <el-button type="primary" size="small" icon="plus" class="tag-add" @click.native="handleTagsDialogShow">添加</el-button>
@@ -146,6 +146,8 @@
     export default {
         data() {
             return {
+                role: localStorage.getItem('role'),
+
                 searchForm: {
                     keyword: '',
                     account: '',

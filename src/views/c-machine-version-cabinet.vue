@@ -2,14 +2,14 @@
     <div class="main-wrapper light-overscroll luoym machine-version">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>智慧班牌版本</el-breadcrumb-item>
+                <el-breadcrumb-item>智慧文教柜版本</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
         
         <section class="search clearfix">
             <el-form :inline="true" :model="searchForm" class="demo-form-inline">
                 <el-form-item label="版本号">
-                    <el-input v-model="searchForm.version" size="small" placeholder="请输入版本号"></el-input>
+                    <el-input v-model="searchForm.version" size="small" placeholder="请输入账号"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -48,7 +48,7 @@
         </section>
 
         
-        <el-dialog :title="editInfo.id ? '编辑智慧班牌版本' : '新增智慧班牌版本'" :visible.sync="editDialogShow" :modal-append-to-body="false" custom-class="w700">
+        <el-dialog :title="editInfo.id ? '编辑智慧文教柜版本' : '新增智慧文教柜版本'" :visible.sync="editDialogShow" :modal-append-to-body="false" custom-class="w700">
             <section class="formation">
                
                 <el-form label-position="right" :rules="rules" ref="ruleForm" label-width="180px" :model="editInfo">
@@ -140,7 +140,7 @@
 
                 let param = {
                     'version': this.searchForm.version,
-                    'type': 2,
+                    'type': 5,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };
@@ -237,7 +237,7 @@
                             'version': this.editInfo.version,
                             'description': this.editInfo.description,
                             'view': this.editInfo.viewUrl.length > 0 ? this.editInfo.viewUrl[0].response.data.viewPath : '',
-                            'type': 2
+                            'type': 5
                         };
 
                         smartVersionSave(params).then(res=>{

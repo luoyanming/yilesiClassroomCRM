@@ -22,8 +22,9 @@
                 </el-form-item>
             </el-form>
 
-
-            <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签</el-button>
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleEdit('', '')">新增标签</el-button>
+            </div>
         </section>
 
         <section class="table">

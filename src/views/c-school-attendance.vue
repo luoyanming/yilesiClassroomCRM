@@ -33,12 +33,14 @@
             <div class="light-overscroll" v-if="showTable" >
                 
                 <section class="search clearfix">
-                    <el-form :inline="true" class="demo-form-inline">
+                    <el-form :inline="true" class="demo-form-inline" style="margin-bottom: 0;">
                         <el-form-item label="课时设置"></el-form-item>
                     </el-form>
-                
-                    <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)" style="margin-left: 20px;">新增课时</el-button>
-                    <el-button type="primary" size="small" class="btn-add" icon="menu" @click.native="handleReuse">复用课时</el-button>
+                    
+                    <div class="button-blank">
+                        <el-button type="primary" size="small" class="btn-add" icon="plus" @click.native="handleAdd(0)">新增课时</el-button>
+                        <el-button type="primary" size="small" class="btn-add" icon="menu" @click.native="handleReuse">复用课时</el-button>
+                    </div>
                 </section>
 
                 <section class="table" style="height: auto;">

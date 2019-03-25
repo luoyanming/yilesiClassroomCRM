@@ -6,36 +6,45 @@ var qs = require('qs');
 
 // let base = 'http://classroomcrm.yls.com/privateapi';
 // export const uploadPath = '/privateapi';
-let base = 'http://crmctest.yilesi.cn';
+let base = 'http://iottest.yilesi.cn';
 export const uploadPath = '';
-// let base = 'http://crmc.yilesi.cn';
+// let base = 'http://iot.yilesi.cn';
 // export const uploadPath = '';
 
 let header = {
     'content-type': 'application/x-www-form-urlencoded'
 };
-
 // 判断是否登陆
 export const isLogin = params => {
     return axios.post(`${base}/ajax/isLogin`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
-
-// 登录
-export const doLogin = params => {
-    return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), {
+// 输入账号密码获取二维码以及loginCode
+export const doLoginCheck = params => {
+    return axios.post(`${base}/ajax/doLoginCheck`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
-
+// 轮询校验是否已经扫码登录
+export const doLogin = params => {
+    return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), {
+        headers: header,
+        timeout: 1000 * 1.5
+    }).then(res => res.data);
+};
+// // 登录
+// export const doLogin = params => {
+//     return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), {
+//         headers: header
+//     }).then(res => res.data);
+// };
 // 退出登录
 export const logout = params => {
     return axios.post(`${base}/ajax/logout`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
-
 // 更新用户密码
 export const passwordUpdate = params => {
     return axios.post(`${base}/ajax/password/update`, qs.stringify(params), {
@@ -90,12 +99,17 @@ export const feedbackExport = params => {
 
 
 
-// 教学卡统计
+//  智慧设备总览
 export const cardStatistics = params => {
-    return axios.post(`${base}/ajax/smartCard/statistics`, qs.stringify(params), {
+    return axios.post(`${base}/ajax/smart/device/statistics`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
+// export const cardStatistics = params => {
+//     return axios.post(`${base}/ajax/smartCard/statistics`, qs.stringify(params), {
+//         headers: header
+//     }).then(res => res.data);
+// };
 
 // 渠道列表
 export const channelList = params => {
@@ -155,6 +169,18 @@ export const getAllSmartDeviceVersion = params => {
 // 渠道id 搜索学校
 export const getSchoolListByChannel = params => {
     return axios.post(`${base}/ajax/smartCard/export/condition/schoolList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 学校id 搜索班级
+export const getClassListBySchool = params => {
+    return axios.post(`${base}/ajax/school/class/code/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 学校id 搜索区域
+export const getRegionListBySchool = params => {
+    return axios.post(`${base}/ajax/school/region/code/list`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
@@ -333,6 +359,13 @@ export const schoolStaffList = params => {
 // 未添加的学校教职工列表
 export const notContainsSchoolStaffList = params => {
     return axios.post(`${base}/ajax/notContains/teachStaff/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 渠道账户 - 修改学校教职工信息
+export const schoolStaffUpdate = params => {
+    return axios.post(`${base}/ajax/school/teachStaff/update`, qs.stringify(params), {
         headers: header
     }).then(res => res.data);
 };
@@ -691,6 +724,129 @@ export const optionClassRelationDetail = params => {
         headers: header
     }).then(res => res.data);
 };
+
+
+// admin账户 - 列表
+export const adminUserList = params => {
+    return axios.post(`${base}/ajax/userManager/adminUserList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// admin账户 - 新增
+export const adminUserAdd = params => {
+    return axios.post(`${base}/ajax/userManager/addAdminUser`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// admin账户 - 移除
+export const adminUserRemove = params => {
+    return axios.post(`${base}/ajax/userManager/removeAdminUser`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// admin账户 - 转让
+export const adminUserChange = params => {
+    return axios.post(`${base}/ajax/userManager/changeSuperAdmin`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// admin账户 - 所有用户列表
+export const adminUserMemberList = params => {
+    return axios.post(`${base}/ajax/userManager/memberList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+// 渠道和学校账户 - 列表
+export const channelSchoolUserList = params => {
+    return axios.post(`${base}/ajax/userManager/userList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 渠道和学校账户 - 新增编辑
+export const channelSchoolUserSave = params => {
+    return axios.post(`${base}/ajax/userManager/saveUser`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 渠道和学校账户 - 删除
+export const channelSchoolUserDelete = params => {
+    return axios.post(`${base}/ajax/userManager/deleteUser`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 渠道和学校账户 - 获取学校列表
+export const channelSchoolSchoolList = params => {
+    return axios.post(`${base}/ajax/userManager/schoolList`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+// 智慧摄像头 - 列表
+export const smartCameraList = params => {
+    return axios.post(`${base}/ajax/camera/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧摄像头 - 修改
+export const smartCameraSave = params => {
+    return axios.post(`${base}/ajax/camera/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+// 智慧书架 - 列表
+export const smartBookshelfList = params => {
+    return axios.post(`${base}/ajax/bookshelf/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧书架 - 修改
+export const smartBookshelfSave = params => {
+    return axios.post(`${base}/ajax/bookshelf/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+// 智慧文教柜 - 列表
+export const smartCounterList = params => {
+    return axios.post(`${base}/ajax/counter/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧文教柜 - 修改
+export const smartCounterSave = params => {
+    return axios.post(`${base}/ajax/counter/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+// 智慧接收器 - 列表
+export const smartAcceptorList = params => {
+    return axios.post(`${base}/ajax/acceptor/list`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+// 智慧接收器 - 修改
+export const smartAcceptorSave = params => {
+    return axios.post(`${base}/ajax/acceptor/save`, qs.stringify(params), {
+        headers: header
+    }).then(res => res.data);
+};
+
+
+
+
+
+
+
+
+
 
 
 

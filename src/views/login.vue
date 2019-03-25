@@ -2,33 +2,44 @@
     <section class="login-wrap">
         <div class="login-box">
             <div class="logo"></div>
-            <h1 class="title">轻课堂CRM管理后台</h1>
+            <h1 class="title">易乐思IoT管理平台</h1>
 
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm">
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm" v-if="!checkInfo.url">
                 <el-form-item prop="account">
                     <el-input v-model="ruleForm.account" placeholder="请输入账号"></el-input>
                 </el-form-item>
                 <el-form-item prop="password">
                     <el-input type="password" v-model="ruleForm.password" placeholder="请输入密码"></el-input>
                 </el-form-item>
+                <el-form-item prop="">
+                    <el-checkbox v-model="ruleForm.isChecked">记住账号</el-checkbox>
+                </el-form-item>
                 <el-form-item>
                     <el-button type="primary" :loading="loading" :disabled="!ruleForm.account || !ruleForm.password" @click="submitForm('ruleForm')">登录</el-button>
                 </el-form-item>
             </el-form>
+
+            <div class="qr-code" v-if="checkInfo.url">
+                <div class="text">为保障账号安全，请用轻课堂扫码验证身份</div>
+                <div class="thumb-box">
+                    <img :src="checkInfo.url" class="thumb">
+                </div>
+            </div>
         </div>
     </section>
 </template>
 
 <script>
     import { Message } from 'element-ui';
-    import { doLogin } from '../api/api';
+    import { doLoginCheck, doLogin } from '../api/api';
 
     export default {
         data() {
             return {
                 ruleForm: {
-                    account: '',
-                    password: ''
+                    account: localStorage.getItem('loginAccount') || '',
+                    password: '',
+                    isChecked: localStorage.getItem('loginAccount') ? true : false
                 },
                 rules: {
                     account: [
@@ -38,7 +49,12 @@
                         { required: true, message: '*请输入密码', trigger: 'blur' }
                     ]
                 },
-                loading: false
+                loading: false,
+
+                checkInfo: {
+                    url: '',
+                    loginCode: ''
+                }
             };
         },
         methods: {
@@ -49,11 +65,20 @@
                 
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        if(this.ruleForm.isChecked) {
+                            localStorage.setItem('loginAccount', this.ruleForm.account);
+                        } else {
+                            localStorage.removeItem('loginAccount');
+                        }
+
                         this.loading = true;
 
-                        let loginParam = { 'userName': this.ruleForm.account, 'password': this.ruleForm.password };
+                        let param = {
+                            'userName': this.ruleForm.account,
+                            'password': this.ruleForm.password
+                        };
 
-                        doLogin(loginParam).then(res => {
+                        doLoginCheck(param).then(res => {
                             this.loading = false;
 
                             let { errorInfo, code, data } = res;
@@ -61,9 +86,10 @@
                             if(code !== 0) {
                                 this.$message({ message: errorInfo, type: 'error'});
                             } else {
-                                this.$message({ message: '登录成功', type: 'success'});
-                                localStorage.setItem('account', this.ruleForm.account);
-                                this.$router.push({ path: '/' });
+                                this.checkInfo.url = data.url;
+                                this.checkInfo.loginCode = data.loginCode;
+
+                                this.doLogin();
                             }
                         }).catch(error => {
                             this.loading = false;
@@ -71,6 +97,48 @@
                         });
                     } else {
                         return false;
+                    }
+                });
+            },
+
+            doLogin: function() {
+                let param = {
+                    loginCode: this.checkInfo.loginCode
+                };
+
+                doLogin(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        if(data.resultCode == -1) { //二维码过期
+                            this.$message({ message: '二维码已过期！请重新登录！', type: 'error'});
+                            this.checkInfo.url = '';
+                            this.checkInfo.loginCode = '';
+                        } else if(data.resultCode == 0) { //尚未接收到扫描结果
+                            setTimeout(() => {
+                                this.doLogin();
+                            }, 1500);
+                        } else if(data.resultCode == 1) { //扫码登录功能
+                            this.$message({ message: '登录成功', type: 'success'});
+                            
+                            // 0: 学校； 1: 渠道； 2: admin
+                            localStorage.setItem('role', data.account.type);
+
+                            localStorage.setItem('account', data.member.mobile);
+                            this.$router.push({ path: '/' });
+                        }
+                    }
+                }).catch(error => {
+                    if(error.request && error.request.readyState == 4 && error.request.status == 0) {
+                        setTimeout(() => {
+                            this.doLogin();
+                        }, 1500);
+                    } else {
+                        this.$message({ message: '网络异常，扫码失败！请重新登录！', type: 'error'});
+                        this.checkInfo.url = '';
+                        this.checkInfo.loginCode = '';
                     }
                 });
             }
@@ -81,7 +149,7 @@
 <style lang="scss">
     .login-wrap{
         position: absolute;
-        z-index: 10000;
+        z-index: 999;
         width: 100%;
         height: 100%;
         overflow: hidden;
@@ -150,6 +218,12 @@
                         }
                     }
 
+                    .el-checkbox{
+                        .el-checkbox__label{
+                            color: #FFF;
+                        }
+                    }
+
                     .el-form-item__error{
                         position: absolute;
                         top: 0;
@@ -163,7 +237,7 @@
 
                     .el-button{
                         display: block;
-                        margin-top: 40px;
+                        /*margin-top: 40px;*/
                         padding: 0;
                         width: 100%;
                         font-size: 16px;
@@ -184,6 +258,26 @@
                                 background: transparent;
                             }
                         }
+                    }
+                }
+            }
+
+            .qr-code{
+                .text{
+                    font-size: 14px;
+                    line-height: 2;
+                    color: #FFF;
+                    text-align: center;
+                }
+
+                .thumb-box{
+                    margin-top: 20px;
+
+                    .thumb{
+                        display: block;
+                        margin: 0 auto;
+                        width: 200px;
+                        height: 200px;
                     }
                 }
             }

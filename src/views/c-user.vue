@@ -32,8 +32,9 @@
                 </el-form-item>
             </el-form>
 
-
-            <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">导入用户</el-button>
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="upload" @click.native="uploadShow = !uploadShow">导入用户</el-button>
+            </div>
         </section>
 
         <section class="table">

@@ -31,7 +31,9 @@
                 </el-form-item>
             </el-form>
 
-            <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleFeedbackExport">导出</el-button>
+            <div class="button-blank">
+                <el-button type="primary" size="small" class="btn-add" icon="upload2" @click.native="handleFeedbackExport">导出</el-button>
+            </div>
         </section>
 
         <section class="table">
@@ -164,7 +166,3 @@
         }
     }
 </script>
-
-<style lang="scss" scoped>
-
-</style>
