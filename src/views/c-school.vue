@@ -182,6 +182,7 @@
                     <el-table-column label="操作">
                         <template scope="scope">
                             <el-button size="small" class="button-link" @click="handleAdd(1, scope.$index, scope.row)">编辑</el-button>
+                            <el-button size="small" class="button-link" @click="handlePageLinkToSchoolStatistics(scope.row)">指标</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -823,6 +824,10 @@
             handleSubmitCancle: function() {
                 this.editStatus = false;
                 this.handleAdd(1, 0, this.tableData[0]);
+            },
+
+            handlePageLinkToSchoolStatistics: function(row) {
+                this.$router.push({ path: '/school/statistics', query: { id: row.id, name: encodeURIComponent(encodeURI(row.fullName)) } });
             }
         },
         mounted() {

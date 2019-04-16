@@ -2,6 +2,7 @@
     <div class="main-wrapper light-overscroll luoym">
         
         <section class="welcome">欢迎来到易乐思IoT管理平台</section>
+        <!-- <section class="welcome">欢迎来到IoT管理平台</section> -->
         
     </div>
 </template>

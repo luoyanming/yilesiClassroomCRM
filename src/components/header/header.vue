@@ -1,6 +1,7 @@
 <template>
     <header class="header">
         <p class="logo">易乐思IoT管理平台</p>
+        <!-- <p class="logo">IoT管理平台</p> -->
         
         <div class="info">
             <p class="account">{{ mobile }}</p>

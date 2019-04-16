@@ -14,7 +14,6 @@ import closed from './views/c-closed.vue'
 import feedback from './views/c-feedback.vue'
 import machine from './views/c-machine.vue'
 import channel from './views/c-channel.vue'
-import log from './views/c-log.vue'
 
 import schoolmanage from './views/c-school-manage.vue'
 import school from './views/c-school.vue'
@@ -59,6 +58,12 @@ import optionClassRelation from './views/c-option-class-relation.vue'
 import accountAdmin from './views/c-account-admin.vue'
 import accountChannel from './views/c-account-channel.vue'
 import accountSchool from './views/c-account-school.vue'
+
+import logOperate from './views/c-log-operate.vue'
+import logTrace from './views/c-log-trace.vue'
+import logLocation from './views/c-log-location.vue'
+
+import schoolStatistics from './views/c-school-statistics.vue'
 
 Vue.use(Router)
 
@@ -220,6 +225,19 @@ export default new Router({
             ]
         },
 
+        /* ===================================================================================================
+        ** 使用指标
+        ** =================================================================================================== */
+        {
+            path: "/school/statistics",
+            component: schoolStatistics,
+            name: "使用指标",
+            meta: {
+                alias: "statistics",
+                show: [0],
+                route: [0, 1, 2]
+            }
+        },
         /* ===================================================================================================
         ** machine
         ** =================================================================================================== */
@@ -599,14 +617,43 @@ export default new Router({
         ** 日志
         ** =================================================================================================== */
         {
-            path: "/log",
-            component: log,
-            name: "系统日志",
+            path: "",
+            component: layout,
+            name: "日志",
             meta: {
                 alias: "log",
                 show: [2],
                 route: [2]
-            }
+            },
+            children: [
+                {
+                    path: "/log/operate",
+                    component: logOperate,
+                    name: "操作日志",
+                    meta: {
+                        show: [2],
+                        route: [2]
+                    }
+                },
+                {
+                    path: "/log/trace",
+                    component: logTrace,
+                    name: "行为轨迹日志",
+                    meta: {
+                        show: [2],
+                        route: [2]
+                    }
+                },
+                {
+                    path: "/log/location",
+                    component: logLocation,
+                    name: "卡定位日志",
+                    meta: {
+                        show: [2],
+                        route: [2]
+                    }
+                }
+            ]
         }
     ]
 });

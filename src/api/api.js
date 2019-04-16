@@ -4,505 +4,319 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// let base = 'http://classroomcrm.yls.com/privateapi';
-// export const uploadPath = '/privateapi';
-let base = 'http://iottest.yilesi.cn';
-export const uploadPath = '';
-// let base = 'http://iot.yilesi.cn';
+// // let base = 'http://classroomcrm.yilesi.cn/privateapi';
+// // export const uploadPath = '/privateapi';
+// let base = 'http://iottest.yilesi.cn';
 // export const uploadPath = '';
+// // let base = 'http://iot.yilesi.cn';
+// // export const uploadPath = '';
+
+let base = '',
+    uploadPath = '';
+if(process.env.NODE_ENV === 'development') {  //本地开发环境
+    base = 'http://classroomcrm.yilesi.cn/privateapi';
+    uploadPath = '/privateapi';
+} else if(process.env.NODE_ENV === 'testing') {  //线上测试环境
+    base = 'http://iottest.yilesi.cn';
+    uploadPath = '';
+} else if(process.env.NODE_ENV === 'production') {  //线上正式环境
+    base = 'http://iot.yilesi.cn';
+    uploadPath = '';
+}
 
 let header = {
     'content-type': 'application/x-www-form-urlencoded'
 };
+
 // 判断是否登陆
 export const isLogin = params => {
-    return axios.post(`${base}/ajax/isLogin`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/isLogin`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 输入账号密码获取二维码以及loginCode
 export const doLoginCheck = params => {
-    return axios.post(`${base}/ajax/doLoginCheck`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/doLoginCheck`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 轮询校验是否已经扫码登录
 export const doLogin = params => {
-    return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), {
-        headers: header,
-        timeout: 1000 * 1.5
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), { headers: header, timeout: 1000 * 1.5 }).then(res => res.data);
 };
-// // 登录
-// export const doLogin = params => {
-//     return axios.post(`${base}/ajax/doLogin`, qs.stringify(params), {
-//         headers: header
-//     }).then(res => res.data);
-// };
 // 退出登录
 export const logout = params => {
-    return axios.post(`${base}/ajax/logout`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/logout`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 更新用户密码
 export const passwordUpdate = params => {
-    return axios.post(`${base}/ajax/password/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/password/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 
 
 
 // 用户列表
 export const memberList = params => {
-    return axios.post(`${base}/ajax/member/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 编辑用户信息
 export const memberEdit = params => {
-    return axios.post(`${base}/ajax/member/edit`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/edit`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 保存内测用户信息
 export const saveClosed = params => {
-    return axios.post(`${base}/ajax/interiorTest/member/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/interiorTest/member/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // excel导入用户
 export const memberExcel = params => {
-    return axios.post(`${base}/ajax/member/excel/import`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/excel/import`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 用户反馈列表
 export const feedbackList = params => {
-    return axios.post(`${base}/ajax/member/feedback/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/feedback/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 用户反馈excel导出
 export const feedbackExport = params => {
-    return axios.post(`${base}/ajax/member/feedback/export`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/feedback/export`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 //  智慧设备总览
 export const cardStatistics = params => {
-    return axios.post(`${base}/ajax/smart/device/statistics`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smart/device/statistics`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-// export const cardStatistics = params => {
-//     return axios.post(`${base}/ajax/smartCard/statistics`, qs.stringify(params), {
-//         headers: header
-//     }).then(res => res.data);
-// };
-
 // 渠道列表
 export const channelList = params => {
-    return axios.post(`${base}/ajax/channel/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/channel/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 渠道信息保存
 export const channelSave = params => {
-    return axios.post(`${base}/ajax/channel/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/channel/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 智慧卡列表
 export const smartCardList = params => {
-    return axios.post(`${base}/ajax/smartCard/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 智慧卡信息保存
 export const smartCardSave = params => {
-    return axios.post(`${base}/ajax/smartCard/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 智慧卡excel导出
 export const smartCardExport = params => {
-    return axios.post(`${base}/ajax/smartCard/export`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/export`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 智慧卡excel导入
 export const smartCardImport = params => {
-    return axios.post(`${base}/ajax/smartCard/excel/import`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/excel/import`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 单卡转移
 export const transferCard = params => {
-    return axios.post(`${base}/ajax/smartCard/change`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/change`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 获取所有的版本
 export const getAllSmartDeviceVersion = params => {
-    return axios.post(`${base}/ajax/allSmartDeviceVersion`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/allSmartDeviceVersion`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 渠道id 搜索学校
 export const getSchoolListByChannel = params => {
-    return axios.post(`${base}/ajax/smartCard/export/condition/schoolList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartCard/export/condition/schoolList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校id 搜索班级
 export const getClassListBySchool = params => {
-    return axios.post(`${base}/ajax/school/class/code/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/class/code/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校id 搜索区域
 export const getRegionListBySchool = params => {
-    return axios.post(`${base}/ajax/school/region/code/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/region/code/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 操作日志
 export const logList = params => {
-    return axios.post(`${base}/ajax/tableLog/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tableLog/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 学制新增或编辑
 export const schoolSystemSave = params => {
-    return axios.post(`${base}/ajax/schoolSystem/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolSystem/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学制列表
 export const schoolSystemList = params => {
-    return axios.post(`${base}/ajax/schoolSystem/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolSystem/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 年级编号列表
 export const schoolSystemGradeNumList = params => {
-    return axios.post(`${base}/ajax/gradeNum/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/gradeNum/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 年级编号列表
 export const schoolSystemGradeNumVoList = params => {
-    return axios.post(`${base}/ajax/gradeNumVo/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/gradeNumVo/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 上传学校logo
 export const schoolLogoUpload = params => {
-    return axios.post(`${base}/ajax/school/logo/upload`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/logo/upload`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学校新增或编辑保存
 export const schoolSave = params => {
-    return axios.post(`${base}/ajax/school/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学校列表
 export const schoolList = params => {
-    return axios.post(`${base}/ajax/school/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学制年级列表
 export const schoolGradeList = params => {
-    return axios.post(`${base}/ajax/schoolSystem/grade/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolSystem/grade/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 获取学校编号
 export const schoolCode = params => {
-    return axios.post(`${base}/ajax/generate/schoolCode`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/generate/schoolCode`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 获取班级编号
 export const schoolClassCode = params => {
-    return axios.post(`${base}/ajax/schoolClass/code`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolClass/code`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 班级新增或编辑
 export const schoolClassSave = params => {
-    return axios.post(`${base}/ajax/schoolClass/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolClass/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 班级列表
 export const schoolClassList = params => {
-    return axios.post(`${base}/ajax/schoolClass/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolClass/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 添加学生
 export const schoolStudentAdd = params => {
-    return axios.post(`${base}/ajax/schoolStudent/add`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolStudent/add`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 转移学生
 export const schoolStudentShift = params => {
-    return axios.post(`${base}/ajax/schoolStudent/shift`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolStudent/shift`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 删除学生
 export const schoolStudentDelete = params => {
-    return axios.post(`${base}/ajax/schoolStudent/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolStudent/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 添加教师
 export const schoolTeacherAdd = params => {
-    return axios.post(`${base}/ajax/schoolTeacher/add`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolTeacher/add`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 删除教师
 export const schoolTeacherDelete = params => {
-    return axios.post(`${base}/ajax/schoolTeacher/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolTeacher/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 编辑教师
 export const schoolTeacherEdit = params => {
-    return axios.post(`${base}/ajax/schoolTeacher/edit`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolTeacher/edit`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 班级教师列表
 export const schoolClassTeacherList = params => {
-    return axios.post(`${base}/ajax/schoolClass/teacher/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolClass/teacher/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 班级学生列表
 export const schoolClassStudentList = params => {
-    return axios.post(`${base}/ajax/schoolClass/student/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolClass/student/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 添加教职工
 export const schoolStaffAdd = params => {
-    return axios.post(`${base}/ajax/school/teachStaff/add`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/teachStaff/add`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 删除教职工
 export const schoolStaffDelete = params => {
-    return axios.post(`${base}/ajax/school/teachStaff/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/teachStaff/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学校教职工列表
 export const schoolStaffList = params => {
-    return axios.post(`${base}/ajax/school/teachStaffList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/teachStaffList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 未添加的学校教职工列表
 export const notContainsSchoolStaffList = params => {
-    return axios.post(`${base}/ajax/notContains/teachStaff/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/notContains/teachStaff/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 渠道账户 - 修改学校教职工信息
 export const schoolStaffUpdate = params => {
-    return axios.post(`${base}/ajax/school/teachStaff/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/teachStaff/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 用户管理总览
 export const userAllData = params => {
-    return axios.post(`${base}/ajax/member/getUserManageData`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/member/getUserManageData`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // OU总览
 export const ouAllData = params => {
-    return axios.post(`${base}/ajax/school/getOUdata`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/getOUdata`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // mac接收器列表查询
 export const macList = params => {
-    return axios.post(`${base}/ajax/school/getSchoolAcceptors`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/getSchoolAcceptors`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 增加和更新接收器
 export const macOperate = params => {
-    return axios.post(`${base}/ajax/school/saveSchoolAcceptor`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/saveSchoolAcceptor`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 删除接收器
 export const macDelete = params => {
-    return axios.post(`${base}/ajax/school/deleteSchoolAcceptor`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/deleteSchoolAcceptor`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 学校区域列表
 export const areaList = params => {
-    return axios.post(`${base}/ajax/school/region/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/region/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 生成学校区域编号
 export const areaCode = params => {
-    return axios.post(`${base}/ajax/generate/regionCode`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/generate/regionCode`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 新增或编辑学校区域
 export const areaSave = params => {
-    return axios.post(`${base}/ajax/school/region/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/region/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 删除学校区域
 export const areaDelete = params => {
-    return axios.post(`${base}/ajax/school/region/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/region/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 未添加的接收器列表
 export const areaMachineList = params => {
-    return axios.post(`${base}/ajax/school/notContains/acceptorList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/notContains/acceptorList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 上传学校区域地图
 export const uploadSchoolArea = params => {
-    return axios.post(`${base}/ajax/school/regionMap/upload`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/regionMap/upload`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 保存学校区域坐标
 export const saveSchoolAreaPoints = params => {
-    return axios.post(`${base}/ajax/school/regionMapPoint/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/regionMapPoint/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 保存单个区域地图坐标
 export const saveSchoolRegionMapPoint = params => {
-    return axios.post(`${base}/ajax/schoolRegion/mapPoint/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolRegion/mapPoint/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-
 // 获取学校详情
 export const getSchoolAreaDetail = params => {
-    return axios.post(`${base}/ajax/school/regionMap`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/regionMap`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // 标签分类列表
 export const tagsClassifyList = params => {
-    return axios.post(`${base}/ajax/tagType/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tagType/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 标签分类新增或编辑
 export const tagsClassifySave = params => {
-    return axios.post(`${base}/ajax/tagType/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tagType/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 删除标签分类
 export const tagsClassifyDelete = params => {
-    return axios.post(`${base}/ajax/tagType/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tagType/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 标签列表
 export const tagsList = params => {
-    return axios.post(`${base}/ajax/tag/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tag/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 标签新增或编辑
 export const tagsSave = params => {
-    return axios.post(`${base}/ajax/tag/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tag/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 删除标签
 export const tagsDelete = params => {
-    return axios.post(`${base}/ajax/tag/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/tag/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
@@ -510,176 +324,122 @@ export const tagsDelete = params => {
 
 // 视频总览
 export const courseRecordStatistics = params => {
-    return axios.post(`${base}/ajax/courseRecord/statistics`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/statistics`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 视频记录列表 /微课视频列表
 export const courseRecordList = params => {
-    return axios.post(`${base}/ajax/courseRecord/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 更新课程视频标签
 export const courseRecordTagUpdate = params => {
-    return axios.post(`${base}/ajax/courseRecord/tag/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/tag/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 增加播放次数
 export const courseRecordPlayNumAdd = params => {
-    return axios.post(`${base}/ajax/courseRecord/playNum/add`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/playNum/add`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 刷赞
 export const courseRecordLikeNumAdd = params => {
-    return axios.post(`${base}/ajax/courseRecord/likeNum/add`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/likeNum/add`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 微课信息更新
 export const courseRecordMicroUpdate = params => {
-    return axios.post(`${base}/ajax/courseRecord/micro/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/micro/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 屏蔽视频
 export const courseRecordStop = params => {
-    return axios.post(`${base}/ajax/courseRecord/stop`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecord/stop`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 微课排行榜
 export const courseRecordRankingList = params => {
-    return axios.post(`${base}/ajax/courseRecordRanking/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecordRanking/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 微课排行榜信息更新
 export const courseRecordRankingUpdate = params => {
-    return axios.post(`${base}/ajax/courseRecordRanking/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecordRanking/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 发布微课排行榜
 export const courseRecordRankingPublish = params => {
-    return axios.post(`${base}/ajax/courseRecordRanking/publish`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/courseRecordRanking/publish`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 学校个性化设置 - 获取功能设置
 export const schoolPersonalFunctionSet = params => {
-    return axios.post(`${base}/ajax/schoolPersonalSet/getFunctionSet`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolPersonalSet/getFunctionSet`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校个性化设置 - 修改功能设置
 export const schoolPersonalFunctionSetUpdate = params => {
-    return axios.post(`${base}/ajax/schoolPersonalSet/updateFunctionSet`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolPersonalSet/updateFunctionSet`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校个性化设置 - 获取轨迹显示设置
 export const schoolPersonalTraceSet = params => {
-    return axios.post(`${base}/ajax/schoolPersonalSet/getTrajectorySet`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolPersonalSet/getTrajectorySet`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校个性化设置 - 修改轨迹显示设置
 export const schoolPersonalTraceSetUpdate = params => {
-    return axios.post(`${base}/ajax/schoolPersonalSet/updateTrajectorySet`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/schoolPersonalSet/updateTrajectorySet`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 考勤时间表 - 获取年级
 export const schoolAttendanceGradeList = params => {
-    return axios.post(`${base}/ajax/attendanceTime/schoolSystemGradeList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/schoolSystemGradeList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 新增课时
 export const schoolAttendanceAdd = params => {
-    return axios.post(`${base}/ajax/attendanceTime/insert`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/insert`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 获取学校的某年级考勤时间表
 export const schoolAttendanceList = params => {
-    return axios.post(`${base}/ajax/attendanceTime/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 编辑课时
 export const schoolAttendanceEdit = params => {
-    return axios.post(`${base}/ajax/attendanceTime/update`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/update`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 课时复用
 export const schoolAttendanceReUsed = params => {
-    return axios.post(`${base}/ajax/attendanceTime/reused`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/reused`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 删除课时
 export const schoolAttendanceDelete = params => {
-    return axios.post(`${base}/ajax/attendanceTime/delete`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/delete`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 获取学校可复用课时的学段列表
 export const schoolAttendanceCanUsePeriodList = params => {
-    return axios.post(`${base}/ajax/attendanceTime/canReusedPeriod`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/canReusedPeriod`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 考勤时间表 - 获取学校可复用课时的年纪列表
 export const schoolAttendanceCanUseGradeList = params => {
-    return axios.post(`${base}/ajax/attendanceTime/canReusedGrades`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/attendanceTime/canReusedGrades`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 智慧卡和手环版本列表 - 版本列表
 export const smartVersionList = params => {
-    return axios.post(`${base}/ajax/smartDeviceVersion/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartDeviceVersion/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧卡和手环版本列表 - 储存版本
 export const smartVersionSave = params => {
-    return axios.post(`${base}/ajax/smartDeviceVersion/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartDeviceVersion/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // 根据班级统计考勤
 export const attendanceSystemStatistics = params => {
-    return axios.post(`${base}/attendance/systemStatistics`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/attendance/systemStatistics`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 老师发起的考勤统计
 export const attendanceTeacherStatistics = params => {
-    return axios.post(`${base}/attendance/teacherStatistics`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/attendance/teacherStatistics`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 根据学校查询老师
 export const schoolTeacherList = params => {
-    return axios.post(`${base}/ajax/school/teacherList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/school/teacherList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
@@ -687,156 +447,109 @@ export const schoolTeacherList = params => {
 
 // 智慧班牌 - 获取列表
 export const smartClassBrandList = params => {
-    return axios.post(`${base}/ajax/smartClassBrand/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartClassBrand/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧班牌 - 修改
 export const smartClassBrandSave = params => {
-    return axios.post(`${base}/ajax/smartClassBrand/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/smartClassBrand/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
-// // 智慧班牌 - 导入基本信息
-// export const smartClassBrandImportActivate = params => {
-//     return axios.post(`${base}/ajax/smartClassBrand/import/activate`, qs.stringify(params), {
-//         headers: header
-//     }).then(res => res.data);
-// };
-// // 智慧班牌 - 导入应用信息
-// export const  = params => {
-//     return axios.post(`${base}/schoolPersonalSet/applicationInfo`, qs.stringify(params), {
-//         headers: header
-//     }).then(res => res.data);
-// };
 
 
 
 // 排班走班 - 修改
 export const optionClassRelationSave = params => {
-    return axios.post(`${base}/ajax/optionClass/relation/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/optionClass/relation/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 排班走班 - 详情
 export const optionClassRelationDetail = params => {
-    return axios.post(`${base}/ajax/optionClass/relation`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/optionClass/relation`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // admin账户 - 列表
 export const adminUserList = params => {
-    return axios.post(`${base}/ajax/userManager/adminUserList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/adminUserList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // admin账户 - 新增
 export const adminUserAdd = params => {
-    return axios.post(`${base}/ajax/userManager/addAdminUser`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/addAdminUser`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // admin账户 - 移除
 export const adminUserRemove = params => {
-    return axios.post(`${base}/ajax/userManager/removeAdminUser`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/removeAdminUser`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // admin账户 - 转让
 export const adminUserChange = params => {
-    return axios.post(`${base}/ajax/userManager/changeSuperAdmin`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/changeSuperAdmin`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // admin账户 - 所有用户列表
 export const adminUserMemberList = params => {
-    return axios.post(`${base}/ajax/userManager/memberList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/memberList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // 渠道和学校账户 - 列表
 export const channelSchoolUserList = params => {
-    return axios.post(`${base}/ajax/userManager/userList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/userList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 渠道和学校账户 - 新增编辑
 export const channelSchoolUserSave = params => {
-    return axios.post(`${base}/ajax/userManager/saveUser`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/saveUser`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 渠道和学校账户 - 删除
 export const channelSchoolUserDelete = params => {
-    return axios.post(`${base}/ajax/userManager/deleteUser`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/deleteUser`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 渠道和学校账户 - 获取学校列表
 export const channelSchoolSchoolList = params => {
-    return axios.post(`${base}/ajax/userManager/schoolList`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/userManager/schoolList`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 
 // 智慧摄像头 - 列表
 export const smartCameraList = params => {
-    return axios.post(`${base}/ajax/camera/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/camera/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧摄像头 - 修改
 export const smartCameraSave = params => {
-    return axios.post(`${base}/ajax/camera/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/camera/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // 智慧书架 - 列表
 export const smartBookshelfList = params => {
-    return axios.post(`${base}/ajax/bookshelf/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/bookshelf/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧书架 - 修改
 export const smartBookshelfSave = params => {
-    return axios.post(`${base}/ajax/bookshelf/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/bookshelf/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 
 // 智慧文教柜 - 列表
 export const smartCounterList = params => {
-    return axios.post(`${base}/ajax/counter/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/counter/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧文教柜 - 修改
 export const smartCounterSave = params => {
-    return axios.post(`${base}/ajax/counter/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/counter/save`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 // 智慧接收器 - 列表
 export const smartAcceptorList = params => {
-    return axios.post(`${base}/ajax/acceptor/list`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/acceptor/list`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧接收器 - 修改
 export const smartAcceptorSave = params => {
-    return axios.post(`${base}/ajax/acceptor/save`, qs.stringify(params), {
-        headers: header
-    }).then(res => res.data);
+    return axios.post(`${base}/ajax/acceptor/save`, qs.stringify(params), { headers: header }).then(res => res.data);
+};
+
+
+
+// 基本指标 - 统计
+export const quotaStatistics = params => {
+    return axios.post(`${base}/ajax/quota/statistics`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 
 

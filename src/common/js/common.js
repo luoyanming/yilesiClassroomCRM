@@ -106,7 +106,11 @@ export const COMMON = {
         this.Sunday="";
         this.day_one="";
     },
-    // 获取当前日子所在周的周一
+    /**
+     * [getMonday description] 获取当前日子所在周的周一
+     * @param  {[type]} _today [description]
+     * @return {[type]}        [description]
+     */
     getMonday: function(_today) {
         COMMON.newToday(_today);
 
@@ -118,7 +122,11 @@ export const COMMON = {
             return _monday.pattern("yyyy-MM-dd");
         }
     },
-    // 获取当前日子所在周的周日
+    /**
+     * [getSunday description] 获取当前日子所在周的周日
+     * @param  {[type]} _today [description]
+     * @return {[type]}        [description]
+     */
     getSunday: function(_today) {
         COMMON.newToday(_today);
 
@@ -130,11 +138,21 @@ export const COMMON = {
             return _Sunday.pattern("yyyy-MM-dd");
         }
     },
+    /**
+     * [getPreviousMonday description] 获取上周一
+     * @param  {[type]} Monday [description]
+     * @return {[type]}        [description]
+     */
     getPreviousMonday:function(Monday){
         Monday = new Date(Monday);
         var _monday = new Date(Monday.getYear()+1900,Monday.getMonth(),Monday.getDate()-7);
         return _monday.pattern("yyyy-MM-dd");
     },
+    /**
+     * [getPreviousSunday description] 获取上周日
+     * @param  {[type]} Monday [description]
+     * @return {[type]}        [description]
+     */
     getPreviousSunday:function(Monday){
         Monday = new Date(Monday);
         var _Sunday = new Date(Monday.getYear()+1900,Monday.getMonth(),Monday.getDate()-1);

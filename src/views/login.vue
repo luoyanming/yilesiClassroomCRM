@@ -3,6 +3,7 @@
         <div class="login-box">
             <div class="logo"></div>
             <h1 class="title">易乐思IoT管理平台</h1>
+            <!-- <h1 class="title">IoT管理平台</h1> -->
 
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm" v-if="!checkInfo.url">
                 <el-form-item prop="account">

@@ -2,7 +2,7 @@
     <div class="main-wrapper light-overscroll luoym">
         <section class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>系统日志</el-breadcrumb-item>
+                <el-breadcrumb-item>操作日志</el-breadcrumb-item>
             </el-breadcrumb>
         </section>
 

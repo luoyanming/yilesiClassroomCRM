@@ -571,6 +571,15 @@ html {
                             background-size: 24px 24px;
                         }
                     }
+                    &.icon-statistics{
+                        background: url('/static/icon-log@2x.png') no-repeat center center;
+                        background-size: 24px 24px;
+
+                        &.current {
+                            background: url('/static/icon-log-white@2x.png') no-repeat center center;
+                            background-size: 24px 24px;
+                        }
+                    }
                 }
 
                 .name{
