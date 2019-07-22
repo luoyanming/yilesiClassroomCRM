@@ -1,13 +1,12 @@
 {
-  "name": "yilesiAdmin",
-  "version": "1.0.2",
+  "name": "IoT",
+  "version": "2.5.0",
   "description": "vue project",
   "author": "13575458746@163.com",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development node build/dev-server.js",
-    "test": "NODE_ENV=testing node build/build.js",
-    "build": "NODE_ENV=production node build/build.js"
+    "dev": "node build/dev-server.js",
+    "build": "node build/build.js"
   },
   "dependencies": {
     "axios": "^0.15.3",

@@ -4,25 +4,21 @@
 import axios from 'axios/dist/axios.min';
 var qs = require('qs');
 
-// // let base = 'http://classroomcrm.yilesi.cn/privateapi';
-// // export const uploadPath = '/privateapi';
+// let base = 'http://classroomcrm.yilesi.cn/privateapi';
+// export const uploadPath = '/privateapi';
+
 // let base = 'http://iottest.yilesi.cn';
 // export const uploadPath = '';
-// // let base = 'http://iot.yilesi.cn';
-// // export const uploadPath = '';
 
-let base = '',
-    uploadPath = '';
-if(process.env.NODE_ENV === 'development') {  //本地开发环境
-    base = 'http://classroomcrm.yilesi.cn/privateapi';
-    uploadPath = '/privateapi';
-} else if(process.env.NODE_ENV === 'testing') {  //线上测试环境
-    base = 'http://iottest.yilesi.cn';
-    uploadPath = '';
-} else if(process.env.NODE_ENV === 'production') {  //线上正式环境
-    base = 'http://iot.yilesi.cn';
-    uploadPath = '';
-}
+// let base = 'http://iot.yilesi.cn';
+// export const uploadPath = '';
+
+let base = 'http://iottest.izhihuidao.com';
+export const uploadPath = '';
+
+// let base = 'http://iot.izhihuidao.com';
+// export const uploadPath = '';
+
 
 let header = {
     'content-type': 'application/x-www-form-urlencoded'

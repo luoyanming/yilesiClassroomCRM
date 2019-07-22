@@ -15,7 +15,7 @@
 
             <!-- title -->
             <div class="chart-title">
-                <span class="title">{{ name }}基本指标</span>
+                <span class="title">基本指标</span>
                 <span class="daterange">{{ dateRangeTips }}</span>
             </div>
 
@@ -203,12 +203,14 @@
                 }
 
                 if(this.dateRangeType == 1) {
+                    // 按周
                     this.day = new Date(new Date(this.day).getTime()  - 7 * 24 * 3600 * 1000);
                 } else {
+                    // 按月
                     this.month -= 1;
-                    this.date = new Date(this.year, this.month, 1);
-                    this.month = this.date.getMonth();
-                    this.year = this.date.getFullYear();
+                    this.day = new Date(this.year, this.month, 1);
+                    this.month = this.day.getMonth();
+                    this.year = this.day.getFullYear();
                 }
 
                 this.getStatistics();
@@ -226,9 +228,9 @@
                     this.day = new Date(new Date(this.day).getTime() + 7 * 24 * 3600 * 1000);
                 } else {
                     this.month += 1;
-                    this.date = new Date(this.year, this.month, 1);
-                    this.month = this.date.getMonth();
-                    this.year = this.date.getFullYear();
+                    this.day = new Date(this.year, this.month, 1);
+                    this.month = this.day.getMonth();
+                    this.year = this.day.getFullYear();
                 }
 
                 this.getStatistics();
@@ -398,10 +400,45 @@
                     .position('date*num')
                     .size(6)
                     .shape('hollowCircle')
+                    .tooltip('date*num', function(date, num) {
+                        date = new Date(that.year, that.month, date);
+
+                        let tabsTypeName = '';
+
+                        switch (that.tabsType) {
+                            case '1':
+                                tabsTypeName = '使用人数';
+                                break;
+                            case '2':
+                                tabsTypeName = '新建课程个数';
+                                break;
+                            case '3':
+                                tabsTypeName = '上课节数';
+                                break;
+                            case '4':
+                                tabsTypeName = '课时分数';
+                                break;
+                            case '5':
+                                tabsTypeName = '发题道数';
+                                break;
+                            case '6':
+                                tabsTypeName = '互动次数';
+                                break;
+                            default:
+                                break;
+                        }
+
+                        return {
+                            title: date.pattern("MM月dd日"),
+                            name: tabsTypeName,
+                            value: num
+                        };
+                    })
                     .style({
                         stroke: '#38A0FF',
                         lineWidth: 2
                     });
+
                 chart.render();
             },
             /**

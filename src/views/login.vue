@@ -2,7 +2,7 @@
     <section class="login-wrap">
         <div class="login-box">
             <div class="logo"></div>
-            <h1 class="title">易乐思IoT管理平台</h1>
+            <h1 class="title">爱智慧岛IoT管理平台</h1>
             <!-- <h1 class="title">IoT管理平台</h1> -->
 
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0" class="demo-ruleForm" v-if="!checkInfo.url">
@@ -128,7 +128,12 @@
                             localStorage.setItem('role', data.account.type);
 
                             localStorage.setItem('account', data.member.mobile);
-                            this.$router.push({ path: '/' });
+
+                            if(data.account.type == 0) { // 学校账户直接到指标页
+                                this.$router.push({ path: '/school/statistics' });
+                            } else {
+                                this.$router.push({ path: '/' });
+                            }
                         }
                     }
                 }).catch(error => {
@@ -172,7 +177,7 @@
                 margin: 0 auto;
                 width: 200px;
                 height: 200px;
-                background-image: url('/static/c-icon-logo.png');
+                background-image: url('/static/icon-logo.png');
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-size: 100% 100%;

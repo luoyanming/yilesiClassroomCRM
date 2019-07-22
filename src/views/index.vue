@@ -1,7 +1,7 @@
 <template>
     <div class="main-wrapper light-overscroll luoym">
         
-        <section class="welcome">欢迎来到易乐思IoT管理平台</section>
+        <section class="welcome">欢迎来到爱智慧岛IoT管理平台</section>
         <!-- <section class="welcome">欢迎来到IoT管理平台</section> -->
         
     </div>
@@ -28,7 +28,7 @@
         font-size: 18px;
         line-height: 1px;
         color: #ccc;
-        background: url('/static/c-icon-logo.png') no-repeat center top;
+        background: url('/static/icon-logo.png') no-repeat center top;
         background-size: 120px 120px;
         -webkit-transform: translate3d(-50%, -160px, 0);
            -moz-transform: translate3d(-50%, -160px, 0);
