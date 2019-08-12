@@ -13,11 +13,11 @@ var qs = require('qs');
 // let base = 'http://iot.yilesi.cn';
 // export const uploadPath = '';
 
-let base = 'http://iottest.izhihuidao.com';
-export const uploadPath = '';
-
-// let base = 'http://iot.izhihuidao.com';
+// let base = 'http://iottest.izhihuidao.com';
 // export const uploadPath = '';
+
+let base = 'http://iot.izhihuidao.com';
+export const uploadPath = '';
 
 
 let header = {
@@ -368,6 +368,10 @@ export const schoolPersonalFunctionSet = params => {
 // 学校个性化设置 - 修改功能设置
 export const schoolPersonalFunctionSetUpdate = params => {
     return axios.post(`${base}/ajax/schoolPersonalSet/updateFunctionSet`, qs.stringify(params), { headers: header }).then(res => res.data);
+};
+// 学校个性化设置 - 保存功能设置
+export const schoolPersonalFunctionSetSave = params => {
+    return axios.post(`${base}/ajax/schoolPersonalSet/saveFunctionSet`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 学校个性化设置 - 获取轨迹显示设置
 export const schoolPersonalTraceSet = params => {

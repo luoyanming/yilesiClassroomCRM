@@ -72,16 +72,84 @@
                             </div>
                         </div>
                     </el-card>
+
+                    <el-card class="box-card">
+                        <div slot="header">
+                            <div class="title">班牌控制</div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label w120 flex-v-c">默认服务器地址</div>
+                            <div class="input-wrap flex-a-i">
+                                <el-input type="text" v-model="detailData.bpIndexDomain" class="w400" disabled></el-input>
+                            </div>
+                            <div class="btn-box flex-v-c">
+                                <el-button size="small" class="button-link" @click="handleEdit('1')">编辑</el-button>
+                            </div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">班牌刷卡服务</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.bpCardSwitch" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(7)"></el-switch>
+                            </div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label w120 flex-v-c">班牌刷卡服务地址</div>
+                            <div class="input-wrap flex-a-i">
+                                <el-input type="text" v-model="detailData.bpCardUrl" class="w400" disabled></el-input>
+                            </div>
+                            <div class="btn-box flex-v-c">
+                                <el-button size="small" class="button-link" @click="handleEdit('2')">编辑</el-button>
+                            </div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">悬浮球（功能最多四个）</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.bpBallSwitch" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(8)"></el-switch>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div v-for="(item, index) in detailData.ballMenuList" :key="index" class="item-block flex-h" v-if="index < 4">
+                                <div class="input-wrap w120">
+                                    <el-input type="text" v-model="item.name" class="w100" disabled placeholder="请输入功能名称"></el-input>
+                                </div>
+                                <div class="input-wrap flex-a-i">
+                                    <el-input type="text" v-model="item.url" class="w400" disabled placeholder="请输入配置地址"></el-input>
+                                </div>
+                                <div class="btn-box" style="text-align: right;">
+                                    <el-button icon="plus" @click="handleEdit('3')" v-if="!item.name && !item.url"></el-button>
+                                    <el-button icon="delete" @click="handleDel(index)" v-else></el-button>
+                                </div>
+                            </div>
+                        </div>
+                    </el-card>
                 </div>
 
             </div>
         </div>
+        
+        <el-dialog :title="dialogInfo.title" :visible.sync="dialogInfo.visible" :modal-append-to-body="false" custom-class="w700">
+            <section class="formation">
+               
+                <el-form label-position="right":rules="rules" ref="ruleForm" label-width="180px" :model="dialogInfo">
+                    <el-form-item :label="dialogInfo.nameLabel" prop="name">
+                        <el-input v-model="dialogInfo.name" style="width: 400px;"></el-input>
+                    </el-form-item>
+                    <el-form-item :label="dialogInfo.urlLabel" prop="url" v-if="dialogInfo.type == '3'">
+                        <el-input v-model="dialogInfo.url" style="width: 400px;"></el-input>
+                    </el-form-item>
+                </el-form>
+
+            </section>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="dialogInfo.loading" @click.native="submitForm('ruleForm')">保存</el-button>
+            </span>
+        </el-dialog>  
     </div>
 </template>
 
 <script>
     import { Message, Loading } from 'element-ui';
-    import { schoolList, schoolPersonalFunctionSet, schoolPersonalFunctionSetUpdate } from '../api/api';
+    import { schoolList, schoolPersonalFunctionSet, schoolPersonalFunctionSetUpdate, schoolPersonalFunctionSetSave } from '../api/api';
 
     let that;
 
@@ -107,9 +175,39 @@
                     schoolCode: ''
                 },
 
-                detailData: []             
+                detailData: {
+                    recordOpen: 0,
+                    restrictAreaPush: 0,
+                    existsAccount: false,
+                    dangerAreaPush: 0,
+                    wkRecordOpen: 0,
+                    faceRecognition: 0,
+                    attendance: 0,
+                    bpIndexDomain: '',
+                    bpCardSwitch: 0,
+                    bpCardUrl: '',
+                    bpBallSwitch: 0,
+                    ballMenuList: []
+                },
 
-                                
+                dialogInfo: {
+                    visible: false,
+                    type: '',
+                    title: '',
+                    nameLabel: '',
+                    urlLabel: '',
+                    name: '',
+                    url: '',
+                    loading: false
+                },
+                rules: {
+                    name: [
+                        { required: true, message: '*请输入', trigger: 'blur' }
+                    ],
+                    url: [
+                        { required: true, message: '*请输入', trigger: 'blur' }
+                    ],
+                }
             };
         },
         methods: {
@@ -174,6 +272,11 @@
                     if(code !== 0) {
                         this.$message({ message: errorInfo, type: 'error'});
                     } else {
+                        data.schoolFuncSet.ballMenuList.push({
+                            name: '',
+                            url: ''
+                        })
+
                         this.detailData = data.schoolFuncSet;
                     }
                 }).catch(error => {
@@ -184,7 +287,7 @@
 
             // 搜索学校
             keyDownSubmit: function() {
-                that.getSchoolList();
+                this.getSchoolList();
             },
 
             // 保存修改
@@ -206,6 +309,10 @@
                     status = this.detailData.recordOpen;
                 } else if(type == 6) {
                     status = this.detailData.wkRecordOpen;
+                } else if(type == 7) {
+                    status = this.detailData.bpCardSwitch;
+                } else if(type == 8) {
+                    status = this.detailData.bpBallSwitch;
                 }
 
                 let param = {
@@ -227,6 +334,145 @@
                 }).catch(error => {
                     fullPageLoading.close();
                     this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                });
+            },
+
+            // 编辑
+            handleEdit: function(type) {
+                let title = '',
+                    nameLabel = '',
+                    urlLabel = '',
+                    name = '',
+                    url = '';
+
+                if(type == '1') {
+                    title = '编辑默认服务器地址';
+                    nameLabel = '服务器地址';
+                    name = that.detailData.bpIndexDomain;
+                } else if(type == '2') {
+                    title = '编辑班牌刷卡服务地址';
+                    nameLabel = '班牌刷卡服务地址';
+                    name = that.detailData.bpCardUrl;
+                } else if(type == '3') {
+                    title = '添加功能';
+                    nameLabel = '功能名称';
+                    urlLabel = '配置地址';
+                    name = '';
+                    url = '';
+
+                }
+
+                that.dialogInfo.visible = true;
+
+                setTimeout(function() {
+                    that.dialogInfo.type = type;
+                    that.dialogInfo.title = title;
+                    that.dialogInfo.nameLabel = nameLabel;
+                    that.dialogInfo.urlLabel = urlLabel;
+                    that.dialogInfo.name = name;
+                    that.dialogInfo.url = url || '';
+                    that.dialogInfo.loading = false;
+                }, 1);
+            },
+
+            // 保存
+            submitForm: function(formName) {
+                this.$refs[formName].validate((valid)=>{
+                    if(valid){
+
+                        let type = that.dialogInfo.type,
+                            bpIndexDomain = '',
+                            bpCardUrl = '',
+                            bpBallMenu = '';
+
+                        if(type == '1') {
+                            bpIndexDomain = that.dialogInfo.name;
+                        } else if(type == '2') {
+                            bpCardUrl = that.dialogInfo.name;
+                        } else if(type == '3') {
+                            let list = that.detailData.ballMenuList;
+                            
+                            list.splice(list.length - 1, 0, {
+                                name: that.dialogInfo.name,
+                                url: that.dialogInfo.url
+                            })
+                            
+                            list.splice(list.length - 1, 1);
+                            
+                            bpBallMenu = JSON.stringify(list);
+                        }
+
+                        let param = {
+                            schoolId: that.searchForm.schoolId,
+                            bpIndexDomain: bpIndexDomain,
+                            bpCardUrl: bpCardUrl,
+                            bpBallMenu: bpBallMenu
+                        }
+
+                        this.dialogInfo.loading = true;
+
+                        schoolPersonalFunctionSetSave(param).then(res => {
+                            this.dialogInfo.loading = false;
+
+                            let { errorInfo, code, data } = res;
+
+                            if(code !== 0) {
+                                this.$message({ message: errorInfo, type: 'error'});
+                            } else {
+                                this.$message({ message: '保存成功', type: 'success'});
+                                this.dialogInfo = {
+                                    visible: false,
+                                    type: '',
+                                    title: '',
+                                    nameLabel: '',
+                                    urlLabel: '',
+                                    name: '',
+                                    url: '',
+                                    loading: false
+                                }
+                                this.getData();
+                            }
+                        }).catch(error => {
+                            this.dialogInfo.loading = false;
+                            this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                        });
+
+                    }else{
+                        return false;
+                    }
+                });
+            },
+
+            // 删除
+            handleDel: function(index) {
+                let list = that.detailData.ballMenuList,
+                    bpBallMenu = '';
+                            
+                list.splice(index, 1);
+                
+                list.splice(list.length - 1, 1);
+                
+                bpBallMenu = JSON.stringify(list);
+
+
+                let param = {
+                    schoolId: that.searchForm.schoolId,
+                    bpIndexDomain: '',
+                    bpCardUrl: '',
+                    bpBallMenu: bpBallMenu
+                }
+
+                schoolPersonalFunctionSetSave(param).then(res => {
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0) {
+                        this.$message({ message: errorInfo, type: 'error'});
+                    } else {
+                        this.$message({ message: '删除成功', type: 'success'});
+                        this.getData();
+                    }
+                }).catch(error => {
+                    this.$message({ message: '网络异常！', type: 'error'});
                 });
             }
         },
@@ -318,291 +564,6 @@
     }
 </style>
 
-<!-- <style lang="scss">
-    .el-message-box{
-        height: auto !important;
-    }
-    .el-dialog .formation .el-form .el-form-item .el-form-item__content{
-        padding-left: 0 !important;
-    }
-    .pickerMonth{
-        .el-date-picker__header{
-            > button{
-                display: none !important;
-            }
-
-            > span{
-                &:nth-of-type(1) {
-                    display: none !important;
-                }
-            }
-        }
-    }
-    .pull-left{
-        .search-box{
-            .el-input{
-                width: 100%;
-                font-size: 12px;
-                
-                .el-input__inner {
-                    height: 36px;
-                    background: #FFFFFF;
-                    border: none;
-                    border-bottom: 1px solid #E5E5E5;
-                    border-radius: 0;
-                    text-align: center;
-                    &:hover {
-                        background: transparent;
-                    }
-                    &:focus {
-                        outline: 0;
-                        background: transparent;
-                    }
-                    &::placeholder,
-                    &::-webkit-input-placeholder {
-                        color: rgba(51, 51, 51, .3);
-                    }
-                }
-
-                .el-input__icon{
-                    cursor: pointer;
-                }
-            }
-        }
-
-        .el-select{
-            width: 100%;
-
-            .el-input{
-                .el-input__icon{
-                    color: #18c79c;
-                }
-            }
-        }
-    }
-    .pull-right{
-        .el-checkbox{
-            margin-left: 10px;
-
-            .el-checkbox__label{
-                font-size: 12px;
-                color: #333;
-            }
-        }
-
-        .upload-demo{
-            float: right;
-
-            .el-upload-list{
-                display: none !important;
-            }
-        }
-
-        .table-left,
-        .table-right{
-            position: relative;
-
-            .overflow{
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .crumbs{
-                position: absolute;
-                z-index: 3;
-                top: -14px;
-                left: 0;
-            }
-
-            .el-input{
-                width: 200px;
-                font-size: 12px;
-                
-                .el-input__inner {
-                    height: 36px;
-                    background: #FFFFFF;
-                    border: none;
-                    border: 1px solid #E5E5E5;
-                    border-radius: 0;
-                    text-align: center;
-                    &:hover {
-                        background: transparent;
-                    }
-                    &:focus {
-                        outline: 0;
-                        background: transparent;
-                    }
-                    &::placeholder,
-                    &::-webkit-input-placeholder {
-                        color: rgba(51, 51, 51, .3);
-                    }
-                }
-
-                .el-input__icon{
-                    cursor: pointer;
-                }
-            }
-
-            .el-button--primary{
-                padding: 2px 14px;
-            }
-
-            .el-pagination{
-                padding: 20px 0;
-            }
-        }
-
-        .table{
-            height: 100%;
-
-            .el-table{
-                height: 100%;
-            }
-
-            thead{
-                /*display: none;*/
-            }
-        }        
-
-        .el-dialog__wrapper,
-        .el-table__body-wrapper{
-            height: calc(100% - 40px);
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            .el-dialog{
-                height: 70%;
-
-                .el-dialog__body{
-                    padding-top: 15px;
-                    height: calc(100% - 132px);
-
-                    .dialog-table{
-                        height: 100%;
-
-                        .dialog-left{
-                            position: relative;
-                            float: left;
-                            width: 50%;
-                            height: 100%;
-                            border: 1px solid #eee;
-
-                            .table-search{
-                                position: absolute;
-                                z-index: 3;
-                                top: 2px;
-                                right: 15px;
-
-                                .el-input{
-                                    width: 250px;
-                                }
-                            }
-                        }
-
-                        .dialog-middle{
-                            position: relative;
-                            float: left;
-                            width: 100px;
-                            height: 100%;
-
-                            .shift{
-                                position: absolute;
-                                z-index: 3;
-                                top: 50%;
-                                left: 50%;
-                                -webkit-transform: translate3d(-50%, -50%, 0);
-                                        transform: translate3d(-50%, -50%, 0);
-
-                                .icon{
-                                    display: block;
-                                    width: 60px;
-                                    height: 60px;
-                                    font-size: 16px;
-                                    color: #fff;
-                                    line-height: 60px;
-                                    text-align: center;
-                                    border-radius: 4px;
-                                    background: #18c79c;
-                                }
-
-                                .text{
-                                    display: block;
-                                    margin-top: 6px;
-                                    font-size: 14px;
-                                    line-height: 22px;
-                                    color: #333;
-                                    text-align: center;
-                                }
-                            }
-                        }
-
-                        .dialog-right{
-                            position: relative;
-                            float: right;
-                            width: 50%;
-                            height: 100%;
-                            border: 1px solid #eee;
-                            border-left: none;
-
-                            .table-title{
-                                position: absolute;
-                                z-index: 3;
-                                top: 0;
-                                left: 0;
-                                color: #000;
-                                line-height: 40px;
-                                padding-left: 15px;
-                            }
-
-                            .table .el-table .el-table__body-wrapper .el-table__body tbody tr{
-                                padding-left: 20px;
-
-                                td{
-                                    padding-left: 20px;
-
-                                    .cell {
-                                        padding: 10px 0 10px 0;
-                                    }
-                                }
-                            }
-
-                        }
-
-                        .table{
-                            .el-table__header-wrapper{
-                                .el-table__header{
-                                    thead{
-                                        display: block;
-                                    }
-                                }
-                            }
-
-                            .el-table__body-wrapper{
-                                .el-table__body{
-                                    .el-table__row{
-                                        .el-table-column--selection{
-                                            .cell{
-                                                padding-right: 20px;
-                                                text-overflow: initial;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }        
-
-        .w80{
-            width: 80%;
-            margin-left: 5%;
-        }
-    }
-</style> -->
-
 <style lang="scss" scoped>
     .luoym{
         .button-add{
@@ -691,6 +652,46 @@
 
                     .label{
                         color: #333;
+                    }
+
+                    .input-wrap{
+                        /*.input-text{
+                            border: 1px solid #ddd;
+                            font-size: 12px;
+                            color: #333;
+                            line-height: 20px;
+                            height: 20px;
+                        }*/
+
+                        .el-input{
+                            .el-input__inner{
+                                background: transparent;
+                                color: #333;
+                                font-size: 12px;
+                            }
+                        }
+                    }
+
+                    .w400{
+                        width: 80%;
+                    }
+
+                    .w100{
+                        width: 110px;
+                    }
+
+                    .w120{
+                        width: 130px;
+                    }
+
+                    .btn-box{
+                        button{
+                            border: none;
+                        }
+                    }
+
+                    .item-block  + .item-block {
+                        margin-top: 10px;
                     }
                 }
             }

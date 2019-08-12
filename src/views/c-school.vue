@@ -112,10 +112,7 @@
                             <el-select v-model="dialogInfo.channel" placeholder="请选择">
                                 <el-option v-for="item in channelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>                             
-                        </el-form-item>  
-                        <el-form-item label="服务器地址" prop="bpIndexDomain">
-                            <el-input v-model="dialogInfo.bpIndexDomain" style="width: 430px !important;" :disabled="!editStatus"></el-input>
-                        </el-form-item>                         
+                        </el-form-item>                  
                     </el-form>
 
                 </section>
@@ -301,9 +298,6 @@
                                 <el-option v-for="item in channelOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>                             
                         </el-form-item>
-                        <el-form-item label="服务器地址" prop="bpIndexDomain">
-                            <el-input v-model="dialogInfo.bpIndexDomain" style="width: 430px !important;"></el-input>
-                        </el-form-item>  
                     </el-form>
 
                 </section>
@@ -471,8 +465,7 @@
                     endYear: '',
                     startClassTime: '',
                     endClassTime: '',
-                    channel: '',
-                    bpIndexDomain: ''
+                    channel: ''
                 },
                 dialogShow: false,
                 dialogLoading: false,
@@ -700,8 +693,7 @@
                         endYear: '',
                         startClassTime: '',
                         endClassTime: '',
-                        channel: '',
-                        bpIndexDomain: ''
+                        channel: ''
                     }
                     that.dialogLoading = false;
                     that.$refs['ruleForm'].resetFields();
@@ -756,7 +748,6 @@
                         that.dialogInfo.startClassTime = COMMON.formatTimeUTC(row.startClassTime);
                         that.dialogInfo.endClassTime = COMMON.formatTimeUTC(row.endClassTime);
                         that.dialogInfo.channel = '' + row.channelId;
-                        that.dialogInfo.bpIndexDomain = '' + row.bpIndexDomain;
 
                         // console.log(that.dialogInfo.startYear, that.dialogInfo.endYear)
                     } else {
@@ -804,8 +795,7 @@
                             'code': this.dialogInfo.schoolCode,
                             'startClassTime': COMMON.formatTime(this.dialogInfo.startClassTime),
                             'endClassTime': COMMON.formatTime(this.dialogInfo.endClassTime),
-                            'channelId': this.dialogInfo.channel,
-                            'bpIndexDomain': this.dialogInfo.bpIndexDomain
+                            'channelId': this.dialogInfo.channel
                         };
 
                         schoolSave(params).then(res=>{
