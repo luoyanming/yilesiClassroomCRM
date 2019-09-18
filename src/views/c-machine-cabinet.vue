@@ -635,8 +635,8 @@
                 this.tableloading = true;
 
                 let param = {
-                    'code': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
-                    'deviceName': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'code': this.searchForm.type == 1 ? this.searchForm.typeValue : '',
+                    'deviceName': this.searchForm.type == 2 ? this.searchForm.typeValue : '',
                     'versionId': this.searchForm.version,
                     'channelId': this.searchForm.saleChannel,
                     'saleType': this.searchForm.saleType,

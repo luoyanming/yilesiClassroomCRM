@@ -22,7 +22,12 @@
                         format="yyyy-MM-dd"
                         placeholder="请选择">
                     </el-date-picker>
-                </el-form-item>                        
+                </el-form-item>
+                <el-form-item label="视频时长">
+                    <el-select v-model="searchForm.timeInterval" placeholder="请选择">
+                        <el-option v-for="item in timeIntervalOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
 
                 <el-form-item>
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
@@ -38,7 +43,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="">
-                    <!-- <template scope="scope"><p>未命名课程</p></template> -->
                     <template scope="scope"><p>{{ scope.row.courseName }}</p></template>
                 </el-table-column>                        
                 <el-table-column label="用户账号">
@@ -55,6 +59,12 @@
                 </el-table-column>
                 <el-table-column label="生成时间">
                     <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
+                </el-table-column>
+                <el-table-column label="播放次数" v-if="role == 2">
+                    <template scope="scope"><p>{{ scope.row.playNum }}</p></template>
+                </el-table-column>
+                <el-table-column label="点赞数" v-if="role == 2">
+                    <template scope="scope"><p>{{ scope.row.likeNum }}</p></template>
                 </el-table-column>
                 <el-table-column label="操作">
                     <template scope="scope">
@@ -151,7 +161,8 @@
                 searchForm: {
                     keyword: '',
                     account: '',
-                    searchDate: ''
+                    searchDate: '',
+                    timeInterval: ''
                 },
                 tableData: [],
                 tableloading: true,
@@ -168,7 +179,28 @@
                     info: {},
                     tagList: []
                 },
-
+                timeIntervalOptions: [
+                    {
+                        value: '',
+                        label:'全部'
+                    },
+                    {
+                        value: '1',
+                        label:'小于10分钟'
+                    },
+                    {
+                        value: '2',
+                        label:'10-30分钟'
+                    },
+                    {
+                        value: '3',
+                        label:'30-60分钟'
+                    },
+                    {
+                        value: '4',
+                        label:'60分钟以上'
+                    },
+                ],
                 tagsClassifyOptions:[
                     {
                         value:'',
@@ -223,6 +255,7 @@
                     'keywords': this.searchForm.keyword,
                     'account': this.searchForm.account,
                     'searchDate': this.searchForm.searchDate,
+                    'timeInterval': this.searchForm.timeInterval,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };

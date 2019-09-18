@@ -22,7 +22,12 @@
                         format="yyyy-MM-dd"
                         placeholder="请选择">
                     </el-date-picker>
-                </el-form-item>                        
+                </el-form-item>         
+                <el-form-item label="视频时长">
+                    <el-select v-model="searchForm.timeInterval" placeholder="请选择">
+                        <el-option v-for="item in timeIntervalOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>               
 
                 <el-form-item>
                     <el-button type="primary" size="small" icon="search" @click.native="onSearchSubmit">搜索</el-button>
@@ -176,7 +181,8 @@
                 searchForm: {
                     keyword: '',
                     account: '',
-                    searchDate: ''
+                    searchDate: '',
+                    timeInterval: ''
                 },
                 tableData: [],
                 tableloading: true,
@@ -193,6 +199,28 @@
                     info: {},
                     tagList: []
                 },
+                timeIntervalOptions: [
+                    {
+                        value: '',
+                        label:'全部'
+                    },
+                    {
+                        value: '1',
+                        label:'小于10分钟'
+                    },
+                    {
+                        value: '2',
+                        label:'10-30分钟'
+                    },
+                    {
+                        value: '3',
+                        label:'30-60分钟'
+                    },
+                    {
+                        value: '4',
+                        label:'60分钟以上'
+                    },
+                ],
 
                 tagsClassifyOptions:[
                     {
@@ -248,6 +276,7 @@
                     'keywords': this.searchForm.keyword,
                     'account': this.searchForm.account,
                     'searchDate': this.searchForm.searchDate,
+                    'timeInterval': this.searchForm.timeInterval,
                     'pageNo': this.pagi.currentPage,
                     'pageSize': this.pagi.pageSize
                 };

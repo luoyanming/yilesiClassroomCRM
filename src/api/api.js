@@ -13,11 +13,11 @@ var qs = require('qs');
 // let base = 'http://iot.yilesi.cn';
 // export const uploadPath = '';
 
-// let base = 'http://iottest.izhihuidao.com';
-// export const uploadPath = '';
-
-let base = 'http://iot.izhihuidao.com';
+let base = 'http://iottest.izhihuidao.com';
 export const uploadPath = '';
+
+// let base = 'http://iot.izhihuidao.com';
+// export const uploadPath = '';
 
 
 let header = {
@@ -93,6 +93,10 @@ export const smartCardList = params => {
 // 智慧卡信息保存
 export const smartCardSave = params => {
     return axios.post(`${base}/ajax/smartCard/save`, qs.stringify(params), { headers: header }).then(res => res.data);
+};
+// 智慧卡信息还原
+export const smartCardReset = params => {
+    return axios.post(`${base}/ajax/smartCard/reset`, qs.stringify(params), { headers: header }).then(res => res.data);
 };
 // 智慧卡excel导出
 export const smartCardExport = params => {

@@ -264,6 +264,7 @@
 
             </section>
             <span slot="footer" class="dialog-footer">
+                <el-button type="primary" :loading="editDialogInfo.resetLoading" style="float: left;" @click.native="handleCardReset" v-if="role == 2">还原</el-button>
                 <el-button type="primary" :loading="editDialogLoading" @click.native="submitEdit('editRuleForm')">保存</el-button>
             </span>
         </el-dialog>
@@ -466,7 +467,7 @@
 
 <script>
     import { Message } from 'element-ui';
-    import { uploadPath, channelList, getAllSmartDeviceVersion, smartCardList, smartCardSave, transferCard, smartCardExport, smartCardImport, getSchoolListByChannel, getClassListBySchool, getRegionListBySchool } from '../api/api';
+    import { uploadPath, channelList, getAllSmartDeviceVersion, smartCardList, smartCardReset, smartCardSave, transferCard, smartCardExport, smartCardImport, getSchoolListByChannel, getClassListBySchool, getRegionListBySchool } from '../api/api';
     import { COMMON } from '../common/js/common';
 
     let that;
@@ -624,7 +625,9 @@
                     schoolNo: '',
                     gender: '',
                     idCard: '',
-                    faceUrl: []
+                    faceUrl: [],
+
+                    resetLoading: false
                 },
                 uploadFaceUrl: uploadPath + '/ajax/uploadFace',
                 holderInfoStr: '',
@@ -1012,6 +1015,31 @@
                     }
                 });                
             },
+            // 单卡还原 
+            handleCardReset: function() {
+                this.editDialogInfo.resetLoading = true;
+
+                let params = {
+                    id: this.editDialogInfo.id
+                }
+
+                smartCardReset(params).then(res=>{
+                    this.editDialogInfo.resetLoading = false;
+
+                    let { errorInfo, code, data } = res;
+
+                    if(code !== 0){
+                        this.$message({ message: errorInfo, type: 'error' });
+                    }else{
+                        this.$message({ message: '还原成功！', type: 'success' });
+                        this.editDialogShow = false;
+                        this.getCardList();
+                    }
+                }).catch(error => {
+                    this.editDialogInfo.resetLoading = false;
+                    this.$message({ message: '网络异常！保存失败！', type: 'error'});
+                });
+            },
             // 编辑设备
             handleEdit: function(index, row) {
                 this.editDialogShow = true;
@@ -1062,6 +1090,8 @@
                         that.editDialogInfo.faceUrl = [];
                     }
 
+                    that.editDialogInforesetLoading = false;
+
                     that.editDialogClassOptions = [];
                     that.handleEditDialogSchoolCodeChange();
                 }, 1);
@@ -1094,7 +1124,7 @@
                             'schoolNo': this.editDialogInfo.schoolNo,
                             'gender': this.editDialogInfo.gender,
                             'idCard': this.editDialogInfo.idCard,
-                            'faceUrl': this.editDialogInfo.faceUrl.length > 0 ? this.editDialogInfo.faceUrl[0].response.data.faceUrl : '',
+                            'faceUrl': this.editDialogInfo.faceUrl.length > 0 ? this.editDialogInfo.faceUrl[0].response.data.faceUrl : ''
                         };
 
                         smartCardSave(params).then(res=>{

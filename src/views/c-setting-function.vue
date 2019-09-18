@@ -53,6 +53,12 @@
                                 <el-switch v-model="detailData.faceRecognition" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(4)"></el-switch>
                             </div>
                         </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">学校课程记录删除</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.courseDelete" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(10)"></el-switch>
+                            </div>
+                        </div>
                     </el-card>
 
                     <el-card class="box-card" v-if="detailData.existsAccount">
@@ -69,6 +75,18 @@
                             <div class="label flex-a-i">微课开放</div>
                             <div class="switch">
                                 <el-switch v-model="detailData.wkRecordOpen" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(6)"></el-switch>
+                            </div>
+                        </div>
+                    </el-card>
+
+                    <el-card class="box-card">
+                        <div slot="header">
+                            <div class="title">第三方一卡通</div>
+                        </div>
+                        <div class="item flex-h">
+                            <div class="label flex-a-i">正元</div>
+                            <div class="switch">
+                                <el-switch v-model="detailData.cardZhengyuan" on-color="#18c79c" off-color="#bfcbd9" :on-value="switchYes" :off-value="switchNo" @change="handleSwitchChange(9)"></el-switch>
                             </div>
                         </div>
                     </el-card>
@@ -313,6 +331,10 @@
                     status = this.detailData.bpCardSwitch;
                 } else if(type == 8) {
                     status = this.detailData.bpBallSwitch;
+                } else if(type == 9) {
+                    status = this.detailData.cardZhengyuan;
+                } else if(type == 10) {
+                    status = this.detailData.courseDelete;
                 }
 
                 let param = {
