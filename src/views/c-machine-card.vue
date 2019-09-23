@@ -1155,7 +1155,12 @@
                 }
             },
             handleFaceUploadSuccess: function(response, file, fileList) {
-                this.editDialogInfo.faceUrl = fileList;
+                if(response.code != 0) {
+                    this.editDialogInfo.faceUrl = [];
+                    this.$message({ message: response.errorInfo, type: 'error'});
+                } else {
+                    this.editDialogInfo.faceUrl = fileList;
+                }
             },
             handleFaceUploadError: function(err, file, fileList) {
                 this.editDialogInfo.faceUrl = [];

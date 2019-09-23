@@ -60,12 +60,6 @@
                 <el-table-column label="生成时间">
                     <template scope="scope"><p>{{ scope.row.createdDate }}</p></template>
                 </el-table-column>
-                <el-table-column label="播放次数" v-if="role == 2">
-                    <template scope="scope"><p>{{ scope.row.playNum }}</p></template>
-                </el-table-column>
-                <el-table-column label="点赞数" v-if="role == 2">
-                    <template scope="scope"><p>{{ scope.row.likeNum }}</p></template>
-                </el-table-column>
                 <el-table-column label="操作">
                     <template scope="scope">
                         <el-button size="small" class="button-link" @click="handlePlayVideo(scope.row.videoUrl)" v-if="scope.row.videoUrl">播放</el-button>

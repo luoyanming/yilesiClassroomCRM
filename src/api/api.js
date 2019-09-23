@@ -13,11 +13,11 @@ var qs = require('qs');
 // let base = 'http://iot.yilesi.cn';
 // export const uploadPath = '';
 
-let base = 'http://iottest.izhihuidao.com';
-export const uploadPath = '';
-
-// let base = 'http://iot.izhihuidao.com';
+// let base = 'http://iottest.izhihuidao.com';
 // export const uploadPath = '';
+
+let base = 'http://iot.izhihuidao.com';
+export const uploadPath = '';
 
 
 let header = {
